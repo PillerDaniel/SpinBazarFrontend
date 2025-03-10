@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import ErrorAlert from "../components/ui/ErrorAlert";
 import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
@@ -13,6 +14,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -39,6 +41,7 @@ const Register = () => {
       setSuccessMessage("Sikeres regisztráció! Üdvözlünk a SpinBazaron!");
 
       setTimeout(() => {
+        login(response.data.token, userName);
         navigate("/");
       }, 3000);
     } catch (err) {
