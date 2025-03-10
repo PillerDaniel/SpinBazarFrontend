@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();  
@@ -9,23 +10,27 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userName = localStorage.getItem("userName");
 
-    if (token && userName) {
-      setUser({ token, userName });
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        setUser({ userName: decodedToken.user.userName });
+      } catch (error) {
+        console.error("Érvénytelen token!", error);
+      }
     }
   }, []);
 
-  const login = (token, userName) => {
+  const login = (token) => {
+    const decodedToken = jwtDecode(token);
+    console.log(decodedToken);
     localStorage.setItem("token", token);
-    localStorage.setItem("userName", userName);
-    setUser({ token, userName });
+    setUser({ userName: decodedToken.user.userName });
     navigate("/"); 
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userName");
     setUser(null);
     navigate("/");
   };
@@ -37,5 +42,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// A hook exportálása
 export const useAuth = () => useContext(AuthContext);
