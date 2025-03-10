@@ -5,12 +5,16 @@ import { useAuth } from "../context/AuthContext";
 import ErrorAlert from "../components/ui/ErrorAlert";
 import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
+import { Datepicker } from "flowbite-react";
 
 const Register = () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordConfirmationVisible, setPasswordConfirmationVisible] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
@@ -20,10 +24,14 @@ const Register = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  const togglePasswordConfirmationVisibility = () => {
+    setPasswordConfirmationVisible(!passwordConfirmationVisible);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!userName || !email || !password) {
+    if (!userName || !email || !password || !passwordConfirmation || !birthDate) {
       setError("Minden mező kitöltése kötelező!");
       return;
     }
@@ -32,10 +40,12 @@ const Register = () => {
       const response = await axios.post("http://localhost:5001/auth/register", {
         userName,
         email,
+        birthDate,
         password,
+        passwordConfirmation,
       });
 
-      localStorage.setItem("token", response.data.data);
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.userName);
 
       setSuccessMessage("Sikeres regisztráció! Üdvözlünk a SpinBazaron!");
@@ -43,7 +53,7 @@ const Register = () => {
       setTimeout(() => {
         login(response.data.token, userName);
         navigate("/");
-      }, 3000);
+      }, 2000);
     } catch (err) {
       if (err.response && err.response.data.message) {
         setError(err.response.data.message);
@@ -101,7 +111,13 @@ const Register = () => {
               Email
             </label>
           </div>
-          <div className="relative mb-10">
+          <Datepicker
+              id="birthDate"
+              selected={birthDate}
+              onChange={(date) => setBirthDate(date)}
+              className="mb-4 block w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            />
+          <div className="relative mb-4">
             <input
               type={passwordVisible ? "text" : "password"}
               value={password}
@@ -122,6 +138,66 @@ const Register = () => {
               className="absolute inset-y-0 right-2 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
             >
               {passwordVisible ? (
+                <svg
+                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    d="M3.933 13.909A4.357 4.357 0 0 1 3 12c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 21 12c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M5 19 19 5m-4 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+                  />
+                  <path
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+          <div className="relative mb-10">
+            <input
+              type={passwordConfirmationVisible ? "text" : "password"}
+              value={passwordConfirmation}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
+              id="passwordConfiramtion"
+              className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              placeholder=" "
+            />
+            <label
+              htmlFor="passwordConfiramtion"
+              className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
+            >
+              Jelszó megerősítés
+            </label>
+            <button
+              type="button"
+              onClick={togglePasswordConfirmationVisibility}
+              className="absolute inset-y-0 right-2 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
+            >
+              {passwordConfirmationVisible ? (
                 <svg
                   className="w-6 h-6 text-gray-500 dark:text-white"
                   aria-hidden="true"
