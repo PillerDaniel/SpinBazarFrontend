@@ -14,7 +14,10 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        setUser({ userName: decodedToken.user.userName });
+        setUser({ 
+          userName: decodedToken.user.userName,
+          walletBalance: decodedToken.user.wallet.balance
+        });
       } catch (error) {
         console.error("Érvénytelen token!", error);
       }
@@ -23,9 +26,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token) => {
     const decodedToken = jwtDecode(token);
-    console.log(decodedToken);
     localStorage.setItem("token", token);
-    setUser({ userName: decodedToken.user.userName });
+    setUser({ 
+      userName: decodedToken.user.userName,
+      walletBalance: decodedToken.user.wallet.balance
+    });
     navigate("/"); 
   };
 

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 const UserMenu = ({ isOpen, onClose, onLogout }) => {
-  const [menuPosition, setMenuPosition] = useState('translate-x-full');
+  const [menuPosition, setMenuPosition] = useState("translate-x-full");
 
   useEffect(() => {
     if (isOpen) {
-      setMenuPosition('translate-x-0');
+      setMenuPosition("translate-x-0");
     } else {
       const timeout = setTimeout(() => {
-        setMenuPosition('translate-x-full');
+        setMenuPosition("translate-x-full");
       }, 200);
 
       return () => clearTimeout(timeout);
@@ -43,8 +43,87 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
       </button>
       <div className="py-4">
         <h5 className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400 mt-5 mb-2">
-          Felhasználó
+          Profile
         </h5>
+        <ul className="space-y-2 font-medium">
+          <li>
+            <button
+              onClick={""}
+              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-user"
+              >
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span className="flex ml-3 whitespace-nowrap">Account</span>
+            </button>
+          </li>
+        </ul>
+        <ul className="space-y-2 font-medium">
+          <li>
+            <button
+              onClick={""}
+              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-chart-no-axes-combined"
+              >
+                <path d="M12 16v5" />
+                <path d="M16 14v7" />
+                <path d="M20 10v11" />
+                <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+                <path d="M4 18v3" />
+                <path d="M8 14v7" />
+              </svg>
+              <span className="flex ml-3 whitespace-nowrap">Stastics</span>
+            </button>
+          </li>
+        </ul>
+        <ul className="space-y-2 font-medium">
+          <li>
+            <button
+              onClick={""}
+              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-settings"
+              >
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span className="flex ml-3 whitespace-nowrap">Settings</span>
+            </button>
+          </li>
+        </ul>
         <ul className="space-y-2 font-medium">
           <li>
             <button
@@ -68,7 +147,9 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
                   d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
                 />
               </svg>
-              <span className="flex ml-3 text-red-400 whitespace-nowrap">Kijelentkezés</span>
+              <span className="flex ml-3 text-red-400 whitespace-nowrap">
+                Sign out
+              </span>
             </button>
           </li>
         </ul>
