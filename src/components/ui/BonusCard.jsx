@@ -1,6 +1,7 @@
 import React from 'react';
-
+import { useTranslation } from "react-i18next";
 const BonusCard = () => {
+  const { t } = useTranslation();
   return (
 <div className="relative h-50 max-w-sm p-8 bg-gradient-to-r from-blue-500 via-purple-600 to-red-600 border border-gray-200 rounded-lg shadow-xl overflow-hidden dark:bg-gray-800 dark:border-gray-700">
       
@@ -17,14 +18,14 @@ const BonusCard = () => {
       </div>
 
       <div className="relative z-10">
-        <h5 className="text-2xl font-semibold text-white mb-2">Napi Bónusz</h5>
-        <p className="text-white mb-3">Szerezd meg a napi <b>2$</b>-os bónusz jutalmad!</p>
+        <h5 className="text-2xl font-semibold text-white mb-2">{t('bonus_card_head')}</h5>
+        <p className="text-white mb-3">{t('bonus_card_text')}</p>
         <div className="flex justify-end">
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-3"
           >
-            Begyüjtés
+            {t('bonus_card_button')}
           </button>
         </div>
       </div>
