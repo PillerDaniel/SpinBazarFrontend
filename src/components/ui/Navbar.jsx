@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/img/SpinBazar.svg";
 import { CircleUser } from "lucide-react";
 import UserMenu from "./UserMenu";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -18,6 +19,12 @@ const Navbar = () => {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
 
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = () => {
+    const newLanguage = i18n.language === "en" ? "hu" : "en";
+    i18n.changeLanguage(newLanguage);
+  };
   return (
     <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
@@ -61,8 +68,9 @@ const Navbar = () => {
                   <span className="text-gray-900 dark:text-white font-medium mr-1">
                     {user.userName}
                   </span>
-                  <CircleUser  className="text-gray-700 dark:text-white w-6 h-6" />
+                  <CircleUser className="text-gray-700 dark:text-white w-6 h-6" />
                 </div>
+                
               </button>
               <UserMenu
                 isOpen={menuOpen}
@@ -70,6 +78,13 @@ const Navbar = () => {
                 isLoggedIn={true}
                 onLogout={handleLogout}
               />
+              <button
+                    onClick={changeLanguage}
+                    type="button"
+                    className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                  >
+                    {i18n.language === "en" ? "HUN" : "ENG"}
+                  </button>
             </div>
           ) : (
             <>

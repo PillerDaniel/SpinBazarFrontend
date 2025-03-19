@@ -9,8 +9,10 @@ import GameCard from "../components/ui/GameCard";
 import BonusCard from "../components/ui/BonusCard";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
+  const { t } = useTranslation();
   return (
     <>
       <Navbar />
@@ -18,15 +20,13 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-1 flex flex-col items-center justify-center p-6 space-y-6 border-white">
             <h1 className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl text-center">
-              Napi{" "}
+            {t('bonus_head')}
               <span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">
-                bónusz.
+              {t('bonus_head_highlight')}
               </span>
             </h1>
             <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400 text-justify w-full">
-              Szerezd meg a napi <b>2$</b>-os bónusz jutalmadat! Minden 24
-              órában újra begyűjtheted ezt a bónuszt, ami hozzáadódik az
-              egyenlegedhez!
+              {t('bonus')}
             </p>
             <div className="w-full max-w-sm rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300">
               <BonusCard />

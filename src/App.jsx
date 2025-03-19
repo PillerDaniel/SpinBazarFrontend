@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Home from './pages/HomePage';
 import Blackjack from './pages/Blackjack';
 import { AuthProvider } from './context/AuthContext';
-
+import '../i18n.js';
 function App() {
   return (
 
