@@ -6,6 +6,7 @@ import ErrorAlert from "../components/ui/ErrorAlert";
 import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
 import { useTranslation } from "react-i18next";
+import Footer from "../components/ui/Footer";
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -151,6 +152,7 @@ const Login = () => {
           </a>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

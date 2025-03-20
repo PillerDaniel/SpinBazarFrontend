@@ -34,7 +34,12 @@ const HomePage = () => {
           </div>
 
           <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white p-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center border border-white py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <GameCard
                 imageSrc={BlackjackBanner}
                 altText="Blackjack Banner"
@@ -43,26 +48,11 @@ const HomePage = () => {
               <GameCard imageSrc={RouletteBanner} altText="Roulete Banner" />
               <GameCard imageSrc={SlotBanner} altText="Slot Banner" />
             </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 border border-white py-4">
-          <div className="col-span-1 flex items-center border border-white justify-center">
-            <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
-              Kis tartalom
-            </p>
-          </div>
-
-          <div className="col-span-2 flex items-center border border-white justify-center">
-            <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
-              Nagyobb tartalom
-            </p>
-          </div>
         </div>
 
         <div className="flex items-center justify-center border border-white py-4 mb-15">
           <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
-            Hírek
+            Sportfogadás
           </p>
         </div>
       </main>

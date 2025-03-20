@@ -7,6 +7,8 @@ import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
 import { Datepicker } from "flowbite-react";
 import { useTranslation } from "react-i18next";
+import Footer from "../components/ui/Footer";
+
 const Register = () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -251,6 +253,7 @@ const Register = () => {
           </a>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };
