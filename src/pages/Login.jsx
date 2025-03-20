@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import ErrorAlert from "../components/ui/ErrorAlert";
 import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
-
+import { useTranslation } from "react-i18next";
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +14,7 @@ const Login = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const { t } = useTranslation();
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
 
     if (!userName || !password) {
-      setError("Minden mező kitöltése kötelező!");
+      setError(('login_error_message'));
       return;
     }
 
@@ -31,7 +31,7 @@ const Login = () => {
       const response = await axios.post("http://localhost:5001/auth/Login", { userName, password });
 
       login(response.data.token, userName);
-      setSuccessMessage("Sikeres bejelentkezés!");
+      setSuccessMessage(t('login_success_message'));
 
       setTimeout(() => {
         navigate("/"); 
@@ -40,7 +40,7 @@ const Login = () => {
       if (err.response && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError("Hiba történt a bejelentkezés során.");
+        setError(t('login_error_message_2'));
       }
     }
   };
@@ -59,7 +59,7 @@ const Login = () => {
       <SuccessAlert message={successMessage} onClose={() => setSuccessMessage("")} />
 
       <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-3xl mb-8 text-center font-medium">Bejelentkezés</h1>
+        <h1 className="text-3xl mb-8 text-center font-medium">{t('login_head_text')}</h1>
         <form onSubmit={handleSubmit}>
           <div className="relative mb-4">
             <input
@@ -74,7 +74,7 @@ const Login = () => {
               htmlFor="username"
               className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
             >
-              Felhasználónév
+              {t('login_username')}
             </label>
           </div>
           <div className="relative mb-10">
@@ -90,7 +90,7 @@ const Login = () => {
               htmlFor="password"
               className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
             >
-              Jelszó
+              {t('login_password')}
             </label>
             <button
               type="button"
@@ -141,13 +141,13 @@ const Login = () => {
             type="submit"
             className="w-full py-2 bg-blue-500 hover:bg-blue-700 text-white rounded"
           >
-            Bejelentkezés
+            {t('login_button')}
           </button>
         </form>
         <div className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-300">
-          Még nincs fiókod?{" "}
+          {t('login_register_text')}{" "}
           <a href="/Register" className="text-blue-700 hover:underline dark:text-blue-500">
-            Regisztrálj
+            {t('login_register_button')}
           </a>
         </div>
       </div>

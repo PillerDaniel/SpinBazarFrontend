@@ -6,7 +6,7 @@ import ErrorAlert from "../components/ui/ErrorAlert";
 import SuccessAlert from "../components/ui/SuccessAlert";
 import logo from '../assets/img/SpinBazar.svg';
 import { Datepicker } from "flowbite-react";
-
+import { useTranslation } from "react-i18next";
 const Register = () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ const Register = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const { t } = useTranslation();
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -32,7 +32,7 @@ const Register = () => {
     e.preventDefault();
 
     if (!userName || !email || !password || !passwordConfirmation || !birthDate) {
-      setError("Minden mező kitöltése kötelező!");
+      setError(t('register_error_message'));
       return;
     }
 
@@ -48,7 +48,7 @@ const Register = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.userName);
 
-      setSuccessMessage("Sikeres regisztráció! Üdvözlünk a SpinBazaron!");
+      setSuccessMessage(t('register_success_message'));
 
       setTimeout(() => {
         login(response.data.token, userName);
@@ -58,7 +58,7 @@ const Register = () => {
       if (err.response && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError("Hiba történt a regisztráció során.");
+        setError(t('register_error_message_2'));
       }
     }
   };
@@ -77,7 +77,7 @@ const Register = () => {
       <SuccessAlert message={successMessage} onClose={() => setSuccessMessage("")} />
 
       <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-3xl mb-8 text-center font-medium">Regisztráció</h1>
+        <h1 className="text-3xl mb-8 text-center font-medium">{t('register_head_text')}</h1>
         <form onSubmit={handleSubmit}>
           <div className="relative mb-4">
             <input
@@ -92,7 +92,7 @@ const Register = () => {
               htmlFor="username"
               className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
             >
-              Felhasználónév
+              {t('register_username')}
             </label>
           </div>
           <div className="relative mb-4">
@@ -130,7 +130,7 @@ const Register = () => {
               htmlFor="password"
               className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
             >
-              Jelszó
+              {t('register_password')}
             </label>
             <button
               type="button"
@@ -190,7 +190,7 @@ const Register = () => {
               htmlFor="passwordConfiramtion"
               className="ml-3 font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-gray-800 px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4"
             >
-              Jelszó megerősítés
+              {t('register_password_confirm')}
             </label>
             <button
               type="button"
@@ -241,13 +241,13 @@ const Register = () => {
             type="submit"
             className="w-full py-2 bg-blue-500 hover:bg-blue-700 text-white rounded"
           >
-            Regisztráció
+            {t('register_button')}
           </button>
         </form>
         <div className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-300">
-          Van már fiókod?{" "}
+        {t('register_login_text')}{" "}
           <a href="/Login" className="text-blue-700 hover:underline dark:text-blue-500">
-            Bejelentkezés
+          {t('register_login_button')}
           </a>
         </div>
       </div>
