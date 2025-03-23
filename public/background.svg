@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+    <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0b1322" />
+            <stop offset="30%" stop-color="#1d2d4a" />
+            <stop offset="70%" stop-color="#3a485f" />
+            <stop offset="100%" stop-color="#4a5a71" />
+        </linearGradient>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#bgGradient)" />
+
+    <path d="M0,120 C150,80 300,180 450,120 C600,60 750,140 900,100 L1000,100 L1000,600 L0,600 Z" fill="#0b1322"
+        opacity="0.3" />
+
+    <path d="M0,200 C150,160 300,240 450,200 C600,160 750,220 900,190 L1000,190 L1000,600 L0,600 Z" fill="#1d2d4a"
+        opacity="0.25" />
+
+    <path d="M0,300 C180,260 320,340 500,280 C680,220 820,320 1000,260 L1000,600 L0,600 Z" fill="#3a485f"
+        opacity="0.2" />
+
+    <circle cx="200" cy="120" r="180" fill="#0b1322" opacity="0.15" />
+    <circle cx="800" cy="400" r="220" fill="#3a485f" opacity="0.15" />
+    <path d="M0,0 L400,0 L300,300 L0,400 Z" fill="#1d2d4a" opacity="0.1" />
+    <path d="M1000,0 L600,0 L700,300 L1000,400 Z" fill="#4a5a71" opacity="0.1" />
+</svg>

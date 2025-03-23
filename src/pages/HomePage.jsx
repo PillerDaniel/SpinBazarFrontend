@@ -1,17 +1,18 @@
 import React from "react";
 import "../App.css";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
 
 import BlackjackBanner from "../assets/img/blackjack.png";
 import RouletteBanner from "../assets/img/roulette.png";
 import SlotBanner from "../assets/img/slot.png";
+import CasesBanner from "../assets/img/cases.png";
+import PumpBanner from "../assets/img/pump.png";
+import DiamondsBanner from "../assets/img/diamonds.png";
 
-import GameCard from "../components/ui/GameCard";
 import BonusCard from "../components/ui/BonusCard";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
-import { useTranslation } from "react-i18next";
-import { useAuth } from "../context/AuthContext";
-import HomeSatistics from "../components/ui/HomeStatistics";
 import GameCarousel from "../components/ui/GameCarousel";
 
 const HomePage = () => {
@@ -38,8 +39,8 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white p-10">
-            <HomeSatistics isLoggedIn={isAuthenticated} />
+          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white">
+
           </div>
         </div>
 
@@ -64,16 +65,29 @@ const HomePage = () => {
                 root: "slot",
                 requiresAuth: true,
               },
-              // Add more games here as needed to fill out your carousel
+              {
+                imageSrc: CasesBanner,
+                altText: "Cases Banner",
+                root: "",
+                requiresAuth: true,
+              },
+              {
+                imageSrc: PumpBanner,
+                altText: "Pump Banner",
+                root: "",
+                requiresAuth: true,
+              },
+              {
+                imageSrc: DiamondsBanner,
+                altText: "Diamonds Banner",
+                root: "",
+                requiresAuth: true,
+              },
             ]}
           />
         </div>
 
-        <div className="flex items-center justify-center border border-white py-4 mb-15">
-          <p className="text-lg font-normal  lg:text-xl text-gray-400">
-            Sportfogadás
-          </p>
-        </div>
+        <div className="flex items-center justify-center border border-white py-4 mb-15"></div>
       </main>
       <footer>
         <Footer />

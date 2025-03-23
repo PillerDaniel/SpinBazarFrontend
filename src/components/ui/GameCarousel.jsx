@@ -55,10 +55,10 @@ const GameCarousel = ({ games }) => {
       {/* Left Arrow */}
       <button 
         onClick={handlePrev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
         aria-label="Previous games"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={38} />
       </button>
       
       {/* Game Cards */}
@@ -78,10 +78,10 @@ const GameCarousel = ({ games }) => {
       {/* Right Arrow */}
       <button 
         onClick={handleNext}
-        className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-900 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
         aria-label="Next games"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={38} />
       </button>
     </div>
   );

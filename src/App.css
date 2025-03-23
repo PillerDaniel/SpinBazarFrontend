@@ -1,10 +1,16 @@
 @import "tailwindcss";
 
-html {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #0b1322, #3a485f);
-	background-size: 400% 400%;
-	-webkit-animation: gradient 15s ease infinite;
-	        animation: gradient 15s ease infinite;
+html, main {
+    background-image: url('background.svg');
+    background-size: cover;
+    background-position: center;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 img {
@@ -13,4 +19,26 @@ img {
 	-ms-user-select: none;
 	user-select: none; 
   }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+	  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+	  box-shadow: 0 0 0 1000px transparent inset !important;
+	  -webkit-text-fill-color: white !important;
+	  background-clip: content-box !important;
+	  transition-property: background-color, color;
+	  transition-delay: 99999s;
+	  transition-duration: 99999s;
+  }
   
+  input:-webkit-autofill {
+	  -webkit-animation-name: autofill;
+	  -webkit-animation-fill-mode: both;
+  }
+  
+  input {
+	  color: white !important;
+	  background-color: transparent !important;
+  }
