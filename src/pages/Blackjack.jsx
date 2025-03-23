@@ -159,6 +159,7 @@ const Blackjack = () => {
       revealDealerCard();
       
       addGameHistory('Blackjack', currentBet, 0);
+      processWin(-currentBet);
     }
   };
 
@@ -278,7 +279,7 @@ const Blackjack = () => {
         winAmount = 0;
         
         await processWin(-currentBet);
-        await addGameHistory('Blackjack', currentBet, -currentBet);
+        await addGameHistory('Blackjack', currentBet, 0);
   
       } else if (playerTotal > dealerTotal) {
         setGameStatus('playerWin');
