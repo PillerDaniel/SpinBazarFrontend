@@ -10,9 +10,13 @@ import BonusCard from "../components/ui/BonusCard";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
+import HomeSatistics from "../components/ui/HomeStatistics";
 
 const HomePage = () => {
+  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
+
   return (
     <>
       <Navbar />
@@ -33,7 +37,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white p-10"></div>
+          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white p-10">
+            <HomeSatistics  isLoggedIn={isAuthenticated}/>
+          </div>
         </div>
 
         <div className="flex items-center justify-center border border-white py-4">
@@ -56,6 +62,7 @@ const HomePage = () => {
               root="slot"
               requiresAuth={true}
             />
+            
           </div>
         </div>
 

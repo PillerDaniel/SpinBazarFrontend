@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/img/SpinBazar.svg";
@@ -11,6 +11,8 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   const handleLogout = () => {
     logout();
@@ -27,8 +29,33 @@ const Navbar = () => {
     i18n.changeLanguage(newLanguage);
   };
 
+  // Handle scroll events
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // If scrolling down, hide navbar
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setVisible(false);
+      } 
+      // If scrolling up or at the top, show navbar
+      else {
+        setVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
-    <nav className="bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-600">
+    <nav 
+      className={`bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-600 transition-transform duration-300 ${
+        visible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <a href="/" className="flex items-center">
@@ -62,7 +89,7 @@ const Navbar = () => {
         )}
 
         <div className="ml-auto flex space-x-3 rtl:space-x-reverse">
-        <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
+          <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
 
           {user ? (
             <div className="flex items-center space-x-3">
@@ -82,6 +109,7 @@ const Navbar = () => {
                 onClose={closeMenu}
                 isLoggedIn={true}
                 onLogout={handleLogout}
+                userRole={user.role}
               />
             </div>
           ) : (

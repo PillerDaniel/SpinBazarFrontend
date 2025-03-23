@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
           } else {
             setUser({ 
               userName: decodedToken.user.userName,
+              role: decodedToken.user.role,
               walletBalance: decodedToken.user.wallet.balance
             });
           }
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", token);
       setUser({ 
         userName: decodedToken.user.userName,
+        role: decodedToken.user.role,
         walletBalance: decodedToken.user.wallet.balance
       });
       navigate("/"); 

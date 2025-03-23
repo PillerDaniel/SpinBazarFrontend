@@ -42,17 +42,15 @@ const Blackjack = () => {
           value,
           numericValue: getCardValue(value),
           faceDown: false,
-          id: Math.random().toString(36).substr(2, 9), // Unique ID for animation
-          isNew: false // Flag to determine if card should be animated
+          id: Math.random().toString(36).substr(2, 9),
+          isNew: false
         });
       }
     }
 
-    // Shuffle the deck
     return shuffleDeck(newDeck);
   };
 
-  // Shuffle deck using Fisher-Yates algorithm
   const shuffleDeck = (deck) => {
     const shuffled = [...deck];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -62,19 +60,16 @@ const Blackjack = () => {
     return shuffled;
   };
 
-  // Get card value
   const getCardValue = (value) => {
     if (['J', 'Q', 'K'].includes(value)) return 10;
     if (value === 'A') return 11;
     return parseInt(value);
   };
 
-  // Calculate hand total, accounting for Aces
   const calculateHandTotal = (hand) => {
     let total = hand.reduce((sum, card) => sum + (card.faceDown ? 0 : card.numericValue), 0);
     let aces = hand.filter(card => !card.faceDown && card.value === 'A').length;
     
-    // Adjust for Aces
     while (total > 21 && aces > 0) {
       total -= 10;
       aces--;
@@ -83,26 +78,22 @@ const Blackjack = () => {
     return total;
   };
 
-  // Handle chip selection
   const selectChip = (value) => {
     if (gameStatus !== 'idle') return;
     setSelectedChip(value);
     setCustomBetAmount("");
   };
 
-  // Handle custom bet input
   const handleCustomBetChange = (e) => {
     if (gameStatus !== 'idle') return;
     
     const value = e.target.value;
-    // Only allow numbers
     if (value === '' || /^\d+$/.test(value)) {
       setCustomBetAmount(value);
       setSelectedChip(null);
     }
   };
 
-  // Place bet
   const placeBet = () => {
     if (gameStatus !== 'idle') return;
     
@@ -114,7 +105,6 @@ const Blackjack = () => {
       betAmount = parseInt(customBetAmount);
     }
     
-    // Validate bet amount
     if (betAmount <= 0) return;
     if (betAmount > 500) {
       setMessage("Maximum bet is $500");
@@ -125,23 +115,19 @@ const Blackjack = () => {
       return;
     }
     
-    // Deduct bet from balance
     setBalance(prevBalance => prevBalance - betAmount);
     setCurrentBet(betAmount);
     setCustomBetAmount("");
     setMessage("Bet placed! Press Deal to start");
   };
 
-  // Clear bet
   const clearBet = () => {
     if (gameStatus !== 'idle' || currentBet === 0) return;
     
-    // No need to call backend since the bet wasn't confirmed yet
     setCurrentBet(0);
     setMessage("Place your bet and press Deal to start");
   };
 
-  // Deal a new game
   const dealGame = () => {
     if (currentBet <= 0 || gameStatus !== 'idle') return;
     
@@ -158,12 +144,10 @@ const Blackjack = () => {
     setMessage('Your turn');
   };
 
-  // Player hits
   const hit = () => {
     if (gameStatus !== 'playing') return;
     
     const newCard = {...deck.pop(), isNew: true};
-    // Keep existing cards as they are, just add the new card with isNew flag
     const newHand = [...playerHand, newCard];
     setPlayerHand(newHand);
     setDeck([...deck]);
@@ -174,52 +158,43 @@ const Blackjack = () => {
       setMessage('Bust! You lose');
       revealDealerCard();
       
-      // Add game history for loss
-      addGameHistory('blackjack', currentBet, 0);
+      addGameHistory('Blackjack', currentBet, 0);
     }
   };
 
-  // Player stands, dealer plays
   const stand = () => {
     if (gameStatus !== 'playing') return;
     
     dealerPlay();
   };
 
-  // Reveal dealer's face down card
   const revealDealerCard = () => {
     const newDealerHand = dealerHand.map(card => ({ 
       ...card, 
       faceDown: false,
-      // Only mark the previously face-down card as new for animation
       isNew: card.faceDown 
     }));
     setDealerHand(newDealerHand);
   };
 
-  // Dealer's turn to play
   const dealerPlay = () => {
     revealDealerCard();
     
     let newDealerHand = dealerHand.map(card => ({ 
       ...card, 
       faceDown: false,
-      isNew: card.faceDown // Only the revealed card gets animated
+      isNew: card.faceDown
     }));
     let newDeck = [...deck];
     
-    // Dealer hits until 17 or higher
     let dealerTotal = calculateHandTotal(newDealerHand);
     
     const drawCard = () => {
       if (dealerTotal < 17) {
-        // Create a new hand with the new card only marked as isNew
         const newCard = {...newDeck.pop(), isNew: true};
         
-        // Create a copy of the dealer hand with all existing cards having isNew=false
         const updatedHand = newDealerHand.map(card => ({...card, isNew: false}));
         
-        // Add the new card with isNew=true
         updatedHand.push(newCard);
         newDealerHand = updatedHand;
         
@@ -228,7 +203,6 @@ const Blackjack = () => {
         setDealerHand(newDealerHand);
         setDeck(newDeck);
         
-        // Reset the isNew flag after animation completes
         setTimeout(() => {
           setDealerHand(prev => prev.map(card => ({...card, isNew: false})));
           setTimeout(() => drawCard(), 100);
@@ -261,90 +235,74 @@ const Blackjack = () => {
   const processWin = async (winAmount) => {
     try {
       setLoading(true);
-      
-      // Make API call first to update the database
       const response = await axiosInstance.post('/bet/winbet', {
         winAmount: winAmount
       }, {
         withCredentials: true
       });
-      
-      // Check if the response contains updated wallet balance
+  
       if (response.data && response.data.walletBalance !== undefined) {
-        // Update from server response to ensure sync with database
         setBalance(response.data.walletBalance);
       } else {
-        // Fallback if response doesn't contain wallet balance
         setBalance(prevBalance => prevBalance + winAmount);
       }
-      
-      console.log('Wallet balance updated successfully');
     } catch (err) {
       console.error('Error updating wallet balance:', err);
       setError('Failed to update wallet balance. Please refresh the page.');
-      // Restore original balance in case of error
       setBalance(prevBalance => prevBalance - winAmount);
     } finally {
       setLoading(false);
     }
   };
-
-  // Determine the winner
-// Replace the determineWinner function with this fixed version
-// Determine the winner
-const determineWinner = async (finalDealerHand) => {
-  const playerTotal = calculateHandTotal(playerHand);
-  const dealerTotal = calculateHandTotal(finalDealerHand);
   
-  let winAmount = 0;
-  
-  try {
-    setLoading(true);
+  const determineWinner = async (finalDealerHand) => {
+    const playerTotal = calculateHandTotal(playerHand);
+    const dealerTotal = calculateHandTotal(finalDealerHand);
     
-    if (dealerTotal > 21) {
-      setGameStatus('dealerBust');
-      setMessage('Dealer busts! You win');
-      winAmount = currentBet * 2; // Original bet + win
+    let winAmount = 0;
+    
+    try {
+      setLoading(true);
       
-      // Process win
-      await processWin(winAmount);
-      
-      // Add game history
-      await addGameHistory('Blackjack', currentBet, winAmount);
-    } else if (dealerTotal > playerTotal) {
-      setGameStatus('dealerWin');
-      setMessage('Dealer wins');
-      await addGameHistory('Blackjack', currentBet, 0);
-    } else if (playerTotal > dealerTotal) {
-      setGameStatus('playerWin');
-      setMessage('You win!');
-      winAmount = currentBet * 2; // Original bet + win
-      
-      // Process win
-      await processWin(winAmount);
-      
-      // Add game history
-      await addGameHistory('Blackjack', currentBet, winAmount);
-    } else {
-      setGameStatus('push');
-      setMessage('Push (Tie)');
-      winAmount = currentBet; // Return the original bet
-      
-      // Process win (returning original bet)
-      await processWin(winAmount);
-      
-      // Add game history
-      await addGameHistory('Blackjack', currentBet, currentBet);
+      if (dealerTotal > 21) {
+        setGameStatus('dealerBust');
+        setMessage('Dealer busts! You win');
+        winAmount = currentBet * 2;
+        
+        await processWin(winAmount);
+        await addGameHistory('Blackjack', currentBet, winAmount);
+  
+      } else if (dealerTotal > playerTotal) {
+        setGameStatus('dealerWin');
+        setMessage('Dealer wins');
+        winAmount = 0;
+        await processWin(-currentBet);
+        await addGameHistory('Blackjack', currentBet, 0);
+  
+      } else if (playerTotal > dealerTotal) {
+        setGameStatus('playerWin');
+        setMessage('You win!');
+        winAmount = currentBet * 2;
+        
+        await processWin(winAmount);
+        await addGameHistory('Blackjack', currentBet, winAmount);
+      } else {
+        setGameStatus('push');
+        setMessage('Push (Tie)');
+        winAmount = currentBet;
+        
+        await processWin(winAmount);
+        await addGameHistory('Blackjack', currentBet, winAmount);
+      }
+    } catch (err) {
+      console.error('Error processing game outcome:', err);
+      setError('An error occurred. Please refresh the page.');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('Error processing game outcome:', err);
-    setError('An error occurred. Please refresh the page.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+  
 
-  // Reset game
   const resetGame = () => {
     setPlayerHand([]);
     setDealerHand([]);
@@ -353,7 +311,6 @@ const determineWinner = async (finalDealerHand) => {
     setMessage('Place your bet and press Deal to start');
   };
 
-  // Card component
   const Card = ({ card, index }) => {
     if (card.faceDown) {
       return (
@@ -369,7 +326,6 @@ const determineWinner = async (finalDealerHand) => {
     const isAce = card.value === 'A';
     const isFace = ['J', 'Q', 'K'].includes(card.value);
     
-    // Only apply animation when the card is newly drawn
     if (card.isNew) {
       return (
         <motion.div
@@ -387,7 +343,6 @@ const determineWinner = async (finalDealerHand) => {
       );
     }
     
-    // Regular card without animation
     return (
       <div
         key={card.id}
@@ -400,7 +355,6 @@ const determineWinner = async (finalDealerHand) => {
     );
   };
 
-  // Chip component
   const Chip = ({ value, selected }) => {
     const colors = {
       5: 'bg-gradient-to-r from-red-500 to-red-600',
@@ -419,7 +373,6 @@ const determineWinner = async (finalDealerHand) => {
     );
   };
 
-  // Get status badge color based on game status
   const getStatusBadgeColor = () => {
     if (gameStatus === 'playerWin' || gameStatus === 'dealerBust') {
       return 'bg-green-800 text-green-100';
@@ -431,7 +384,6 @@ const determineWinner = async (finalDealerHand) => {
     return 'bg-blue-800 text-blue-100';
   };
 
-  // Get total badge color based on value
   const getTotalBadgeColor = (total) => {
     if (total > 21) {
       return 'bg-red-900 text-red-100';
@@ -441,7 +393,6 @@ const determineWinner = async (finalDealerHand) => {
     return 'bg-gray-700 text-gray-100';
   };
 
-  // Reset isNew flags on animation complete
   useEffect(() => {
     if (playerHand.some(card => card.isNew)) {
       const timer = setTimeout(() => {
@@ -478,7 +429,6 @@ const determineWinner = async (finalDealerHand) => {
         )}
         
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Betting section */}
           <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
             
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
@@ -550,7 +500,6 @@ const determineWinner = async (finalDealerHand) => {
             )}
           </div>
           
-          {/* Game section */}
           <div className="lg:w-2/3">
             <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">

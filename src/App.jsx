@@ -8,7 +8,7 @@ import Roulette from "./pages/Roulette";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import { AuthProvider } from "./context/AuthContext";
 import "../i18n.js";
-
+import GameStatistics from "./pages/Statistics.jsx";
 
 function App() {
   return (
@@ -34,6 +34,7 @@ function App() {
               </ProtectedRoutes>
             }
           />
+        <Route path="/statistics" element={<GameStatistics />} />
         </Routes>
       </AuthProvider>
     </Router>
