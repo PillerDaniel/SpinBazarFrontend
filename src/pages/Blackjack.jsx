@@ -290,6 +290,8 @@ const Blackjack = () => {
   };
 
   // Determine the winner
+// Replace the determineWinner function with this fixed version
+// Determine the winner
 const determineWinner = async (finalDealerHand) => {
   const playerTotal = calculateHandTotal(playerHand);
   const dealerTotal = calculateHandTotal(finalDealerHand);
@@ -304,8 +306,8 @@ const determineWinner = async (finalDealerHand) => {
       setMessage('Dealer busts! You win');
       winAmount = currentBet * 2; // Original bet + win
       
-      // Update wallet in database
-      await updateWalletBalance(winAmount);
+      // Process win
+      await processWin(winAmount);
       
       // Add game history
       await addGameHistory('Blackjack', currentBet, winAmount);
@@ -318,8 +320,8 @@ const determineWinner = async (finalDealerHand) => {
       setMessage('You win!');
       winAmount = currentBet * 2; // Original bet + win
       
-      // Update wallet in database
-      await updateWalletBalance(winAmount);
+      // Process win
+      await processWin(winAmount);
       
       // Add game history
       await addGameHistory('Blackjack', currentBet, winAmount);
@@ -328,15 +330,12 @@ const determineWinner = async (finalDealerHand) => {
       setMessage('Push (Tie)');
       winAmount = currentBet; // Return the original bet
       
-      // Update wallet in database
-      await updateWalletBalance(winAmount);
+      // Process win (returning original bet)
+      await processWin(winAmount);
       
       // Add game history
       await addGameHistory('Blackjack', currentBet, currentBet);
     }
-    
-    // Refresh user wallet balance after game ends
-    await refreshWalletBalance();
   } catch (err) {
     console.error('Error processing game outcome:', err);
     setError('An error occurred. Please refresh the page.');
