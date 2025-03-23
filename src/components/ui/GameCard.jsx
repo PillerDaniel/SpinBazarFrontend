@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import WarningAlert from './WarningAlert';
 
-const GameCard = ({ imageSrc, altText, root }) => {
+const GameCard = ({ imageSrc, altText, root, requiresAuth = false }) => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [alertMessage, setAlertMessage] = useState("");
 
-    const navigateToPage = () => {
-      navigate(`/${root}`);
+    const handleClick = () => {
+      if (requiresAuth && !user) {
+        setAlertMessage("Log in to access the page.");
+        return;
+      }
+      
+      if (root) {
+        navigate(`/${root}`);
+      }
     };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 rounded-lg">
-      <img 
-        src={imageSrc}
-        alt={altText}
-        onClick={navigateToPage}
-        className="w-full h-64 object-cover rounded-lg mb-4 transition-transform duration-300 ease-in-out transform hover:scale-110"
-      />
-    </div>
+    <>
+      {alertMessage && (
+        <WarningAlert
+          message={alertMessage}
+          onClose={() => setAlertMessage("")}
+        />
+      )}
+      <div 
+        className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer hover:scale-105 transition-all duration-300"
+        onClick={handleClick}
+      >
+        <img className="rounded-t-lg" src={imageSrc} alt={altText} />
+      </div>
+    </>
   );
 };
 

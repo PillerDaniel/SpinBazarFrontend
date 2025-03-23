@@ -17,7 +17,7 @@ const LanguageDropdown = ({ changeLanguage, i18n }) => {
       <button
         onClick={toggleDropdown}
         type="button"
-        className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800 inline-flex items-center"
+        className="text-white focus:ring-4 focus:outline-none  font-medium rounded-lg text-sm px-4 py-2 text-center bg-gray-600 hover:bg-gray-700 focus:ring-gray-800 inline-flex items-center"
       >
         {i18n.language === "en" ? (
           <img
@@ -54,13 +54,13 @@ const LanguageDropdown = ({ changeLanguage, i18n }) => {
 
       {isDropdownOpen && (
         <div
-          className="absolute top-full right-0 mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-36 dark:bg-gray-700"
+          className="absolute top-full right-0 mt-2 z-10 divide-y divide-gray-100 rounded-lg shadow-sm w-36 bg-gray-700"
         >
-          <ul className="py-2 text-sm text-gray-700 dark:text-gray-200 text-center">
+          <ul className="py-2 text-sm text-gray-200 text-center">
             <li>
               <button
                 onClick={() => selectLanguage("en")}
-                className="w-full text-left block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="w-full text-left block px-4 py-2 hover:bg-gray-600 hover:text-white"
               >
                 <img
                   src="https://flagcdn.com/w40/gb.png"
@@ -74,7 +74,7 @@ const LanguageDropdown = ({ changeLanguage, i18n }) => {
             <li>
               <button
                 onClick={() => selectLanguage("hu")}
-                className="w-full text-left block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="w-full text-left block px-4 py-2 hover:bg-gray-600 hover:text-white"
               >
                 <img
                   src="https://flagcdn.com/w40/hu.png"

@@ -17,14 +17,14 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto bg-white w-64 dark:bg-gray-800 transition-transform duration-500 ease-in-out transform ${menuPosition}`}
+      className={`fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto w-64 bg-gray-800 transition-transform duration-500 ease-in-out transform ${menuPosition}`}
     >
       <button
         onClick={onClose}
         className="text-white-400 bg-transparent hover:text-white-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 left-2.5"
       >
         <svg
-          className="w-6 h-6 text-gray-800 dark:text-white ease-in-out transform hover:scale-110"
+          className="w-6 h-6 text-white ease-in-out transform hover:scale-110"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -42,14 +42,14 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
         </svg>
       </button>
       <div className="py-4">
-        <h5 className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400 mt-5 mb-2">
+        <h5 className="text-base font-semibold uppercase text-gray-400 mt-5 mb-2">
           Profile
         </h5>
         <ul className="space-y-2 font-medium">
           <li>
             <button
               onClick={""}
-              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+              className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +74,7 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
           <li>
             <button
               onClick={""}
-              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+              className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +103,7 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
           <li>
             <button
               onClick={""}
-              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+              className="flex items-center p-2  rounded-lg text-white hover:bg-gray-700 group w-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -128,10 +128,10 @@ const UserMenu = ({ isOpen, onClose, onLogout }) => {
           <li>
             <button
               onClick={onLogout}
-              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full"
+              className="flex items-center p-2  rounded-lg text-white hover:bg-gray-700 group w-full"
             >
               <svg
-                className="w-6 h-6 text-gray-800 dark:text-red-400 rtl:rotate-180 ease-in-out transform group-hover:scale-110"
+                className="w-6 h-6 text-red-400 rtl:rotate-180 ease-in-out transform group-hover:scale-110"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

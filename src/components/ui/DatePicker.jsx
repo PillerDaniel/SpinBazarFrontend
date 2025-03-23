@@ -21,7 +21,7 @@ const Datepicker = ({ onDateChange }) => {
         onClick={() => document.getElementById("default-datepicker").focus()}
       >
         <svg
-          className="w-4 h-4 text-gray-500 dark:text-gray-400"
+          className="w-4 h-4 text-gray-400"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -33,7 +33,7 @@ const Datepicker = ({ onDateChange }) => {
       <input
         id="default-datepicker"
         type="text"
-        className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        className="border text-sm rounded-lg block w-full ps-10 p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 :text-white focus:ring-blue-500 focus:border-blue-500"
         placeholder="Select date"
         value={selectedDate}
         onChange={handleDateChange}

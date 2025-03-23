@@ -87,7 +87,7 @@ const Register = () => {
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               id="username"
-              className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="block px-2.5 pb-2.5 pt-4 w-full text-sm bg-gray-800 rounded-lg border border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
             />
             <label
@@ -103,7 +103,7 @@ const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               id="email"
-              className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="block px-2.5 pb-2.5 pt-4 w-full text-sm  bg-gray-800 rounded-lg border border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
             />
             <label
@@ -117,7 +117,7 @@ const Register = () => {
               id="birthDate"
               selected={birthDate}
               onChange={(date) => setBirthDate(date)}
-              className="mb-4 block w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              className="mb-4 block w-full text-sm rounded-lg border focus:ring-blue-500 focus:border-blue-500 bg-gray-700 border-gray-600 placeholder-gray-400 text-white"
             />
           <div className="relative mb-4">
             <input
@@ -125,7 +125,7 @@ const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               id="password"
-              className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="block px-2.5 pb-2.5 pt-4 w-full text-sm bg-gray-800 rounded-lg border border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
             />
             <label
@@ -137,11 +137,11 @@ const Register = () => {
             <button
               type="button"
               onClick={togglePasswordVisibility}
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
+              className="absolute inset-y-0 right-2 flex items-center text-gray-400 focus:outline-none"
             >
               {passwordVisible ? (
                 <svg
-                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  className="w-6 h-6 text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -157,7 +157,7 @@ const Register = () => {
                 </svg>
               ) : (
                 <svg
-                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  className="w-6 h-6 text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -185,7 +185,7 @@ const Register = () => {
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               id="passwordConfiramtion"
-              className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-gray-800 rounded-lg border border-gray-300 appearance-none dark:text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              className="block px-2.5 pb-2.5 pt-4 w-full text-sm  bg-gray-800 rounded-lg border border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=" "
             />
             <label
@@ -197,11 +197,11 @@ const Register = () => {
             <button
               type="button"
               onClick={togglePasswordConfirmationVisibility}
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500 dark:text-gray-400 focus:outline-none"
+              className="absolute inset-y-0 right-2 flex items-center text-gray-400 focus:outline-none"
             >
               {passwordConfirmationVisible ? (
                 <svg
-                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  className="w-6 h-6 text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -217,7 +217,7 @@ const Register = () => {
                 </svg>
               ) : (
                 <svg
-                  className="w-6 h-6 text-gray-500 dark:text-white"
+                  className="w-6 h-6 text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -246,9 +246,9 @@ const Register = () => {
             {t('register_button')}
           </button>
         </form>
-        <div className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-300">
+        <div className="mt-4 text-sm font-medium text-gray-300">
         {t('register_login_text')}{" "}
-          <a href="/Login" className="text-blue-700 hover:underline dark:text-blue-500">
+          <a href="/Login" className="hover:underline text-blue-500">
           {t('register_login_button')}
           </a>
         </div>

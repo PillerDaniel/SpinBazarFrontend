@@ -1,14 +1,33 @@
 import Footer from '../components/ui/Footer';
 import Navbar from '../components/ui/Navbar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {useAuth} from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import axiosInstance from '../utils/axios';
 
 const Blackjack = () => {
-  // Game state
+  const { user } = useAuth();
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
-  const [gameStatus, setGameStatus] = useState('idle'); // idle, playing, playerBust, dealerBust, playerWin, dealerWin, push
-  const [message, setMessage] = useState('Press Deal to start');
+  const [gameStatus, setGameStatus] = useState('idle');
+  const [message, setMessage] = useState('Place your bet and press Deal to start');
+  
+  // Betting and money state
+  const [balance, setBalance] = useState(0);
+  const [currentBet, setCurrentBet] = useState(0);
+  const [customBetAmount, setCustomBetAmount] = useState("");
+  const [selectedChip, setSelectedChip] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const chips = [5, 25, 100, 500];
+
+  useEffect(() => {
+    
+    if (user && user.walletBalance !== undefined) {
+      setBalance(user.walletBalance);
+    }
+  }, [user]);
 
   // Create and shuffle a new deck
   const createDeck = () => {
@@ -22,7 +41,9 @@ const Blackjack = () => {
           suit,
           value,
           numericValue: getCardValue(value),
-          faceDown: false
+          faceDown: false,
+          id: Math.random().toString(36).substr(2, 9), // Unique ID for animation
+          isNew: false // Flag to determine if card should be animated
         });
       }
     }
@@ -62,15 +83,77 @@ const Blackjack = () => {
     return total;
   };
 
+  // Handle chip selection
+  const selectChip = (value) => {
+    if (gameStatus !== 'idle') return;
+    setSelectedChip(value);
+    setCustomBetAmount("");
+  };
+
+  // Handle custom bet input
+  const handleCustomBetChange = (e) => {
+    if (gameStatus !== 'idle') return;
+    
+    const value = e.target.value;
+    // Only allow numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      setCustomBetAmount(value);
+      setSelectedChip(null);
+    }
+  };
+
+  // Place bet
+  const placeBet = () => {
+    if (gameStatus !== 'idle') return;
+    
+    let betAmount = 0;
+    
+    if (selectedChip) {
+      betAmount = selectedChip;
+    } else if (customBetAmount) {
+      betAmount = parseInt(customBetAmount);
+    }
+    
+    // Validate bet amount
+    if (betAmount <= 0) return;
+    if (betAmount > 500) {
+      setMessage("Maximum bet is $500");
+      return;
+    }
+    if (betAmount > balance) {
+      setMessage("Insufficient funds for this bet");
+      return;
+    }
+    
+    // Deduct bet from balance
+    setBalance(prevBalance => prevBalance - betAmount);
+    setCurrentBet(betAmount);
+    setCustomBetAmount("");
+    setMessage("Bet placed! Press Deal to start");
+  };
+
+  // Clear bet
+  const clearBet = () => {
+    if (gameStatus !== 'idle' || currentBet === 0) return;
+    
+    // No need to call backend since the bet wasn't confirmed yet
+    setCurrentBet(0);
+    setMessage("Place your bet and press Deal to start");
+  };
+
   // Deal a new game
   const dealGame = () => {
+    if (currentBet <= 0 || gameStatus !== 'idle') return;
+    
     const newDeck = createDeck();
-    const pHand = [newDeck.pop(), newDeck.pop()];
-    const dHand = [newDeck.pop(), { ...newDeck.pop(), faceDown: true }];
+    const pCard1 = {...newDeck.pop(), isNew: true};
+    const pCard2 = {...newDeck.pop(), isNew: true};
+    const dCard1 = {...newDeck.pop(), isNew: true};
+    const dCard2 = {...newDeck.pop(), faceDown: true, isNew: true};
     
     setDeck(newDeck);
-    setPlayerHand(pHand);
-    setDealerHand(dHand);
+    setPlayerHand([pCard1, pCard2]);
+    setDealerHand([dCard1, dCard2]);
     setGameStatus('playing');
     setMessage('Your turn');
   };
@@ -79,7 +162,9 @@ const Blackjack = () => {
   const hit = () => {
     if (gameStatus !== 'playing') return;
     
-    const newHand = [...playerHand, deck.pop()];
+    const newCard = {...deck.pop(), isNew: true};
+    // Keep existing cards as they are, just add the new card with isNew flag
+    const newHand = [...playerHand, newCard];
     setPlayerHand(newHand);
     setDeck([...deck]);
     
@@ -88,6 +173,9 @@ const Blackjack = () => {
       setGameStatus('playerBust');
       setMessage('Bust! You lose');
       revealDealerCard();
+      
+      // Add game history for loss
+      addGameHistory('blackjack', currentBet, 0);
     }
   };
 
@@ -100,7 +188,12 @@ const Blackjack = () => {
 
   // Reveal dealer's face down card
   const revealDealerCard = () => {
-    const newDealerHand = dealerHand.map(card => ({ ...card, faceDown: false }));
+    const newDealerHand = dealerHand.map(card => ({ 
+      ...card, 
+      faceDown: false,
+      // Only mark the previously face-down card as new for animation
+      isNew: card.faceDown 
+    }));
     setDealerHand(newDealerHand);
   };
 
@@ -108,45 +201,166 @@ const Blackjack = () => {
   const dealerPlay = () => {
     revealDealerCard();
     
-    let newDealerHand = dealerHand.map(card => ({ ...card, faceDown: false }));
+    let newDealerHand = dealerHand.map(card => ({ 
+      ...card, 
+      faceDown: false,
+      isNew: card.faceDown // Only the revealed card gets animated
+    }));
     let newDeck = [...deck];
     
     // Dealer hits until 17 or higher
-    while (calculateHandTotal(newDealerHand) < 17) {
-      newDealerHand.push(newDeck.pop());
+    let dealerTotal = calculateHandTotal(newDealerHand);
+    
+    const drawCard = () => {
+      if (dealerTotal < 17) {
+        // Create a new hand with the new card only marked as isNew
+        const newCard = {...newDeck.pop(), isNew: true};
+        
+        // Create a copy of the dealer hand with all existing cards having isNew=false
+        const updatedHand = newDealerHand.map(card => ({...card, isNew: false}));
+        
+        // Add the new card with isNew=true
+        updatedHand.push(newCard);
+        newDealerHand = updatedHand;
+        
+        dealerTotal = calculateHandTotal(newDealerHand);
+        
+        setDealerHand(newDealerHand);
+        setDeck(newDeck);
+        
+        // Reset the isNew flag after animation completes
+        setTimeout(() => {
+          setDealerHand(prev => prev.map(card => ({...card, isNew: false})));
+          setTimeout(() => drawCard(), 100);
+        }, 700);
+      } else {
+        determineWinner(newDealerHand);
+      }
+    };
+    
+    setTimeout(() => drawCard(), 800);
+  };
+
+  const addGameHistory = async (game, betAmount, winAmount) => {
+    try {
+      console.log('Attempting to add game history with URL:', '/history/addhistory');
+      await axiosInstance.post('/history/addhistory', { 
+        game,
+        betAmount,
+        winAmount
+      }, {
+        withCredentials: true
+      });
+      console.log('Game history added successfully');
+    } catch (err) {
+      console.error('Error adding game history:', err);
+      console.log('Failed URL was:', err.config?.url);
     }
-    
-    setDealerHand(newDealerHand);
-    setDeck(newDeck);
-    
-    determineWinner(newDealerHand);
+  };
+  
+  const processWin = async (winAmount) => {
+    try {
+      setLoading(true);
+      
+      // Make API call first to update the database
+      const response = await axiosInstance.post('/bet/winbet', {
+        winAmount: winAmount
+      }, {
+        withCredentials: true
+      });
+      
+      // Check if the response contains updated wallet balance
+      if (response.data && response.data.walletBalance !== undefined) {
+        // Update from server response to ensure sync with database
+        setBalance(response.data.walletBalance);
+      } else {
+        // Fallback if response doesn't contain wallet balance
+        setBalance(prevBalance => prevBalance + winAmount);
+      }
+      
+      console.log('Wallet balance updated successfully');
+    } catch (err) {
+      console.error('Error updating wallet balance:', err);
+      setError('Failed to update wallet balance. Please refresh the page.');
+      // Restore original balance in case of error
+      setBalance(prevBalance => prevBalance - winAmount);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Determine the winner
-  const determineWinner = (finalDealerHand) => {
-    const playerTotal = calculateHandTotal(playerHand);
-    const dealerTotal = calculateHandTotal(finalDealerHand);
+const determineWinner = async (finalDealerHand) => {
+  const playerTotal = calculateHandTotal(playerHand);
+  const dealerTotal = calculateHandTotal(finalDealerHand);
+  
+  let winAmount = 0;
+  
+  try {
+    setLoading(true);
     
     if (dealerTotal > 21) {
       setGameStatus('dealerBust');
       setMessage('Dealer busts! You win');
+      winAmount = currentBet * 2; // Original bet + win
+      
+      // Update wallet in database
+      await updateWalletBalance(winAmount);
+      
+      // Add game history
+      await addGameHistory('Blackjack', currentBet, winAmount);
     } else if (dealerTotal > playerTotal) {
       setGameStatus('dealerWin');
       setMessage('Dealer wins');
+      await addGameHistory('Blackjack', currentBet, 0);
     } else if (playerTotal > dealerTotal) {
       setGameStatus('playerWin');
       setMessage('You win!');
+      winAmount = currentBet * 2; // Original bet + win
+      
+      // Update wallet in database
+      await updateWalletBalance(winAmount);
+      
+      // Add game history
+      await addGameHistory('Blackjack', currentBet, winAmount);
     } else {
       setGameStatus('push');
       setMessage('Push (Tie)');
+      winAmount = currentBet; // Return the original bet
+      
+      // Update wallet in database
+      await updateWalletBalance(winAmount);
+      
+      // Add game history
+      await addGameHistory('Blackjack', currentBet, currentBet);
     }
+    
+    // Refresh user wallet balance after game ends
+    await refreshWalletBalance();
+  } catch (err) {
+    console.error('Error processing game outcome:', err);
+    setError('An error occurred. Please refresh the page.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Reset game
+  const resetGame = () => {
+    setPlayerHand([]);
+    setDealerHand([]);
+    setCurrentBet(0);
+    setGameStatus('idle');
+    setMessage('Place your bet and press Deal to start');
   };
 
   // Card component
-  const Card = ({ card }) => {
+  const Card = ({ card, index }) => {
     if (card.faceDown) {
       return (
-        <div className="h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-gray-700 flex items-center justify-center transform transition-transform duration-300 hover:rotate-3 border-2 border-gray-600">
+        <div
+          className="relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-gray-700 flex items-center justify-center border-2 border-gray-600"
+        >
           <div className="text-xl sm:text-2xl text-gray-400 font-bold">?</div>
         </div>
       );
@@ -156,11 +370,52 @@ const Blackjack = () => {
     const isAce = card.value === 'A';
     const isFace = ['J', 'Q', 'K'].includes(card.value);
     
+    // Only apply animation when the card is newly drawn
+    if (card.isNew) {
+      return (
+        <motion.div
+          key={card.id}
+          initial={{ rotateY: 90, x: 100, opacity: 0 }}
+          animate={{ rotateY: 0, x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 hover:shadow-xl border border-gray-300"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          <div className={`self-start text-xs sm:text-sm font-bold ${color}`}>{card.value}</div>
+          <div className={`text-xl sm:text-2xl md:text-3xl ${color} ${isAce || isFace ? 'font-bold' : ''}`}>{card.suit}</div>
+          <div className={`self-end text-xs sm:text-sm font-bold ${color}`}>{card.value}</div>
+        </motion.div>
+      );
+    }
+    
+    // Regular card without animation
     return (
-      <div className="h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl border border-gray-300">
+      <div
+        key={card.id}
+        className="relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 hover:shadow-xl border border-gray-300"
+      >
         <div className={`self-start text-xs sm:text-sm font-bold ${color}`}>{card.value}</div>
         <div className={`text-xl sm:text-2xl md:text-3xl ${color} ${isAce || isFace ? 'font-bold' : ''}`}>{card.suit}</div>
         <div className={`self-end text-xs sm:text-sm font-bold ${color}`}>{card.value}</div>
+      </div>
+    );
+  };
+
+  // Chip component
+  const Chip = ({ value, selected }) => {
+    const colors = {
+      5: 'bg-gradient-to-r from-red-500 to-red-600',
+      25: 'bg-gradient-to-r from-blue-500 to-blue-600',
+      100: 'bg-gradient-to-r from-green-500 to-green-600',
+      500: 'bg-gradient-to-r from-purple-500 to-purple-600'
+    };
+    
+    return (
+      <div 
+        className={`rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center text-white font-bold cursor-pointer transform transition-transform duration-300 hover:scale-110 ${colors[value]} ${selected ? 'ring-4 ring-yellow-400 scale-110' : ''}`}
+        onClick={() => selectChip(value)}
+      >
+        <span className="text-xs sm:text-sm md:text-base">${value}</span>
       </div>
     );
   };
@@ -187,84 +442,212 @@ const Blackjack = () => {
     return 'bg-gray-700 text-gray-100';
   };
 
+  // Reset isNew flags on animation complete
+  useEffect(() => {
+    if (playerHand.some(card => card.isNew)) {
+      const timer = setTimeout(() => {
+        setPlayerHand(prev => prev.map(card => ({...card, isNew: false})));
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [playerHand]);
+
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 mt-25 sm:p-6 md:p-8 bg-gray-900 rounded-xl md:rounded-2xl shadow-2xl relative overflow-hidden">
-          <Navbar />
-      <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-purple-900 opacity-20 rounded-full transform translate-x-12 sm:translate-x-16 -translate-y-12 sm:-translate-y-16"></div>
-      <div className="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 bg-blue-900 opacity-20 rounded-full transform -translate-x-16 sm:-translate-x-20 translate-y-16 sm:translate-y-20"></div>
+    <div className="min-h-screen">
+      <Navbar />
       
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 md:mb-8 text-center text-gray-100 tracking-wide relative">
-        <span className="relative z-10">
-          Blackjack
-          <span className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
-        </span>
-      </h1>
-      
-      <div className={`${getStatusBadgeColor()} text-sm sm:text-base font-medium px-3 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md text-center mb-4 sm:mb-6 transform transition-all duration-500 animate-pulse`}>
-        {message}
-      </div>
-      
-      <div className="bg-gray-800 bg-opacity-80 p-3 sm:p-4 md:p-6 rounded-lg sm:rounded-xl shadow-md">
-        <div className="mb-4 sm:mb-6 md:mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-200">Dealer</h3>
-            {gameStatus !== 'playing' && calculateHandTotal(dealerHand) > 0 && (
-              <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getTotalBadgeColor(calculateHandTotal(dealerHand))}`}>
-                Total: {calculateHandTotal(dealerHand)}
-              </span>
-            )}
+      <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
+        {loading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="text-center mt-2">Processing...</p>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center">
-            {dealerHand.map((card, index) => (
-              <Card key={index} card={card} />
-            ))}
-          </div>
-        </div>
-        
-        <div className="w-full border-t border-gray-700 my-3 sm:my-4"></div>
-        
-        <div className="mb-4 sm:mb-6 md:mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-200">Player</h3>
-            {calculateHandTotal(playerHand) > 0 && (
-              <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getTotalBadgeColor(calculateHandTotal(playerHand))}`}>
-                Total: {calculateHandTotal(playerHand)}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap justify-center">
-            {playerHand.map((card, index) => (
-              <Card key={index} card={card} />
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex justify-center space-x-2 sm:space-x-4 mt-4 sm:mt-6 md:mt-8">
-        {gameStatus === 'idle' || gameStatus !== 'playing' ? (
-          <button 
-            onClick={dealGame}
-            className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          >
-            Deal
-          </button>
-        ) : (
-          <>
-            <button 
-              onClick={hit}
-              className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-            >
-              Hit
-            </button>
-            <button 
-              onClick={stand}
-              className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-            >
-              Stand
-            </button>
-          </>
         )}
-      </div>
+        
+        {error && (
+          <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+            <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setError(null)}>
+              <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <title>Close</title>
+                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+              </svg>
+            </span>
+          </div>
+        )}
+        
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Betting section */}
+          <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
+            
+            <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">Current Bet</h3>
+              <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2 sm:mb-4">${currentBet.toFixed(2)}</div>
+              <div className="text-base sm:text-lg font-semibold text-gray-200">Balance</div>
+              <div className="text-xl sm:text-2xl font-bold text-green-400">${balance.toFixed(2)}</div>
+            </div>
+            
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-3 sm:mb-4">Quick Chips</h3>
+              <div className="flex justify-center space-x-2 sm:space-x-3 md:space-x-4 mb-4">
+                {chips.map(chip => (
+                  <Chip key={chip} value={chip} selected={selectedChip === chip} />
+                ))}
+              </div>
+              
+              <div className="mt-4 sm:mt-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">Custom Bet</h3>
+                <div className="flex items-center">
+                  <span className="text-gray-300 text-base sm:text-lg mr-2">$</span>
+                  <input
+                    type="text"
+                    value={customBetAmount}
+                    onChange={handleCustomBetChange}
+                    placeholder="Enter amount"
+                    className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-3 sm:py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={gameStatus !== 'idle'}
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Max bet: $500</p>
+              </div>
+              
+              <div className="flex justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
+                <button 
+                  onClick={placeBet}
+                  disabled={(!selectedChip && !customBetAmount) || gameStatus !== 'idle' || loading}
+                  className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-medium shadow-md transition text-sm sm:text-base ${
+                    (!selectedChip && !customBetAmount) || gameStatus !== 'idle' || loading
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  Place Bet
+                </button>
+                
+                <button 
+                  onClick={clearBet}
+                  disabled={currentBet <= 0 || gameStatus !== 'idle' || loading}
+                  className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-medium shadow-md transition text-sm sm:text-base ${
+                    currentBet <= 0 || gameStatus !== 'idle' || loading
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                  }`}
+                >
+                  Clear Bet
+                </button>
+              </div>
+            </div>
+            
+            {gameStatus !== 'idle' && gameStatus !== 'playing' && (
+              <button 
+                onClick={resetGame}
+                className="mt-auto w-full px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none"
+                disabled={loading}
+              >
+                New Game
+              </button>
+            )}
+          </div>
+          
+          {/* Game section */}
+          <div className="lg:w-2/3">
+            <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
+                <span className="relative">
+                  Blackjack
+                  <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
+                </span>
+              </h1>
+              
+              <div className={`${getStatusBadgeColor()} text-sm sm:text-base font-medium px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-md text-center mb-4 sm:mb-6 transition-all duration-500 animate-pulse`}>
+                {message}
+              </div>
+              
+              <div className="mb-6 sm:mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-200">Dealer</h3>
+                  {gameStatus !== 'playing' && calculateHandTotal(dealerHand) > 0 && (
+                    <span className={`px-2 py-1 sm:px-3 rounded-full text-xs sm:text-sm font-medium ${getTotalBadgeColor(calculateHandTotal(dealerHand))}`}>
+                      Total: {calculateHandTotal(dealerHand)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap justify-center min-h-32">
+                  <AnimatePresence>
+                    {dealerHand.map((card, index) => (
+                      <Card key={card.id || index} card={card} index={index} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+              
+              <div className="w-full border-t border-gray-700 my-3 sm:my-4"></div>
+              
+              <div className="mb-6 sm:mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-200">Player</h3>
+                  {calculateHandTotal(playerHand) > 0 && (
+                    <span className={`px-2 py-1 sm:px-3 rounded-full text-xs sm:text-sm font-medium ${getTotalBadgeColor(calculateHandTotal(playerHand))}`}>
+                      Total: {calculateHandTotal(playerHand)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap justify-center min-h-32">
+                  <AnimatePresence>
+                    {playerHand.map((card, index) => (
+                      <Card key={card.id || index} card={card} index={index} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+              
+              <div className="flex justify-center space-x-3 sm:space-x-4 mt-4 sm:mt-6">
+                {gameStatus === 'idle' ? (
+                  <button 
+                    onClick={dealGame}
+                    disabled={currentBet <= 0 || loading}
+                    className={`px-4 py-2 sm:px-6 sm:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                      currentBet <= 0 || loading
+                      ? 'bg-gray-600 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:-translate-y-1 hover:shadow-lg focus:ring-blue-500'
+                    }`}
+                  >
+                    Deal
+                  </button>
+                ) : gameStatus === 'playing' ? (
+                  <>
+                    <button 
+                      onClick={hit}
+                      disabled={loading}
+                      className={`px-4 py-2 sm:px-6 sm:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                        loading
+                        ? 'bg-gray-600 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-green-500 to-teal-600 hover:-translate-y-1 hover:shadow-lg focus:ring-green-500'
+                      }`}
+                    >
+                      Hit
+                    </button>
+                    <button 
+                      onClick={stand}
+                      disabled={loading}
+                      className={`px-4 py-2 sm:px-6 sm:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                        loading
+                        ? 'bg-gray-600 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-red-500 to-pink-600 hover:-translate-y-1 hover:shadow-lg focus:ring-red-500'
+                      }`}
+                    >
+                      Stand
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      
       <Footer />
     </div>
   );

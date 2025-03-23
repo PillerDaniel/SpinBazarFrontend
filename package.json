@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.0.4",
     "axios": "^1.8.2",
     "flowbite-react": "^0.10.2",
+    "framer-motion": "^12.5.0",
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "i18next-http-backend": "^3.0.2",

@@ -28,7 +28,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+    <nav className="bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-600">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <a href="/" className="flex items-center">
@@ -37,7 +37,7 @@ const Navbar = () => {
         </div>
 
         {user && (
-          <div className="relative inline-flex items-center justify-center mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 dark:text-white">
+          <div className="relative inline-flex items-center justify-center mb-2 me-2 overflow-hidden text-sm font-medium text-white">
             <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +54,7 @@ const Navbar = () => {
                 <path d="M17 14h.01" />
                 <path d="M7 7h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14" />
               </svg>
-              <span className="text-lg font-semibold text-gray-100 dark:text-gray-100">
+              <span className="text-lg font-semibold text-gray-100">
                 <b>{user?.walletBalance}$</b>
               </span>
             </span>
@@ -71,10 +71,10 @@ const Navbar = () => {
                 className="flex items-center space-x-1 rtl:space-x-reverse"
               >
                 <div className="flex">
-                  <span className="text-gray-900 dark:text-white font-medium mr-1">
+                  <span className="text-white font-medium mr-1">
                     {user.userName}
                   </span>
-                  <CircleUser className="text-gray-700 dark:text-white w-6 h-6 transform hover:scale-110" />
+                  <CircleUser className="text-white w-6 h-6 transform hover:scale-110" />
                 </div>
               </button>
               <UserMenu
@@ -89,14 +89,14 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() => navigate("/Register")}
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
               >
                 {t("navbar_register_button")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/Login")}
-                className="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                className="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center bg-gray-600 hover:bg-gray-700 focus:ring-gray-800"
               >
                 {t("navbar_login_button")}
               </button>

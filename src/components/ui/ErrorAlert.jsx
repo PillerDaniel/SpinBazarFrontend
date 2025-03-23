@@ -18,7 +18,7 @@ const ErrorAlert = ({ message, onClose }) => {
 
   return (
     <div
-      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex items-center p-4 text-sm text-red-800 bg-red-50 rounded-lg shadow-md dark:bg-gray-800 dark:text-red-400 transition-all duration-300 ${
+      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 flex items-center p-4 text-sm rounded-lg shadow-md bg-gray-800 text-red-400 transition-all duration-300 ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       }`}
       role="alert"
