@@ -31,7 +31,7 @@ const GameCard = ({ imageSrc, altText, root, requiresAuth = false }) => {
         className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 cursor-pointer hover:scale-105 transition-all duration-300"
         onClick={handleClick}
       >
-        <img className="rounded-t-lg" src={imageSrc} alt={altText} />
+        <img className="rounded-lg" src={imageSrc} alt={altText} />
       </div>
     </>
   );

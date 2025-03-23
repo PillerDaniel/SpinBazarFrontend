@@ -232,7 +232,7 @@ const Blackjack = () => {
     }
   };
   
-  const processWin = async (winAmount) => {
+  const  processWin = async (winAmount) => {
     try {
       setLoading(true);
       const response = await axiosInstance.post('/bet/winbet', {
@@ -276,8 +276,9 @@ const Blackjack = () => {
         setGameStatus('dealerWin');
         setMessage('Dealer wins');
         winAmount = 0;
+        
         await processWin(-currentBet);
-        await addGameHistory('Blackjack', currentBet, 0);
+        await addGameHistory('Blackjack', currentBet, -currentBet);
   
       } else if (playerTotal > dealerTotal) {
         setGameStatus('playerWin');
