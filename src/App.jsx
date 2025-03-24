@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Home from "./pages/HomePage";
 import Blackjack from "./pages/Blackjack";
 import Roulette from "./pages/Roulette";
+import AdminDashboard from "./pages/AdminDashboard";
+
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import { AuthProvider } from "./context/AuthContext";
 import "../i18n.js";
@@ -35,6 +37,13 @@ function App() {
             }
           />
         <Route path="/statistics" element={<GameStatistics />} />
+        <Route
+              path="/AdminDashboard"
+              element={
+                  <AdminDashboard />
+              }
+            >
+          </Route>
         </Routes>
       </AuthProvider>
     </Router>
