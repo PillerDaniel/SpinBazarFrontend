@@ -1,256 +1,258 @@
-import React, { useState, useEffect } from 'react';
-import ErrorAlert from '../components/ui/ErrorAlert';
-import SuccessAlert from '../components/ui/SuccessAlert';
-import Navbar from '../components/ui/Navbar';
-import Footer from '../components/ui/Footer';
-import UserMenu from '../components/ui/UserMenu';
-import axiosInstance from '../utils/axios';
+import React, { useState, useEffect } from "react";
+import Navbar from "../components/ui/Navbar";
+import Footer from "../components/ui/Footer";
+import axiosInstance from "../utils/axios";
+import { Card, Table, Badge, Dropdown, Spinner, Alert } from "flowbite-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [activeTab, setActiveTab] = useState('users');
-  
+  const [selectedRole, setSelectedRole] = useState("");
+
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+
+        const response = await axiosInstance.get(
+          "http://localhost:5001/admin/getusers",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const userData = response.data.users || [];
+        setUsers(userData);
+        setFilteredUsers(userData);
+
+        setLoading(false);
+      } catch (err) {
+        console.error("API Error:", err);
+        setError("Failed to load user data. Please try again later.");
+        setLoading(false);
+      }
+    };
+
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-  
-      const response = await axiosInstance.get(
-        "http://localhost:5001/admin/getusers",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      
-      setUsers(response.data.users); 
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching users:', err);
-      setError('Failed to load users. Please try again later.');
-      setLoading(false);
-    }
-  };
-  
+  const calculateUserStats = () => {
+    if (!filteredUsers || !filteredUsers.length) return null;
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        const token = localStorage.getItem('token');
-        
-        const response = await fetch(`/admin/deleteuser/${userId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to delete user');
-        }
-        
-        setUsers(users.filter(user => user._id !== userId));
-        setSuccess('User deleted successfully');
-        
-        // Clear success message after 3 seconds
-        setTimeout(() => {
-          setSuccess(null);
-        }, 3000);
-      } catch (err) {
-        console.error('Error deleting user:', err);
-        setError('Failed to delete user. Please try again.');
+    const totalUsers = filteredUsers.length;
+    const adminUsers = filteredUsers.filter(
+      (user) => user.role === "admin"
+    ).length;
+    const regularUsers = filteredUsers.filter(
+      (user) => user.role !== "admin"
+    ).length;
+
+    return {
+      totalUsers,
+      adminUsers,
+      regularUsers,
+    };
+  };
+  const filterByRole = (role) => {
+    setLoading(true);
+    try {
+      if (role) {
+        const filtered = users.filter((user) => user.role === role);
+        setFilteredUsers(filtered);
+        setSelectedRole(role);
+      } else {
+        setFilteredUsers(users);
+        setSelectedRole("");
       }
+    } catch (err) {
+      setError("Failed to filter users. Please try again later.");
     }
+    setLoading(false);
+  };
+
+  const stats = calculateUserStats();
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      
-      <div className="container mx-auto px-4 py-8 flex-grow">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-          <UserMenu />
+
+      <div className="container mx-auto px-4 pt-30 pb-24 flex-grow">
+        <h1 className="text-2xl font-bold mb-6 text-white">Admin Dashboard</h1>
+
+        {error && (
+          <Alert color="failure" className="mb-4">
+            {error}
+          </Alert>
+        )}
+
+        <div className="mb-6">
+          <Dropdown label={selectedRole || "All Roles"} color="dark">
+            <Dropdown.Item onClick={() => filterByRole("")}>
+              All Roles
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => filterByRole("admin")}>
+              Admin
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => filterByRole("user")}>
+              User
+            </Dropdown.Item>
+          </Dropdown>
         </div>
-        
-        {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
-        {success && <SuccessAlert message={success} onClose={() => setSuccess(null)} />}
-        
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <div className="w-full md:w-64 bg-white rounded-lg shadow-md p-4">
-            <nav>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => setActiveTab('users')}
-                    className={`w-full text-left px-4 py-2 rounded-md ${
-                      activeTab === 'users' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    Users
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setActiveTab('games')}
-                    className={`w-full text-left px-4 py-2 rounded-md ${
-                      activeTab === 'games' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    Games
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setActiveTab('statistics')}
-                    className={`w-full text-left px-4 py-2 rounded-md ${
-                      activeTab === 'statistics' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    Statistics
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setActiveTab('settings')}
-                    className={`w-full text-left px-4 py-2 rounded-md ${
-                      activeTab === 'settings' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    Settings
-                  </button>
-                </li>
-              </ul>
-            </nav>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner size="xl" />
           </div>
-          
-          {/* Main Content */}
-          <div className="flex-1 bg-white rounded-lg shadow-md p-6">
-            {activeTab === 'users' && (
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">User Management</h2>
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                    Add New User
-                  </button>
-                </div>
-                
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    className="w-full md:w-80 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                {loading ? (
-                  <div className="text-center py-8">
-                    <p>Loading users...</p>
+        ) : (
+          <>
+            {stats && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <Card>
+                  <div className="p-4 flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                      <h5 className="text-xl font-bold tracking-tight text-white">
+                        Total Users
+                      </h5>
+                      <div className="p-2 bg-blue-600 rounded-full">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="font-normal text-4xl text-gray-200 mb-2">
+                      {stats.totalUsers}
+                    </p>
                   </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {users.length > 0 ? (
-                          users.map(user => (
-                            <tr key={user._id}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user._id.substring(0, 8)}...</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.userName}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                                }`}>
-                                  {user.role || 'user'}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {new Date(user.createdAt).toLocaleDateString()}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                <button 
-                                  onClick={() => handleDeleteUser(user._id)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                              No users found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                </Card>
+
+                <Card>
+                  <div className="p-4 flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                      <h5 className="text-xl font-bold tracking-tight text-white">
+                        Admin Users
+                      </h5>
+                      <div className="p-2 bg-green-600 rounded-full">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="font-normal text-4xl text-gray-200 mb-2">
+                      {stats.adminUsers}
+                    </p>
                   </div>
-                )}
+                </Card>
               </div>
             )}
-            
-            {activeTab === 'games' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Game Management</h2>
-                <p className="text-gray-600">
-                  This section will allow you to manage game settings, view game history, and monitor active games.
-                </p>
+
+            <Card className="mb-6 overflow-x-auto">
+              <div className="overflow-x-auto">
+                <Table striped>
+                  <Table.Head>
+                    <Table.HeadCell>ID</Table.HeadCell>
+                    <Table.HeadCell>Username</Table.HeadCell>
+                    <Table.HeadCell>Email</Table.HeadCell>
+                    <Table.HeadCell>Role</Table.HeadCell>
+                    <Table.HeadCell>Joined</Table.HeadCell>
+                    <Table.HeadCell>Actions</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body className="divide-y">
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <Table.Row
+                          key={user._id}
+                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                            {user._id.substring(0, 8)}...
+                          </Table.Cell>
+                          <Table.Cell>{user.userName}</Table.Cell>
+                          <Table.Cell>{user.email}</Table.Cell>
+                          <Table.Cell>
+                            <Badge
+                              color={user.role === "admin" ? "success" : "info"}
+                            >
+                              {user.role || "user"}
+                            </Badge>
+                          </Table.Cell>
+                          <Table.Cell>{formatDate(user.createdAt)}</Table.Cell>
+                          <Table.Cell>
+                            <button className="text-blue-600 hover:text-blue-900 mr-3">
+                              Edit
+                            </button>
+                            <button className="text-red-600 hover:text-red-900">
+                              Suspend
+                            </button>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))
+                    ) : (
+                      <Table.Row>
+                        <Table.Cell colSpan={6} className="text-center py-4">
+                          No users found
+                        </Table.Cell>
+                      </Table.Row>
+                    )}
+                  </Table.Body>
+                </Table>
               </div>
-            )}
-            
-            {activeTab === 'statistics' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Platform Statistics</h2>
-                <p className="text-gray-600">
-                  View detailed statistics about user activity, game popularity, and platform performance.
-                </p>
-              </div>
-            )}
-            
-            {activeTab === 'settings' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Admin Settings</h2>
-                <p className="text-gray-600">
-                  Configure platform settings, security options, and admin preferences.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+            </Card>
+          </>
+        )}
       </div>
-      
+
       <Footer />
     </div>
   );

@@ -36,14 +36,15 @@ function App() {
               </ProtectedRoutes>
             }
           />
-        <Route path="/statistics" element={<GameStatistics />} />
-        <Route
-              path="/AdminDashboard"
-              element={
-                  <AdminDashboard />
-              }
-            >
-          </Route>
+          <Route path="/statistics" element={<GameStatistics />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoutes>
+                <AdminDashboard/>
+              </ProtectedRoutes>
+            }
+          />
         </Routes>
       </AuthProvider>
     </Router>
