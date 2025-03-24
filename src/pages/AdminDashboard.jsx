@@ -136,8 +136,8 @@ const AdminDashboard = () => {
         ) : (
           <>
             {stats && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <Card>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Card className="w-full">
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
                   </div>
                 </Card>
 
-                <Card>
+                <Card className="w-full">
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">

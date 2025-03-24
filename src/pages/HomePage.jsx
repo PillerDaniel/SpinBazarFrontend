@@ -14,6 +14,7 @@ import BonusCard from "../components/ui/BonusCard";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import GameCarousel from "../components/ui/GameCarousel";
+import SportsBettingSection from "../components/ui/SportBettingSection";
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
@@ -22,7 +23,7 @@ const HomePage = () => {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen grid grid-rows-3 gap-6 pt-16 px-40 text-white mt-10">
+      <main className="min-h-screen flex flex-col gap-6 pt-16 px-40 text-white mt-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-1 flex flex-col items-center justify-center p-6 space-y-6 border-white">
             <h1 className="mb-4 text-3xl font-extrabold text-white md:text-5xl lg:text-6xl text-center">
@@ -39,9 +40,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white">
-
-          </div>
+          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white"></div>
         </div>
 
         <div className="flex items-center justify-center py-4">
@@ -87,7 +86,9 @@ const HomePage = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center border border-white py-4 mb-15"></div>
+        <div className="w-full flex items-center justify-center py-4 mb-15">
+          <SportsBettingSection />
+        </div>
       </main>
       <footer>
         <Footer />
