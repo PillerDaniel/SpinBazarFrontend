@@ -3,6 +3,53 @@ import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, Spinner } from "flowbite-react";
 
+// Set to true to use mock data instead of fetching from the API.
+const USE_MOCK_DATA = true;
+
+// Define some mock matches to display in the component.
+const mockMatches = [
+  {
+    id: 1,
+    homeTeam: "Real Madrid",
+    homeLogo:
+      "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+    awayTeam: "Barcelona",
+    awayLogo:
+      "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+    date: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    referee: "John Doe",
+    timezone: "UTC",
+    status: "NS",
+  },
+  {
+    id: 2,
+    homeTeam: "Atletico Madrid",
+    homeLogo:
+      "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_logo.svg",
+    awayTeam: "Sevilla",
+    awayLogo:
+      "https://upload.wikimedia.org/wikipedia/en/3/3f/Sevilla_FC.svg",
+    date: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    referee: "Jane Smith",
+    timezone: "UTC",
+    status: "NS",
+  },
+  {
+    id: 3,
+    homeTeam: "Valencia",
+    homeLogo:
+      "https://upload.wikimedia.org/wikipedia/en/c/cf/Valencia_CF.svg",
+    awayTeam: "Villarreal",
+    awayLogo:
+      "https://upload.wikimedia.org/wikipedia/en/2/2e/Villarreal_CF_logo.svg",
+    date: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    referee: "Alex Brown",
+    timezone: "UTC",
+    status: "NS",
+  },
+  // Add more mock matches if needed.
+];
+
 const SportBettingSection = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,53 +73,57 @@ const SportBettingSection = () => {
   }, []);
 
   useEffect(() => {
-    const fetchLaLigaMatches = async () => {
-      const options = {
-        method: "GET",
-        url: "https://api-football-v1.p.rapidapi.com/v3/fixtures",
-        params: { league: "140", season: "2024" },
-        headers: {
-          "X-RapidAPI-Key":
-            "36c318f0a4msh9711a935c650148p1e00cejsn042ab037588c",
-          "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-        },
+    if (USE_MOCK_DATA) {
+      // Use the mockMatches for display.
+      setMatches(mockMatches);
+      setLoading(false);
+    } else {
+      // Uncomment below to fetch real data from the API.
+      const fetchLaLigaMatches = async () => {
+        const options = {
+          method: "GET",
+          url: "https://api-football-v1.p.rapidapi.com/v3/fixtures",
+          params: { league: "140", season: "2024" },
+          headers: {
+            "X-RapidAPI-Key":
+              "36c318f0a4msh9711a935c650148p1e00cejsn042ab037588c",
+            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+          },
+        };
+
+        try {
+          setLoading(true);
+          const response = await axios.request(options);
+          const now = new Date();
+          const futureMatches = response.data.response.filter(
+            (match) => new Date(match.fixture.date) > now
+          );
+
+          const processedMatches = futureMatches.map((match) => ({
+            id: match.fixture.id,
+            homeTeam: match.teams.home.name,
+            homeLogo: match.teams.home.logo,
+            awayTeam: match.teams.away.name,
+            awayLogo: match.teams.away.logo,
+            date: match.fixture.date,
+            referee: match.fixture.referee || "N/A",
+            timezone: match.fixture.timezone,
+            status: match.fixture.status.short || "N/A",
+          }));
+
+          setMatches(processedMatches);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching matches:", error);
+          setError("Failed to fetch live matches");
+          setLoading(false);
+        }
       };
 
-      try {
-        setLoading(true);
-        const response = await axios.request(options);
-
-        const now = new Date();
-        const futureMatches = response.data.response.filter(
-          (match) => new Date(match.fixture.date) > now
-        );
-
-        const processedMatches = futureMatches.map((match) => ({
-          id: match.fixture.id,
-          homeTeam: match.teams.home.name,
-          homeLogo: match.teams.home.logo,
-          awayTeam: match.teams.away.name,
-          awayLogo: match.teams.away.logo,
-          date: match.fixture.date,
-          referee: match.fixture.referee || "N/A",
-          timezone: match.fixture.timezone,
-          status: match.fixture.status.short || "N/A",
-        }));
-
-        setMatches(processedMatches);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-        setError("Failed to fetch live matches");
-        setLoading(false);
-      }
-    };
-
-    fetchLaLigaMatches();
-
-    const intervalId = setInterval(fetchLaLigaMatches, 5 * 60 * 1000);
-
-    return () => clearInterval(intervalId);
+      fetchLaLigaMatches();
+      const intervalId = setInterval(fetchLaLigaMatches, 5 * 60 * 1000);
+      return () => clearInterval(intervalId);
+    }
   }, []);
 
   const handlePrev = () => {
@@ -95,7 +146,6 @@ const SportBettingSection = () => {
 
   useEffect(() => {
     if (matches.length <= visibleCards) return;
-
     const autoScroll = setInterval(handleNext, 5000);
     return () => clearInterval(autoScroll);
   }, [matches, visibleCards]);
@@ -128,7 +178,7 @@ const SportBettingSection = () => {
 
   return (
     <div className="relative w-full py-4" ref={carouselRef}>
-      {/* Left Arrow - only show if there are more matches */}
+      {/* Left Arrow */}
       {matches.length > visibleCards && (
         <button
           onClick={handlePrev}
@@ -148,7 +198,7 @@ const SportBettingSection = () => {
           ))}
       </div>
 
-      {/* Right Arrow - only show if there are more matches */}
+      {/* Right Arrow */}
       {matches.length > visibleCards && (
         <button
           onClick={handleNext}
@@ -162,8 +212,13 @@ const SportBettingSection = () => {
   );
 };
 
-// Updated Match Card Component with better text handling
 const MatchCard = ({ match }) => {
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "https://dummyimage.com/50x50/000/fff.png&text=Logo";
+  };
+  
+
   return (
     <div className="flex-shrink-0 w-[400px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-4 transition-transform duration-300 hover:scale-105">
       <div className="flex flex-col items-center">
@@ -174,6 +229,7 @@ const MatchCard = ({ match }) => {
             <img
               src={match.homeLogo}
               alt={match.homeTeam}
+              onError={handleImageError}
               className="w-12 h-12 mb-2 object-contain"
             />
             <h5 className="text-lg font-bold text-gray-900 dark:text-white text-center w-full break-words">
@@ -193,6 +249,7 @@ const MatchCard = ({ match }) => {
             <img
               src={match.awayLogo}
               alt={match.awayTeam}
+              onError={handleImageError}
               className="w-12 h-12 mb-2 object-contain"
             />
             <h5 className="text-lg font-bold text-gray-900 dark:text-white text-center w-full break-words">
@@ -218,5 +275,6 @@ const MatchCard = ({ match }) => {
     </div>
   );
 };
+
 
 export default SportBettingSection;
