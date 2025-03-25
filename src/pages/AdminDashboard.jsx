@@ -49,7 +49,7 @@ const AdminDashboard = () => {
         const userData = response.data.users || [];
         setUsers(userData);
         setFilteredUsers(userData);
-        
+
         setLoading(false);
       } catch (err) {
         console.error("API Error:", err);
@@ -94,7 +94,13 @@ const AdminDashboard = () => {
     }
     setLoading(false);
   };
-
+  const filterByActiveStatus = (status) => {
+    const filtered = users.filter((user) => user.isActive === status);
+    setFilteredUsers(filtered);
+    setSelectedRole("suspended");
+  };
+  
+  
   const stats = calculateUserStats();
 
   const formatDate = (dateString) => {
@@ -125,6 +131,9 @@ const AdminDashboard = () => {
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByRole("user")}>
               User
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
+              Suspended
             </Dropdown.Item>
           </Dropdown>
         </div>
@@ -206,6 +215,7 @@ const AdminDashboard = () => {
                     <Table.HeadCell>Email</Table.HeadCell>
                     <Table.HeadCell>Role</Table.HeadCell>
                     <Table.HeadCell>Joined</Table.HeadCell>
+                    <Table.HeadCell>Status</Table.HeadCell>
                     <Table.HeadCell>Actions</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
@@ -228,6 +238,13 @@ const AdminDashboard = () => {
                             </Badge>
                           </Table.Cell>
                           <Table.Cell>{formatDate(user.createdAt)}</Table.Cell>
+                          <Table.Cell>
+                            {user.isActive ? (
+                              <Badge color="success">Active</Badge>
+                            ) : (
+                              <Badge color="failure">Suspended</Badge>
+                            )}
+                          </Table.Cell>
                           <Table.Cell>
                             <button className="text-blue-600 hover:text-blue-900 mr-3">
                               Edit
