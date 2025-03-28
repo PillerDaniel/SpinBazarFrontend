@@ -108,6 +108,53 @@ const AdminDashboard = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
+  // suspend user
+  const handleSuspendUser = async (userId) => {
+
+    if (!window.confirm("Are you sure you want to suspend the user?")) return;
+
+    try {
+      const response = await axiosInstance.put(
+        `http://localhost:5001/admin/suspenduser/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setError(error.response.data.message);
+      } else {
+        setError("Failed to suspend user. Please try again later.");
+      }
+    }
+  }
+
+  //activate user
+  const handleActivateUser = async(userId) => {
+    if (!window.confirm("Are you sure you want to activate the user?")) return;
+    try {
+      const response = await axiosInstance.put(
+        `http://localhost:5001/admin/activateuser/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setError(error.response.data.message);
+      } else {
+        setError("Failed to activate user. Please try again later.");
+      }
+    }
+  }
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -249,9 +296,15 @@ const AdminDashboard = () => {
                             <button className="text-blue-600 hover:text-blue-900 mr-3">
                               Edit
                             </button>
-                            <button className="text-red-600 hover:text-red-900">
+                            {user.isActive ? (
+                            <button className="text-red-600 hover:text-red-900" onClick={() => handleSuspendUser(user._id)}>
                               Suspend
                             </button>
+                          ) : (
+                            <button className="text-green-600 hover:text-green-900" onClick={() => handleActivateUser(user._id)}>
+                              Activate
+                            </button>
+                          )}
                           </Table.Cell>
                         </Table.Row>
                       ))
