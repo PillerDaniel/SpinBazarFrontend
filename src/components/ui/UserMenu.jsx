@@ -51,7 +51,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
         <ul className="space-y-2 font-medium">
           <li>
             <button
-              onClick={""}
+              onClick={() => navigate("/profile")}
               className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
             >
               <svg

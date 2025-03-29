@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 import {
   CircleUser,
   WalletMinimal,
@@ -7,10 +10,10 @@ import {
   CreditCard,
   LogOut,
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 
 const UserCard = () => {
   const { user, logout, updateWalletBalance } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [depositAmount, setDepositAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -62,8 +65,15 @@ const UserCard = () => {
 
   return (
     <div className="flex">
-      <div className="w-125 bg-gray-900 rounded-lg shadow-md text-white">
-        <div className="border-b border-gray-800">
+      <div
+        className="w-125 bg-gray-900 rounded-lg shadow-md text-white relative overflow-hidden"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' width='200' height='200'%3E%3Cdefs%3E%3ClinearGradient id='gradient1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='rgba(45, 55, 72, 0.8)'/%3E%3Cstop offset='100%25' stop-color='rgba(55, 65, 82, 0.8)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23gradient1)'/%3E%3Cpath d='M30 40 L70 40 L50 60 Z' fill='rgba(75, 85, 99, 0.3)'/%3E%3Cpath d='M130 140 L170 140 L150 160 Z' fill='rgba(75, 85, 99, 0.3)'/%3E%3Ccircle cx='60' cy='140' r='15' fill='rgba(51, 65, 85, 0.4)'/%3E%3Ccircle cx='140' cy='60' r='15' fill='rgba(51, 65, 85, 0.4)'/%3E%3Cpath d='M10 10 L30 20 L20 30 Z' fill='rgba(94, 109, 131, 0.2)'/%3E%3Cpath d='M180 180 L190 170 L170 190 Z' fill='rgba(94, 109, 131, 0.2)'/%3E%3C/svg%3E")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="border-b bg-gray-800 border-gray-800">
           <nav className="flex">
             <button
               className={`px-4 py-3 hover:text-gray-300 ${
@@ -109,15 +119,15 @@ const UserCard = () => {
             <>
               <div className="flex items-center mb-6">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mr-3 text-white">
-                  <CircleUser className="w-12 h-12" />
+                  <CircleUser className="w-20 h-20" />
                 </div>
-                <h2 className="text-xl font-bold">{user.userName}</h2>
+                <h2 className="text-2xl font-bold">{user.userName}</h2>
               </div>
 
               <div className="mb-6">
                 <div className="flex justify-between mb-1">
-                  <span className="text-base font-medium">LVL. 1</span>
-                  <span className="text-sm text-white">5000xp</span>
+                  <span className="text-xl font-medium">LVL. <b>1</b></span>
+                  <span className="text-sm text-white font-bold">5000xp</span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div
@@ -266,8 +276,15 @@ const UserCard = () => {
       </div>
 
       {showCardDetails && (
-        <div className="w-96 ml-4 bg-gray-900 rounded-lg shadow-md text-white">
-          <div className="p-6">
+        <div
+          className="w-96 ml-4 bg-gray-900 rounded-lg shadow-md text-white relative overflow-hidden"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' width='200' height='200'%3E%3Cdefs%3E%3ClinearGradient id='gradient2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='rgba(45, 55, 72, 0.8)'/%3E%3Cstop offset='100%25' stop-color='rgba(55, 65, 82, 0.8)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23gradient2)'/%3E%3Cpath d='M30 40 L70 40 L50 60 Z' fill='rgba(75, 85, 99, 0.3)'/%3E%3Cpath d='M130 140 L170 140 L150 160 Z' fill='rgba(75, 85, 99, 0.3)'/%3E%3Ccircle cx='60' cy='140' r='15' fill='rgba(51, 65, 85, 0.4)'/%3E%3Ccircle cx='140' cy='60' r='15' fill='rgba(51, 65, 85, 0.4)'/%3E%3Cpath d='M10 10 L30 20 L20 30 Z' fill='rgba(94, 109, 131, 0.2)'/%3E%3Cpath d='M180 180 L190 170 L170 190 Z' fill='rgba(94, 109, 131, 0.2)'/%3E%3C/svg%3E")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="p-8 bg-gray-900">
             <h3 className="text-xl font-bold mb-6">Enter Card Details</h3>
 
             <div className="mb-6 bg-gray-800 rounded-lg p-4">

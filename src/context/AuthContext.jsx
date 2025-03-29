@@ -52,6 +52,9 @@ export const AuthProvider = ({ children }) => {
             setUser({ 
               userName: decodedToken.user.userName,
               role: decodedToken.user.role,
+              createdAt: decodedToken.user.createdAt,
+              birthDate: decodedToken.user.BirthDate,
+              email: decodedToken.user.email,
               walletBalance: decodedToken.user.wallet.balance
             });
           }
@@ -74,9 +77,11 @@ export const AuthProvider = ({ children }) => {
       setUser({ 
         userName: decodedToken.user.userName,
         role: decodedToken.user.role,
+        createdAt: decodedToken.user.createdAt,
+        birthDate: decodedToken.user.BirthDate,
+        email: decodedToken.user.email,
         walletBalance: decodedToken.user.wallet.balance
       });
-      navigate("/"); 
     } catch (error) {
       console.error("Login error:", error);
     }

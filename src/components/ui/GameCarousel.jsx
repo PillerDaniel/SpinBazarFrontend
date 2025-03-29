@@ -84,7 +84,7 @@ const GameCarousel = ({ games }) => {
     <div className="relative w-full py-4">
       <button
         onClick={handlePrev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-130"
         aria-label="Previous games"
       >
         <ChevronLeft size={38} />
@@ -105,7 +105,7 @@ const GameCarousel = ({ games }) => {
 
       <button
         onClick={handleNext}
-        className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-130"
         aria-label="Next games"
       >
         <ChevronRight size={38} />

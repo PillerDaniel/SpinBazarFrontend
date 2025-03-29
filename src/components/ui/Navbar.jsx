@@ -17,7 +17,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [activeTab, setActiveTab] = useState("casino"); // Default to casino
+  const [activeTab, setActiveTab] = useState("casino");
   const [hoverTab, setHoverTab] = useState(null);
 
   const handleLogout = () => {
@@ -37,7 +37,6 @@ const Navbar = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // Add any navigation or state changes needed when switching tabs
   };
 
   useEffect(() => {
@@ -58,7 +57,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Helper to determine which image to show
   const getButtonImage = (tabName) => {
     const isActive = activeTab === tabName;
     const isHovered = hoverTab === tabName;
@@ -80,7 +78,7 @@ const Navbar = () => {
         {/* Left section */}
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <a href="/" className="flex items-center">
-            <img src={Logo} className="h-12 pr-3" alt="Spinbazar Logo" />
+            <img src={Logo} onClick={() => navigate("/")} className="h-12 pr-3" alt="Spinbazar Logo" />
           </a>
           <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
         </div>

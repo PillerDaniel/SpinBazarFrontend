@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-html, main {
+html {
     background-image: url('background.svg');
     background-size: cover;
     background-position: center;

@@ -580,12 +580,12 @@ const GameStatistics = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <Card>
                   <div className="p-4 flex flex-col">
-                    <h5 className="text-lg font-bold mb-2 text-white">
+                    <h5 className="text-4xl font-bold mb-4 text-white">
                       Current Streak
                     </h5>
                     <div className="flex items-center">
                       <div
-                        className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                        className={`h-20 w-20 rounded-full flex items-center justify-center ${
                           stats.streakType === "win"
                             ? "bg-green-600"
                             : stats.streakType === "loss"
@@ -593,12 +593,12 @@ const GameStatistics = () => {
                             : "bg-yellow-600"
                         }`}
                       >
-                        <span className="text-white text-xl font-bold">
+                        <span className="text-white text-3xl font-bold">
                           {stats.currentStreak}
                         </span>
                       </div>
                       <div className="ml-4">
-                        <p className="text-lg text-gray-200">
+                        <p className="text-3xl text-gray-200">
                           {stats.streakType === "win"
                             ? "Win"
                             : stats.streakType === "loss"
@@ -606,7 +606,7 @@ const GameStatistics = () => {
                             : "Draw"}{" "}
                           streak
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-xl text-gray-400">
                           Last {stats.currentStreak} games
                         </p>
                       </div>
@@ -616,14 +616,14 @@ const GameStatistics = () => {
 
                 <Card>
                   <div className="p-4 flex flex-col">
-                    <h5 className="text-lg font-bold mb-2 text-white">
+                    <h5 className="text-4xl font-bold mb-4 text-white">
                       Best Game
                     </h5>
                     <div className="flex items-center">
-                      <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
+                      <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-white"
+                          className="h-12 w-12 text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -637,10 +637,10 @@ const GameStatistics = () => {
                         </svg>
                       </div>
                       <div className="ml-4">
-                        <p className="text-lg text-gray-200">
+                        <p className="text-3xl text-gray-200">
                           {stats.bestGame.game}
                         </p>
-                        <p className="text-sm text-green-400">
+                        <p className="text-xl mt-2 text-green-400">
                           +$
                           {stats.bestGame.winAmount - stats.bestGame.betAmount}
                         </p>
@@ -651,14 +651,14 @@ const GameStatistics = () => {
 
                 <Card>
                   <div className="p-4 flex flex-col">
-                    <h5 className="text-lg font-bold mb-2 text-white">
+                    <h5 className="text-4xl font-bold mb-4 text-white">
                       Favorite Game
                     </h5>
                     <div className="flex items-center">
-                      <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center">
+                      <div className="h-20 w-20 rounded-full bg-purple-600 flex items-center justify-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-white"
+                          className="h-12 w-12   text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -674,8 +674,8 @@ const GameStatistics = () => {
                       <div className="ml-4">
                         {games.length > 0 ? (
                           <>
-                            <p className="text-lg text-gray-200">{games[0]}</p>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-3xl text-gray-200">{games[0]}</p>
+                            <p className="text-xl text-gray-400 mt-2">
                               {
                                 filteredHistory.filter(
                                   (item) => item.game === games[0]
@@ -704,7 +704,17 @@ const GameStatistics = () => {
                   Results Distribution
                 </h5>
                 <div className="p-4 h-64 flex justify-center items-center">
-                  {stats && <Chart type="pie" data={resultsChartData} />}
+                  {stats && (
+                    <div className="w-full h-full">
+                      <Chart
+                        type="pie"
+                        data={resultsChartData}
+                        options={{
+                          maintainAspectRatio: false,
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </Card>
 
@@ -715,7 +725,13 @@ const GameStatistics = () => {
                 </h5>
                 <div className="p-4 h-64 flex justify-center items-center">
                   {filteredHistory.length > 0 && (
-                    <Chart type="bar" data={financialChartData} />
+                    <div className="w-full h-full">
+                      <Chart
+                        type="bar"
+                        data={financialChartData}
+                        options={{ maintainAspectRatio: false }}
+                      />
+                    </div>
                   )}
                 </div>
               </Card>
