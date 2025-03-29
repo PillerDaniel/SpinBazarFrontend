@@ -29,20 +29,17 @@ const Navbar = () => {
     i18n.changeLanguage(newLanguage);
   };
 
-  // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // If scrolling down, hide navbar
+
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setVisible(false);
-      } 
-      // If scrolling up or at the top, show navbar
+      }
       else {
         setVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -51,7 +48,7 @@ const Navbar = () => {
   }, [lastScrollY]);
 
   return (
-    <nav 
+    <nav
       className={`bg-gray-900 fixed w-full z-20 top-0 start-0 border transition-transform duration-300 ${
         visible ? "translate-y-0" : "-translate-y-full"
       }`}
@@ -61,36 +58,10 @@ const Navbar = () => {
           <a href="/" className="flex items-center">
             <img src={Logo} className="h-12 pr-3" alt="Spinbazar Logo" />
           </a>
+          <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
         </div>
 
-        {user && (
-          <div className="relative inline-flex items-center justify-center mb-2 me-2 overflow-hidden text-sm font-medium text-white">
-            <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-wallet-minimal text-white"
-              >
-                <path d="M17 14h.01" />
-                <path d="M7 7h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14" />
-              </svg>
-              <span className="text-lg font-semibold text-gray-100">
-                <b>{user?.walletBalance}$</b>
-              </span>
-            </span>
-          </div>
-        )}
-
         <div className="ml-auto flex space-x-3 rtl:space-x-reverse">
-          <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
-
           {user ? (
             <div className="flex items-center space-x-3">
               <button

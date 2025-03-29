@@ -15,7 +15,6 @@ const Blackjack = () => {
     "Place your bet and press Deal to start"
   );
 
-  // Betting and money state
   const [balance, setBalance] = useState(0);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
@@ -31,7 +30,6 @@ const Blackjack = () => {
     }
   }, [user]);
 
-  // Create and shuffle a new deck
   const createDeck = () => {
     const suits = ["♥", "♦", "♠", "♣"];
     const values = [

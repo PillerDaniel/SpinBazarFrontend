@@ -15,6 +15,7 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import GameCarousel from "../components/ui/GameCarousel";
 import SportsBettingSection from "../components/ui/SportBettingSection";
+import UserCard from "../components/ui/UserCard";
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
@@ -40,7 +41,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex items-center justify-center border border-white"></div>
+          <div className="col-span-1 md:col-span-2 flex items-center justify-center">
+            <UserCard/>
+          </div>
         </div>
 
         <div className="flex items-center justify-center py-4">

@@ -1,16 +1,18 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoutes from "./routes/ProtectedRoutes";
+import { AuthProvider } from "./context/AuthContext";
+import "../i18n.js";
+
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/HomePage";
 import Blackjack from "./pages/Blackjack";
 import Roulette from "./pages/Roulette";
 import AdminDashboard from "./pages/AdminDashboard";
-
-import ProtectedRoutes from "./routes/ProtectedRoutes";
-import { AuthProvider } from "./context/AuthContext";
-import "../i18n.js";
 import GameStatistics from "./pages/Statistics.jsx";
+import Profile from "./pages/Profile.jsx";
+
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/blackjack"
             element={

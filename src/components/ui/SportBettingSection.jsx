@@ -3,10 +3,8 @@ import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, Spinner } from "flowbite-react";
 
-// Set to true to use mock data instead of fetching from the API.
 const USE_MOCK_DATA = true;
 
-// Define some mock matches to display in the component.
 const mockMatches = [
   {
     id: 1,
@@ -16,7 +14,7 @@ const mockMatches = [
     awayTeam: "Barcelona",
     awayLogo:
       "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
-    date: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    date: new Date(Date.now() + 3600000).toISOString(),
     referee: "John Doe",
     timezone: "UTC",
     status: "NS",
@@ -29,7 +27,7 @@ const mockMatches = [
     awayTeam: "Sevilla",
     awayLogo:
       "https://upload.wikimedia.org/wikipedia/en/3/3f/Sevilla_FC.svg",
-    date: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    date: new Date(Date.now() + 7200000).toISOString(),
     referee: "Jane Smith",
     timezone: "UTC",
     status: "NS",
@@ -42,12 +40,11 @@ const mockMatches = [
     awayTeam: "Villarreal",
     awayLogo:
       "https://upload.wikimedia.org/wikipedia/en/2/2e/Villarreal_CF_logo.svg",
-    date: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    date: new Date(Date.now() + 10800000).toISOString(),
     referee: "Alex Brown",
     timezone: "UTC",
     status: "NS",
   },
-  // Add more mock matches if needed.
 ];
 
 const SportBettingSection = () => {
@@ -74,11 +71,9 @@ const SportBettingSection = () => {
 
   useEffect(() => {
     if (USE_MOCK_DATA) {
-      // Use the mockMatches for display.
       setMatches(mockMatches);
       setLoading(false);
     } else {
-      // Uncomment below to fetch real data from the API.
       const fetchLaLigaMatches = async () => {
         const options = {
           method: "GET",
@@ -178,7 +173,6 @@ const SportBettingSection = () => {
 
   return (
     <div className="relative w-full py-4" ref={carouselRef}>
-      {/* Left Arrow */}
       {matches.length > visibleCards && (
         <button
           onClick={handlePrev}
@@ -189,7 +183,6 @@ const SportBettingSection = () => {
         </button>
       )}
 
-      {/* Match Cards Carousel */}
       <div className="flex justify-center items-center px-12 gap-4 overflow-hidden">
         {matches
           .slice(currentIndex, currentIndex + visibleCards)
@@ -198,7 +191,6 @@ const SportBettingSection = () => {
           ))}
       </div>
 
-      {/* Right Arrow */}
       {matches.length > visibleCards && (
         <button
           onClick={handleNext}
@@ -222,9 +214,7 @@ const MatchCard = ({ match }) => {
   return (
     <div className="flex-shrink-0 w-[400px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-4 transition-transform duration-300 hover:scale-105">
       <div className="flex flex-col items-center">
-        {/* Teams Row */}
         <div className="flex items-center justify-between w-full mb-4">
-          {/* Home Team */}
           <div className="flex flex-col items-center w-2/5">
             <img
               src={match.homeLogo}
@@ -237,14 +227,12 @@ const MatchCard = ({ match }) => {
             </h5>
           </div>
 
-          {/* VS Separator */}
           <div className="mx-2 flex flex-col items-center justify-center">
             <span className="text-xl font-bold text-gray-600 dark:text-gray-300">
               VS
             </span>
           </div>
 
-          {/* Away Team */}
           <div className="flex flex-col items-center w-2/5">
             <img
               src={match.awayLogo}
@@ -258,7 +246,6 @@ const MatchCard = ({ match }) => {
           </div>
         </div>
 
-        {/* Match Details */}
         <div className="w-full space-y-2">
           <p className="text-sm text-gray-600 dark:text-gray-300">
             <span className="font-semibold">Date:</span>{" "}

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios
+import axios from "axios";
 
 const AuthContext = createContext();  
 
@@ -10,9 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Setup axios interceptors when the component mounts
   useEffect(() => {
-    // Request interceptor to add token to all requests
     axios.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("token");
@@ -26,12 +24,10 @@ export const AuthProvider = ({ children }) => {
       }
     );
 
-    // Response interceptor to handle authentication errors
     axios.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response && error.response.status === 401) {
-          // Token expired or invalid
           logout();
         }
         return Promise.reject(error);
@@ -39,7 +35,6 @@ export const AuthProvider = ({ children }) => {
     );
   }, []);
 
-  // Check for token and validate on mount
   useEffect(() => {
     const checkToken = async () => {
       const token = localStorage.getItem("token");
@@ -49,7 +44,6 @@ export const AuthProvider = ({ children }) => {
         try {
           const decodedToken = jwtDecode(token);
           
-          // Check if token is expired
           const currentTime = Date.now() / 1000;
           if (decodedToken.exp && decodedToken.exp < currentTime) {
             console.log("Token expired, logging out");

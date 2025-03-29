@@ -108,7 +108,6 @@ const AdminDashboard = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
-  // suspend user
   const handleSuspendUser = async (userId) => {
 
     if (!window.confirm("Are you sure you want to suspend the user?")) return;
@@ -132,7 +131,6 @@ const AdminDashboard = () => {
     }
   }
 
-  //activate user
   const handleActivateUser = async(userId) => {
     if (!window.confirm("Are you sure you want to activate the user?")) return;
     try {
