@@ -15,35 +15,29 @@ const mockMatches = [
     awayLogo:
       "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
     date: new Date(Date.now() + 3600000).toISOString(),
-    referee: "John Doe",
     timezone: "UTC",
-    status: "NS",
   },
   {
     id: 2,
     homeTeam: "Atletico Madrid",
     homeLogo:
-      "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_logo.svg",
+      "https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg",
     awayTeam: "Sevilla",
     awayLogo:
-      "https://upload.wikimedia.org/wikipedia/en/3/3f/Sevilla_FC.svg",
+      "https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg",
     date: new Date(Date.now() + 7200000).toISOString(),
-    referee: "Jane Smith",
     timezone: "UTC",
-    status: "NS",
   },
   {
     id: 3,
     homeTeam: "Valencia",
     homeLogo:
-      "https://upload.wikimedia.org/wikipedia/en/c/cf/Valencia_CF.svg",
+      "https://upload.wikimedia.org/wikipedia/sco/c/ce/Valenciacf.svg",
     awayTeam: "Villarreal",
     awayLogo:
-      "https://upload.wikimedia.org/wikipedia/en/2/2e/Villarreal_CF_logo.svg",
+      "https://upload.wikimedia.org/wikipedia/en/b/b9/Villarreal_CF_logo-en.svg",
     date: new Date(Date.now() + 10800000).toISOString(),
-    referee: "Alex Brown",
     timezone: "UTC",
-    status: "NS",
   },
 ];
 
@@ -212,7 +206,7 @@ const MatchCard = ({ match }) => {
   
 
   return (
-    <div className="flex-shrink-0 w-[400px] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-4 transition-transform duration-300 hover:scale-105">
+    <div className="flex-shrink-0 w-[400px] p-4 transition-transform duration-300 hover:scale-105">
       <div className="flex flex-col items-center">
         <div className="flex items-center justify-between w-full mb-4">
           <div className="flex flex-col items-center w-2/5">
@@ -227,8 +221,8 @@ const MatchCard = ({ match }) => {
             </h5>
           </div>
 
-          <div className="mx-2 flex flex-col items-center justify-center">
-            <span className="text-xl font-bold text-gray-600 dark:text-gray-300">
+          <div className="mx-2 flex flex-col items-center justify-center bg-gray-500 p-2 rounded-4xl">
+            <span className="text-xl font-bold text-gray-700">
               VS
             </span>
           </div>
@@ -247,15 +241,9 @@ const MatchCard = ({ match }) => {
         </div>
 
         <div className="w-full space-y-2">
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-gray-600 text-center dark:text-gray-300">
             <span className="font-semibold">Date:</span>{" "}
             {new Date(match.date).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            <span className="font-semibold">Referee:</span> {match.referee}
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            <span className="font-semibold">Status:</span> {match.status}
           </p>
         </div>
       </div>

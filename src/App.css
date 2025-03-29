@@ -5,6 +5,7 @@ html, main {
     background-size: cover;
     background-position: center;
     animation: gradient 15s ease infinite;
+    user-select: none;
 }
 
 @keyframes gradient {

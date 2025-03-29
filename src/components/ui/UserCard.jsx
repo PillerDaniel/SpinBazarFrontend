@@ -5,6 +5,7 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   CreditCard,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -18,6 +19,11 @@ const UserCard = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCVV, setCardCVV] = useState("");
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   if (!user) {
     return null;
@@ -121,13 +127,17 @@ const UserCard = () => {
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center justify-between px-4 py-2">
                 <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
                   <WalletMinimal className="text-white w-8 h-8" />
                   <span className="text-lg font-semibold text-gray-100">
                     <b>{user?.walletBalance}$</b>
                   </span>
                 </span>
+
+                <button onClick={handleLogout} className="flex p-2 text-red-400 transition-transform duration-300 hover:scale-110">
+                  <LogOut />
+                </button>
               </div>
             </>
           )}
@@ -136,7 +146,7 @@ const UserCard = () => {
             <div>
               <div className="flex items-center mb-6">
                 <ArrowDownCircle className="w-8 h-8 text-green-400 mr-2" />
-                <h2 className="text-xl font-bold">Deposit Funds</h2>
+                <h2 className="text-xl font-bold">Deposit</h2>
               </div>
 
               <form onSubmit={handleDeposit}>
@@ -176,20 +186,20 @@ const UserCard = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-2 px-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-md font-medium transition-all duration-300 hover:from-green-600 hover:to-blue-700"
+                  className="w-full py-2 px-4 bg-gradient-to-r from-cyan-500 to-green-400 rounded-md font-medium transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right"
                 >
                   Deposit Now
                 </button>
 
                 <div className="mt-4 text-sm text-gray-400 text-center">
-                <div className="flex items-center"> 
-                <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
-                  <WalletMinimal className="text-white w-8 h-8" />
-                  <span className="text-lg font-semibold text-gray-100">
-                    <b>{user?.walletBalance}$</b>
-                  </span>
-                </span>
-              </div>
+                  <div className="flex items-center">
+                    <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-green-400 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                      <WalletMinimal className="text-white w-8 h-8" />
+                      <span className="text-lg font-semibold text-gray-100">
+                        <b>{user?.walletBalance}$</b>
+                      </span>
+                    </span>
+                  </div>
                 </div>
               </form>
             </div>
@@ -199,7 +209,7 @@ const UserCard = () => {
             <div>
               <div className="flex items-center mb-6">
                 <ArrowUpCircle className="w-8 h-8 text-blue-400 mr-2" />
-                <h2 className="text-xl font-bold">Withdraw Funds</h2>
+                <h2 className="text-xl font-bold">Withdraw</h2>
               </div>
 
               <form onSubmit={handleWithdraw}>
@@ -208,13 +218,13 @@ const UserCard = () => {
                     Available Balance
                   </label>
                   <div className="flex items-center">
-                <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
-                  <WalletMinimal className="text-white w-8 h-8" />
-                  <span className="text-lg font-semibold text-gray-100">
-                    <b>{user?.walletBalance}$</b>
-                  </span>
-                </span>
-              </div>
+                    <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                      <WalletMinimal className="text-white w-8 h-8" />
+                      <span className="text-lg font-semibold text-gray-100">
+                        <b>{user?.walletBalance}$</b>
+                      </span>
+                    </span>
+                  </div>
                 </div>
 
                 <div className="mb-6">
@@ -241,7 +251,7 @@ const UserCard = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md font-medium transition-all duration-300 hover:from-blue-600 hover:to-purple-700"
+                  className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md font-medium transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right"
                   disabled={
                     !withdrawAmount ||
                     parseFloat(withdrawAmount) > user?.walletBalance

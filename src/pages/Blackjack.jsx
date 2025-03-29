@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../utils/axios";
+import { WalletMinimal, Coins } from "lucide-react";
 
 const Blackjack = () => {
   const { user } = useAuth();
@@ -557,13 +558,23 @@ const Blackjack = () => {
                 Current Bet
               </h3>
               <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2 sm:mb-4">
-                ${currentBet.toFixed(2)}
+                <span className="relative inline-flex items-center space-x-2 py-2.5 px-3 bg-gradient-to-br from-yellow-300 to-orange-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                  <Coins className="text-white w-8 h-8" />
+                  <span className="text-lg font-semibold text-gray-100">
+                    <b>{currentBet.toFixed(2)}$</b>
+                  </span>
+                </span>
               </div>
               <div className="text-base sm:text-lg font-semibold text-gray-200">
                 Balance
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-green-400">
-                ${balance.toFixed(2)}
+              <div className="text-xl sm:text-2xl font-bold">
+                <span className="relative inline-flex items-center space-x-2 py-2.5 px-3 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                  <WalletMinimal className="text-white w-8 h-8" />
+                  <span className="text-lg font-semibold text-gray-100">
+                    <b>{balance.toFixed(2)}$</b>
+                  </span>
+                </span>
               </div>
             </div>
 
