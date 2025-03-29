@@ -12,6 +12,7 @@ import Roulette from "./pages/Roulette";
 import AdminDashboard from "./pages/AdminDashboard";
 import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
+import Casino from "./pages/Casino.jsx";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/casino" element={<Casino />} />
           <Route
             path="/blackjack"
             element={

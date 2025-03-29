@@ -87,7 +87,10 @@ const Navbar = () => {
         <div className="flex items-center justify-center">
           <div className="inline-flex space-x-2 overflow-hidden">
             <button
-              onClick={() => handleTabChange("casino")}
+                onClick={() => {
+                  handleTabChange("casino");
+                  navigate("/casino");
+                }}
               onMouseEnter={() => setHoverTab("casino")}
               onMouseLeave={() => setHoverTab(null)}
               className="relative overflow-hidden h-10 px-6 uppercase font-medium text-white flex items-center justify-center transition-all duration-200 rounded-md"
