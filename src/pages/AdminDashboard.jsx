@@ -2,7 +2,16 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
-import { Card, Table, Badge, Dropdown, Spinner, Alert } from "flowbite-react";
+import {
+  Card,
+  Table,
+  Badge,
+  Dropdown,
+  Spinner,
+  Alert,
+  Modal,
+  Button,
+} from "flowbite-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,8 +39,25 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalAction, setModalAction] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUsername, setSelectedUsername] = useState("");
+
+  // proli megoldas elmeletben app.css -el van valami baj, de most igy jo refresh utan is
+  useEffect(() => {
+    document.body.style.backgroundImage = "url('/background.svg')";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center center";
+    document.body.style.backgroundAttachment = "fixed";
+  
+    return () => {
+      document.body.style.backgroundImage = "";
+    };
+  }, []);
 
   useEffect(() => {
+    
     const fetchUsers = async () => {
       try {
         setLoading(true);
@@ -59,6 +85,8 @@ const AdminDashboard = () => {
     };
 
     fetchUsers();
+
+    return () => {};
   }, []);
 
   const calculateUserStats = () => {
@@ -68,16 +96,12 @@ const AdminDashboard = () => {
     const adminUsers = filteredUsers.filter(
       (user) => user.role === "admin"
     ).length;
-    const regularUsers = filteredUsers.filter(
-      (user) => user.role !== "admin"
-    ).length;
-
     return {
       totalUsers,
       adminUsers,
-      regularUsers,
     };
   };
+
   const filterByRole = (role) => {
     setLoading(true);
     try {
@@ -94,13 +118,13 @@ const AdminDashboard = () => {
     }
     setLoading(false);
   };
+
   const filterByActiveStatus = (status) => {
     const filtered = users.filter((user) => user.isActive === status);
     setFilteredUsers(filtered);
-    setSelectedRole("suspended");
+    setSelectedRole(status === false ? "suspended" : "active");
   };
-  
-  
+
   const stats = calculateUserStats();
 
   const formatDate = (dateString) => {
@@ -108,13 +132,29 @@ const AdminDashboard = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
-  const handleSuspendUser = async (userId) => {
+  // Open modal for suspend action
+  const openSuspendModal = (userId, username) => {
+    setSelectedUserId(userId);
+    setSelectedUsername(username);
+    setModalAction("suspend");
+    setShowModal(true);
+  };
 
-    if (!window.confirm("Are you sure you want to suspend the user?")) return;
+  // Open modal for activate action
+  const openActivateModal = (userId, username) => {
+    setSelectedUserId(userId);
+    setSelectedUsername(username);
+    setModalAction("activate");
+    setShowModal(true);
+  };
 
+  // Handle suspension after confirmation
+  const handleSuspendUser = async () => {
     try {
+      setLoading(true);
+      setShowModal(false);
       const response = await axiosInstance.put(
-        `http://localhost:5001/admin/suspenduser/${userId}`,
+        `http://localhost:5001/admin/suspenduser/${selectedUserId}`,
         {},
         {
           headers: {
@@ -122,47 +162,80 @@ const AdminDashboard = () => {
           },
         }
       );
+
+      // Update user in the state
+      const updatedUsers = users.map((user) =>
+        user._id === selectedUserId ? { ...user, isActive: false } : user
+      );
+      setUsers(updatedUsers);
+
+      // Update filtered users as well
+      const updatedFilteredUsers = filteredUsers.map((user) =>
+        user._id === selectedUserId ? { ...user, isActive: false } : user
+      );
+      setFilteredUsers(updatedFilteredUsers);
+
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.response && error.response.status === 400) {
         setError(error.response.data.message);
       } else {
         setError("Failed to suspend user. Please try again later.");
       }
     }
-  }
+  };
 
-  const handleActivateUser = async(userId) => {
-    if (!window.confirm("Are you sure you want to activate the user?")) return;
+  // Handle activation after confirmation
+  const handleActivateUser = async () => {
     try {
+      setLoading(true);
+      setShowModal(false);
       const response = await axiosInstance.put(
-        `http://localhost:5001/admin/activateuser/${userId}`,
+        `http://localhost:5001/admin/activateuser/${selectedUserId}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
-      )
+      );
+
+      // Update user in the state
+      const updatedUsers = users.map((user) =>
+        user._id === selectedUserId ? { ...user, isActive: true } : user
+      );
+      setUsers(updatedUsers);
+
+      // Update filtered users as well
+      const updatedFilteredUsers = filteredUsers.map((user) =>
+        user._id === selectedUserId ? { ...user, isActive: true } : user
+      );
+      setFilteredUsers(updatedFilteredUsers);
+
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.response && error.response.status === 400) {
         setError(error.response.data.message);
       } else {
         setError("Failed to activate user. Please try again later.");
       }
     }
-  }
-
+  };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="app-container flex flex-col min-h-screen">
       <Navbar />
-
-      <div className="container mx-auto px-4 pt-30 pb-24 flex-grow">
-        <h1 className="text-2xl font-bold mb-6 text-white">Admin Dashboard</h1>
+      <main className="flex-grow flex flex-col pt-16 px-4 md:px-40 text-white mt-10">
+        <h1 className="text-3xl font-extrabold mb-6 text-white">Admin Dashboard</h1>
 
         {error && (
           <Alert color="failure" className="mb-4">
             {error}
+            <button className="ml-auto text-sm" onClick={() => setError(null)}>
+              Dismiss
+            </button>
           </Alert>
         )}
 
@@ -180,6 +253,9 @@ const AdminDashboard = () => {
             <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
               Suspended
             </Dropdown.Item>
+            <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
+              Active
+            </Dropdown.Item>
           </Dropdown>
         </div>
 
@@ -190,8 +266,8 @@ const AdminDashboard = () => {
         ) : (
           <>
             {stats && (
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <Card className="w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <Card className="w-full bg-gray-800 border-gray-700">
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
@@ -220,7 +296,7 @@ const AdminDashboard = () => {
                   </div>
                 </Card>
 
-                <Card className="w-full">
+                <Card className="w-full bg-gray-800 border-gray-700">
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
@@ -251,30 +327,30 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            <Card className="mb-6 overflow-x-auto">
+            <Card className="mb-6 overflow-x-auto bg-gray-800 border-gray-700">
               <div className="overflow-x-auto">
                 <Table striped>
                   <Table.Head>
-                    <Table.HeadCell>ID</Table.HeadCell>
-                    <Table.HeadCell>Username</Table.HeadCell>
-                    <Table.HeadCell>Email</Table.HeadCell>
-                    <Table.HeadCell>Role</Table.HeadCell>
-                    <Table.HeadCell>Joined</Table.HeadCell>
-                    <Table.HeadCell>Status</Table.HeadCell>
-                    <Table.HeadCell>Actions</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">ID</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Username</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Email</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Role</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Joined</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Status</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">Actions</Table.HeadCell>
                   </Table.Head>
-                  <Table.Body className="divide-y">
+                  <Table.Body className="divide-y divide-gray-700">
                     {filteredUsers.length > 0 ? (
                       filteredUsers.map((user) => (
                         <Table.Row
                           key={user._id}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                          className="bg-gray-800 border-gray-700"
                         >
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          <Table.Cell className="whitespace-nowrap font-medium text-white">
                             {user._id.substring(0, 8)}...
                           </Table.Cell>
-                          <Table.Cell>{user.userName}</Table.Cell>
-                          <Table.Cell>{user.email}</Table.Cell>
+                          <Table.Cell className="text-gray-300">{user.userName}</Table.Cell>
+                          <Table.Cell className="text-gray-300">{user.email}</Table.Cell>
                           <Table.Cell>
                             <Badge
                               color={user.role === "admin" ? "success" : "info"}
@@ -282,7 +358,7 @@ const AdminDashboard = () => {
                               {user.role || "user"}
                             </Badge>
                           </Table.Cell>
-                          <Table.Cell>{formatDate(user.createdAt)}</Table.Cell>
+                          <Table.Cell className="text-gray-300">{formatDate(user.createdAt)}</Table.Cell>
                           <Table.Cell>
                             {user.isActive ? (
                               <Badge color="success">Active</Badge>
@@ -291,24 +367,34 @@ const AdminDashboard = () => {
                             )}
                           </Table.Cell>
                           <Table.Cell>
-                            <button className="text-blue-600 hover:text-blue-900 mr-3">
+                            <button className="text-blue-500 hover:text-blue-400 mr-3">
                               Edit
                             </button>
                             {user.isActive ? (
-                            <button className="text-red-600 hover:text-red-900" onClick={() => handleSuspendUser(user._id)}>
-                              Suspend
-                            </button>
-                          ) : (
-                            <button className="text-green-600 hover:text-green-900" onClick={() => handleActivateUser(user._id)}>
-                              Activate
-                            </button>
-                          )}
+                              <button
+                                className="text-red-500 hover:text-red-400"
+                                onClick={() =>
+                                  openSuspendModal(user._id, user.userName)
+                                }
+                              >
+                                Suspend
+                              </button>
+                            ) : (
+                              <button
+                                className="text-green-500 hover:text-green-400"
+                                onClick={() =>
+                                  openActivateModal(user._id, user.userName)
+                                }
+                              >
+                                Activate
+                              </button>
+                            )}
                           </Table.Cell>
                         </Table.Row>
                       ))
                     ) : (
-                      <Table.Row>
-                        <Table.Cell colSpan={6} className="text-center py-4">
+                      <Table.Row className="bg-gray-800">
+                        <Table.Cell colSpan={7} className="text-center py-4 text-gray-300">
                           No users found
                         </Table.Cell>
                       </Table.Row>
@@ -319,7 +405,53 @@ const AdminDashboard = () => {
             </Card>
           </>
         )}
-      </div>
+      </main>
+
+      {/* Confirmation Modal */}
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        size="md"
+        popup
+        theme={{
+          root: {
+            base: "fixed inset-0 flex items-center justify-center z-50",
+            show: {
+              on: "flex bg-gray-900 bg-opacity-50",
+              off: "hidden",
+            },
+          },
+          content: {
+            base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md",
+          },
+        }}
+      >
+        <Modal.Header>
+          <h3 className="text-xl font-medium text-white">
+            {modalAction === "suspend" ? "Suspend User" : "Activate User"}
+          </h3>
+        </Modal.Header>
+        <Modal.Body className="p-6 text-gray-300">
+          <p>
+            Are you sure you want to{" "}
+            <span className="font-bold">{modalAction}</span> user{" "}
+            <span className="font-bold">{selectedUsername}</span>?
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            color={modalAction === "suspend" ? "failure" : "success"}
+            onClick={
+              modalAction === "suspend" ? handleSuspendUser : handleActivateUser
+            }
+          >
+            Yes, {modalAction === "suspend" ? "Suspend" : "Activate"}
+          </Button>
+          <Button color="gray" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Footer />
     </div>
