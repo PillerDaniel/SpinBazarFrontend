@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
+import { FaUserSlash, FaUserCheck, FaExclamationTriangle } from 'react-icons/fa'; // Példa ikonok
 import {
   Card,
   Table,
@@ -406,49 +407,68 @@ const AdminDashboard = () => {
           </>
         )}
       </main>
-
-      {/* Confirmation Modal */}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
         size="md"
         popup
         theme={{
-          root: {
-            base: "fixed inset-0 flex items-center justify-center z-50",
-            show: {
-              on: "flex bg-gray-900 bg-opacity-50",
-              off: "hidden",
+            root: {
+              base: "fixed inset-0 flex items-center justify-center z-50",
+              show: {
+                on: "flex",
+                off: "hidden",
+              },
             },
-          },
-          content: {
-            base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md",
-          },
+            content: {
+              base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md transition-all duration-300 ease-in-out",
+              inner: "relative rounded-lg bg-gray-800 shadow flex flex-col max-h-[90vh]"
+            },
+            header: {
+                base: "flex items-start justify-between rounded-t border-b p-5 border-gray-600",
+                title: "text-xl font-medium text-white",
+                close: {
+                    base: "ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-600 hover:text-white",
+                    icon: "h-5 w-5",
+                }
+            },
+            body: {
+                base: "p-6 flex-1 overflow-auto", 
+            },
+            footer: {
+                base: "flex items-center space-x-2 rounded-b border-t p-6 border-gray-600",
+            }
+            
         }}
       >
         <Modal.Header>
-          <h3 className="text-xl font-medium text-white">
-            {modalAction === "suspend" ? "Suspend User" : "Activate User"}
-          </h3>
         </Modal.Header>
-        <Modal.Body className="p-6 text-gray-300">
-          <p>
-            Are you sure you want to{" "}
-            <span className="font-bold">{modalAction}</span> user{" "}
-            <span className="font-bold">{selectedUsername}</span>?
-          </p>
+        <Modal.Body>
+          <div className="text-center">
+              {modalAction === "suspend" ? (
+                  <FaExclamationTriangle className="mx-auto mb-4 h-14 w-14 text-red-500" /> 
+              ) : (
+                  <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" /> 
+              )}
+              <h3 className="mb-5 text-lg font-normal text-gray-400"> 
+                  Biztosan szeretnéd{" "}
+                  <span className="font-semibold text-white">{modalAction === "suspend" ? "felfüggeszteni" : "aktiválni"}</span>{" "}
+                  a következő felhasználót:{" "}
+                  <span className="font-semibold text-white">{selectedUsername}</span>?
+              </h3>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="flex justify-center"> {}
           <Button
             color={modalAction === "suspend" ? "failure" : "success"}
             onClick={
               modalAction === "suspend" ? handleSuspendUser : handleActivateUser
             }
           >
-            Yes, {modalAction === "suspend" ? "Suspend" : "Activate"}
+            Igen, {modalAction === "suspend" ? "felfüggesztés" : "aktiválás"}
           </Button>
           <Button color="gray" onClick={() => setShowModal(false)}>
-            Cancel
+            Mégse
           </Button>
         </Modal.Footer>
       </Modal>
