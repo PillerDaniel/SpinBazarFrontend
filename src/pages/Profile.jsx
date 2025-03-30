@@ -2,42 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Bell, Clock, CreditCard, HelpCircle, LogOut, Settings, User, Calendar, Mail, Shield, Activity, RefreshCw } from 'lucide-react';
 import Navbar from '../components/ui/Navbar';
+import axios from 'axios';
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const {  logout } = useAuth();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [transactions, setTransactions] = useState([]);
 
+
   useEffect(() => {
-    setTimeout(() => {
-      setUserDetails({
-        userName: user?.userName || 'User',
-        email: 'user@example.com',
-        createdAt: new Date('2023-01-15'),
-        birthDate: new Date('1990-05-20'),
-        isActive: true,
-        role: user?.role || 'user',
-        walletBalance: user?.walletBalance || 0,
-        stats: {
-          daysActive: 128,
-          lastLogin: new Date(),
-          totalTransactions: 24
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.log("No token found");
+          setLoading(false);
+          return;
         }
-      });
+        const response = await axios.get("http://localhost:5001/user/account", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const {userName, email, createdAt, birthDate, isActive, role, wallet  } = response.data.userData;
+        const activeDays = Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24));
+        setUserDetails({
+          userName: userName || 'User',
+          email: email,
+          createdAt: createdAt,
+          birthDate: birthDate,
+          isActive: isActive,
+          role: role || 'user',
+          walletBalance: wallet.balance,
+          stats: {
+            daysActive: activeDays,
+            lastLogin: new Date(),
+            totalTransactions: 24,
+          }
+        })
+    
+        setTransactions([
+          { id: 1, type: 'deposit', amount: 100, date: new Date('2024-03-15'), status: 'completed' },
+          { id: 2, type: 'withdrawal', amount: 50, date: new Date('2024-03-10'), status: 'completed' },
+          { id: 3, type: 'purchase', amount: 25, date: new Date('2024-03-05'), status: 'pending' },
+          { id: 4, type: 'deposit', amount: 75, date: new Date('2024-02-28'), status: 'completed' },
+        ]);
 
-      setTransactions([
-        { id: 1, type: 'deposit', amount: 100, date: new Date('2024-03-15'), status: 'completed' },
-        { id: 2, type: 'withdrawal', amount: 50, date: new Date('2024-03-10'), status: 'completed' },
-        { id: 3, type: 'purchase', amount: 25, date: new Date('2024-03-05'), status: 'pending' },
-        { id: 4, type: 'deposit', amount: 75, date: new Date('2024-02-28'), status: 'completed' },
-      ]);
 
-      setLoading(false);
-    }, 1000);
-  }, [user]);
-
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchUser(); 
+  
+  }, []); 
+  
   const handleLogout = () => {
     logout();
   };
