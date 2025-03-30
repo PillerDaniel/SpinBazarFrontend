@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import "../App.css";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
@@ -20,6 +20,36 @@ import UserCard from "../components/ui/UserCard";
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token"); 
+
+    if (!token) {
+        console.error("No token found");
+        return;
+    }
+
+    const eventSource = new EventSource(`http://localhost:5001/user/event?token=${token}`);
+
+    eventSource.onmessage = (event) => {
+        try {
+            const message = JSON.parse(event.data); //-- userData is here for you Akos my beloved
+            console.log("Received message:", message); 
+        } catch (error) {
+            console.error("Error parsing message:", error);
+        }
+    };
+
+    eventSource.onerror = () => {
+        console.error("An error occurred with the EventSource.");
+        eventSource.close();
+    };
+
+    return () => {
+        eventSource.close();
+        console.log("EventSource connection closed.");
+    };
+}, []);
 
   return (
     <>
