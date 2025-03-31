@@ -2,12 +2,14 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useUser } from "../context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../utils/axios";
 import { WalletMinimal, Coins } from "lucide-react";
 
 const Blackjack = () => {
-  const { user } = useAuth();
+  const { user, updateWalletBalance  } = useAuth();
+  const userData = useUser();
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
@@ -16,7 +18,7 @@ const Blackjack = () => {
     "Place your bet and press Deal to start"
   );
 
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState(userData?.walletBalance || user?.walletBalance || 0);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
@@ -26,11 +28,12 @@ const Blackjack = () => {
   const chips = [5, 25, 100, 500];
 
   useEffect(() => {
-    if (user && user.walletBalance !== undefined) {
-      setBalance(user.walletBalance);
+    if (userData && userData.walletBalance !== undefined) {
+      setBalance(userData.walletBalance);
     }
-  }, [user]);
+  }, [userData]);
 
+  
   const createDeck = () => {
     const suits = ["♥", "♦", "♠", "♣"];
     const values = [
@@ -201,7 +204,9 @@ const Blackjack = () => {
       setMessage("Your turn");
 
       if (response.data.wallet) {
-        setBalance(response.data.wallet.balance);
+        const newBalance = response.data.wallet.balance;
+        setBalance(newBalance);
+        updateWalletBalance(newBalance);
       }
     } catch (err) {
       console.error("Error placing bet:", err);
@@ -325,14 +330,17 @@ const Blackjack = () => {
       );
 
       if (response.data && response.data.walletBalance !== undefined) {
-        setBalance(response.data.walletBalance);
+        const newBalance = response.data.walletBalance;
+        setBalance(newBalance);
+        updateWalletBalance(newBalance);
       } else {
-        setBalance((prevBalance) => prevBalance + winAmount);
+        const newBalance = balance + winAmount;
+        setBalance(newBalance);
+        updateWalletBalance(newBalance);
       }
     } catch (err) {
       console.error("Error updating wallet balance:", err);
       setError("Failed to update wallet balance. Please refresh the page.");
-      setBalance((prevBalance) => prevBalance - winAmount);
     } finally {
       setLoading(false);
     }

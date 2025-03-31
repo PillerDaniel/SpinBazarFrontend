@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useUser } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -15,6 +16,7 @@ import {
 const UserCard = () => {
   const { t } = useTranslation();
   const { user, logout, updateWalletBalance } = useAuth();
+  const userData = useUser();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [depositAmount, setDepositAmount] = useState("");
@@ -129,7 +131,7 @@ const UserCard = () => {
               <div className="mb-6">
                 <div className="flex justify-between mb-1">
                   <span className="text-xl font-medium">{t("level_prefix")} <b>1</b></span>
-                  <span className="text-sm text-white font-bold">5000xp</span>
+                  <span className="text-sm text-white">5000xp</span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
                   <div

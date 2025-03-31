@@ -94,10 +94,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateWalletBalance = (newBalance) => {
-    setUser(prevUser => ({
-      ...prevUser,
-      walletBalance: newBalance
-    }));
+    setUser(prevUser => {
+      if (!prevUser) return null;
+      return {
+        ...prevUser,
+        walletBalance: newBalance
+      };
+    });
   };
 
   return (

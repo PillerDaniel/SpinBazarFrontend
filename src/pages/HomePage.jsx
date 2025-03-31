@@ -18,7 +18,6 @@ import SportsBettingSection from "../components/ui/SportBettingSection";
 import UserCard from "../components/ui/UserCard";
 
 const HomePage = () => {
-  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
