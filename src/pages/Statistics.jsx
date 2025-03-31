@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/axios";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
+import { useTranslation } from "react-i18next";
 import { Card, Table, Badge, Dropdown, Spinner, Alert } from "flowbite-react";
 import { Chart } from "react-chartjs-2";
 import {
@@ -32,7 +33,7 @@ const GameStatistics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [games, setGames] = useState([]);
-
+  const { t } = useTranslation();
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -320,7 +321,7 @@ const GameStatistics = () => {
 
       <div className="container  mx-auto px-4 pt-30 pb-24 flex-grow">
         <h1 className="text-2xl font-bold mb-6 text-white">
-          Game History Statistics
+          {t("Game History Statistics")}
         </h1>
 
         {error && (
@@ -354,7 +355,7 @@ const GameStatistics = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Total Games
+                        {t("All Games")}
                       </h5>
                       <div className="p-2 bg-blue-600 rounded-full">
                         <svg
@@ -377,7 +378,7 @@ const GameStatistics = () => {
                       {stats.totalGames}
                     </p>
                     <div className="mt-2 flex items-center text-sm">
-                      <span className="text-gray-400">Total Sessions</span>
+                      <span className="text-gray-400">{t("Total Sessions")}</span>
                       <div className="ml-auto">{getTrendIndicator(10)}</div>
                     </div>
                     <div className="mt-4 h-1 w-full bg-gray-700 rounded-full overflow-hidden">
@@ -393,7 +394,7 @@ const GameStatistics = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Win Rate
+                        {t("Win Rate")}
                       </h5>
                       <div className="p-2 bg-green-600 rounded-full">
                         <svg
@@ -456,7 +457,7 @@ const GameStatistics = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Total Bet
+                        {t("Total Bet")}
                       </h5>
                       <div className="p-2 bg-purple-600 rounded-full">
                         <svg
@@ -480,7 +481,7 @@ const GameStatistics = () => {
                     </p>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        Avg. Bet: $
+                        {t("Avg. Bet")} $
                         {(stats.totalBet / stats.totalGames).toFixed(2)}
                       </span>
                       <div className="ml-auto">
@@ -510,7 +511,7 @@ const GameStatistics = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Net Profit
+                        {t("Net Profit")}
                       </h5>
                       <div
                         className={`p-2 ${
@@ -542,7 +543,7 @@ const GameStatistics = () => {
                     </p>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        ROI:{" "}
+                        {t("ROI")}{" "}
                         {((stats.profit / stats.totalBet) * 100).toFixed(1)}%
                       </span>
                       <div className="ml-auto">
@@ -581,7 +582,7 @@ const GameStatistics = () => {
                 <Card>
                   <div className="p-4 flex flex-col">
                     <h5 className="text-4xl font-bold mb-4 text-white">
-                      Current Streak
+                      {t("Current Streak")}
                     </h5>
                     <div className="flex items-center">
                       <div
@@ -607,7 +608,7 @@ const GameStatistics = () => {
                           streak
                         </p>
                         <p className="text-xl text-gray-400">
-                          Last {stats.currentStreak} games
+                          {t("Last")} {stats.currentStreak} {t("Games")}
                         </p>
                       </div>
                     </div>
@@ -617,7 +618,7 @@ const GameStatistics = () => {
                 <Card>
                   <div className="p-4 flex flex-col">
                     <h5 className="text-4xl font-bold mb-4 text-white">
-                      Best Game
+                      {t("Best Game")}
                     </h5>
                     <div className="flex items-center">
                       <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center">
@@ -652,7 +653,7 @@ const GameStatistics = () => {
                 <Card>
                   <div className="p-4 flex flex-col">
                     <h5 className="text-4xl font-bold mb-4 text-white">
-                      Favorite Game
+                      {t("Favorite Game")}
                     </h5>
                     <div className="flex items-center">
                       <div className="h-20 w-20 rounded-full bg-purple-600 flex items-center justify-center">
@@ -686,7 +687,7 @@ const GameStatistics = () => {
                           </>
                         ) : (
                           <p className="text-lg text-gray-200">
-                            No games played
+                            {t("No games played")}
                           </p>
                         )}
                       </div>
@@ -701,7 +702,7 @@ const GameStatistics = () => {
               {/* Results Chart */}
               <Card className="col-span-4">
                 <h5 className="text-xl font-bold mb-2 text-white p-4">
-                  Results Distribution
+                  {t("Result Distribution")}
                 </h5>
                 <div className="p-4 h-64 flex justify-center items-center">
                   {stats && (
@@ -721,7 +722,7 @@ const GameStatistics = () => {
               {/* Financial Chart */}
               <Card className="col-span-8">
                 <h5 className="text-xl font-bold mb-2 text-white p-4">
-                  Recent Bets & Wins
+                  {t("Recent Bets & Wins")}
                 </h5>
                 <div className="p-4 h-64 flex justify-center items-center">
                   {filteredHistory.length > 0 && (
@@ -740,17 +741,17 @@ const GameStatistics = () => {
             {/* History Table */}
             <Card className="mb-6 overflow-x-auto">
               <h5 className="text-xl font-bold mb-2 text-white p-4">
-                Game History
+                {t("Game History")}
               </h5>
               <div className="overflow-x-auto">
                 <Table striped>
                   <Table.Head>
-                    <Table.HeadCell>Game</Table.HeadCell>
-                    <Table.HeadCell>Date</Table.HeadCell>
-                    <Table.HeadCell>Bet Amount</Table.HeadCell>
-                    <Table.HeadCell>Win Amount</Table.HeadCell>
-                    <Table.HeadCell>Profit/Loss</Table.HeadCell>
-                    <Table.HeadCell>Result</Table.HeadCell>
+                    <Table.HeadCell>{t("Game")}</Table.HeadCell>
+                    <Table.HeadCell>{t("Date")}</Table.HeadCell>
+                    <Table.HeadCell>{t("Bet Amount")}</Table.HeadCell>
+                    <Table.HeadCell>{t("Win Amount")}</Table.HeadCell>
+                    <Table.HeadCell>{t("Profit/Loss")}</Table.HeadCell>
+                    <Table.HeadCell>{t("Result")}</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
                     {filteredHistory.length > 0 ? (
@@ -776,7 +777,7 @@ const GameStatistics = () => {
                     ) : (
                       <Table.Row>
                         <Table.Cell colSpan={6} className="text-center py-4">
-                          No game history found
+                          {t("No game history found")}
                         </Table.Cell>
                       </Table.Row>
                     )}

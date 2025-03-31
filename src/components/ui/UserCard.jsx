@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import {
   CircleUser,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 
 const UserCard = () => {
+  const { t } = useTranslation();
   const { user, logout, updateWalletBalance } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
@@ -39,7 +41,7 @@ const UserCard = () => {
       updateWalletBalance(newBalance);
       setDepositAmount("");
       setShowCardDetails(false);
-      alert(`Successfully deposited $${depositAmount}`);
+      alert(`${t("deposit_success")}${depositAmount}`);
     }
   };
 
@@ -53,9 +55,9 @@ const UserCard = () => {
       const newBalance = user.walletBalance - parseFloat(withdrawAmount);
       updateWalletBalance(newBalance);
       setWithdrawAmount("");
-      alert(`Successfully withdrew $${withdrawAmount}`);
+      alert(`${t("withdraw_success")}${withdrawAmount}`);
     } else if (parseFloat(withdrawAmount) > user.walletBalance) {
-      alert("Insufficient funds");
+      alert(t("insufficient_funds"));
     }
   };
 
@@ -86,7 +88,7 @@ const UserCard = () => {
                 setShowCardDetails(false);
               }}
             >
-              Profile
+              {t("profile_tab")}
             </button>
             <button
               className={`px-4 py-3 hover:text-gray-300 ${
@@ -96,7 +98,7 @@ const UserCard = () => {
               }`}
               onClick={() => setActiveTab("deposit")}
             >
-              Deposit
+              {t("deposit_tab")}
             </button>
             <button
               className={`px-4 py-3 hover:text-gray-300 ${
@@ -109,7 +111,7 @@ const UserCard = () => {
                 setShowCardDetails(false);
               }}
             >
-              Withdraw
+              {t("withdraw_tab")}
             </button>
           </nav>
         </div>
@@ -126,7 +128,7 @@ const UserCard = () => {
 
               <div className="mb-6">
                 <div className="flex justify-between mb-1">
-                  <span className="text-xl font-medium">LVL. <b>1</b></span>
+                  <span className="text-xl font-medium">{t("level_prefix")} <b>1</b></span>
                   <span className="text-sm text-white font-bold">5000xp</span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
@@ -141,7 +143,7 @@ const UserCard = () => {
                 <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
                   <WalletMinimal className="text-white w-8 h-8" />
                   <span className="text-lg font-semibold text-gray-100">
-                    <b>{user?.walletBalance}$</b>
+                    <b>{user?.walletBalance}{t("wallet_balance")}</b>
                   </span>
                 </span>
 
@@ -156,13 +158,13 @@ const UserCard = () => {
             <div>
               <div className="flex items-center mb-6">
                 <ArrowDownCircle className="w-8 h-8 text-green-400 mr-2" />
-                <h2 className="text-xl font-bold">Deposit</h2>
+                <h2 className="text-xl font-bold">{t("deposit_title")}</h2>
               </div>
 
               <form onSubmit={handleDeposit}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    Amount to Deposit
+                    {t("deposit_amount_label")}
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -171,7 +173,7 @@ const UserCard = () => {
                     <input
                       type="number"
                       className="w-full pl-8 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter amount"
+                      placeholder={t("deposit_amount_placeholder")}
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(e.target.value)}
                       min="0"
@@ -183,14 +185,14 @@ const UserCard = () => {
 
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2">
-                    Payment Method
+                    {t("payment_method_label")}
                   </label>
                   <div
                     className="flex items-center p-3 bg-gray-800 border border-gray-700 rounded-md mb-3 cursor-pointer hover:bg-gray-700"
                     onClick={toggleCardDetails}
                   >
                     <CreditCard className="w-5 h-5 mr-2 text-gray-400" />
-                    <span>Credit/Debit Card</span>
+                    <span>{t("credit_debit_card")}</span>
                   </div>
                 </div>
 
@@ -198,7 +200,7 @@ const UserCard = () => {
                   type="submit"
                   className="w-full py-2 px-4 bg-gradient-to-r from-cyan-500 to-green-400 rounded-md font-medium transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right"
                 >
-                  Deposit Now
+                  {t("deposit_button")}
                 </button>
 
                 <div className="mt-4 text-sm text-gray-400 text-center">
@@ -206,7 +208,7 @@ const UserCard = () => {
                     <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-green-400 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
                       <WalletMinimal className="text-white w-8 h-8" />
                       <span className="text-lg font-semibold text-gray-100">
-                        <b>{user?.walletBalance}$</b>
+                        <b>{user?.walletBalance}{t("wallet_balance")}</b>
                       </span>
                     </span>
                   </div>
@@ -219,19 +221,19 @@ const UserCard = () => {
             <div>
               <div className="flex items-center mb-6">
                 <ArrowUpCircle className="w-8 h-8 text-blue-400 mr-2" />
-                <h2 className="text-xl font-bold">Withdraw</h2>
+                <h2 className="text-xl font-bold">{t("withdraw_title")}</h2>
               </div>
 
               <form onSubmit={handleWithdraw}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2">
-                    Available Balance
+                    {t("available_balance")}
                   </label>
                   <div className="flex items-center">
                     <span className="relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
                       <WalletMinimal className="text-white w-8 h-8" />
                       <span className="text-lg font-semibold text-gray-100">
-                        <b>{user?.walletBalance}$</b>
+                        <b>{user?.walletBalance}{t("wallet_balance")}</b>
                       </span>
                     </span>
                   </div>
@@ -239,7 +241,7 @@ const UserCard = () => {
 
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-2">
-                    Amount to Withdraw
+                    {t("withdraw_amount_label")}
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -248,7 +250,7 @@ const UserCard = () => {
                     <input
                       type="number"
                       className="w-full pl-8 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter amount"
+                      placeholder={t("withdraw_amount_placeholder")}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       min="0"
@@ -267,7 +269,7 @@ const UserCard = () => {
                     parseFloat(withdrawAmount) > user?.walletBalance
                   }
                 >
-                  Withdraw Now
+                  {t("withdraw_button")}
                 </button>
               </form>
             </div>
@@ -285,14 +287,14 @@ const UserCard = () => {
           }}
         >
           <div className="p-8 bg-gray-900">
-            <h3 className="text-xl font-bold mb-6">Enter Card Details</h3>
+            <h3 className="text-xl font-bold mb-6">{t("card_details_title")}</h3>
 
             <div className="mb-6 bg-gray-800 rounded-lg p-4">
               <div className="flex items-center">
                 <input
                   type="text"
                   className="flex-grow bg-transparent border-none text-lg font-mono text-white focus:outline-none"
-                  placeholder="4242 4242 4242 4242"
+                  placeholder={t("card_number_placeholder")}
                   value={cardNumber}
                   onChange={(e) => setCardNumber(e.target.value)}
                   maxLength="19"
@@ -301,13 +303,13 @@ const UserCard = () => {
               </div>
             </div>
             <label className="block text-sm font-medium mb-2">
-              Cardholder Name
+              {t("cardholder_name_label")}
             </label>
             <div className="mb-6 bg-gray-800 rounded-lg p-4">
               <input
                 type="text"
                 className="w-full h-5 bg-transparent border-none text-medium font-mono text-white focus:outline-none"
-                placeholder="John Doe"
+                placeholder={t("cardholder_name_placeholder")}
                 value={cardHolderName}
                 onChange={(e) => setCardHolderName(e.target.value)}
                 maxLength="30"
@@ -316,23 +318,23 @@ const UserCard = () => {
             <div className="flex space-x-4 mb-6">
               <div className="w-1/2">
                 <label className="block text-sm font-medium mb-2">
-                  Expiry Date
+                  {t("expiry_date_label")}
                 </label>
                 <input
                   type="text"
                   className="w-full py-2 px-3 bg-gray-800 border border-gray-700 rounded-md"
-                  placeholder="MM/YY"
+                  placeholder={t("expiry_date_placeholder")}
                   value={cardExpiry}
                   onChange={(e) => setCardExpiry(e.target.value)}
                   maxLength="5"
                 />
               </div>
               <div className="w-1/2">
-                <label className="block text-sm font-medium mb-2">CVV</label>
+                <label className="block text-sm font-medium mb-2">{t("cvv_label")}</label>
                 <input
                   type="text"
                   className="w-full py-2 px-3 bg-gray-800 border border-gray-700 rounded-md"
-                  placeholder="123"
+                  placeholder={t("cvv_placeholder")}
                   value={cardCVV}
                   onChange={(e) => setCardCVV(e.target.value)}
                   maxLength="3"
@@ -345,7 +347,7 @@ const UserCard = () => {
               className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 rounded-md font-medium"
               onClick={handleDeposit}
             >
-              Pay now
+              {t("pay_now_button")}
             </button>
           </div>
         </div>

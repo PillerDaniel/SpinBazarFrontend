@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import WarningAlert from "./WarningAlert"; // Import the WarningAlert component
+import { useTranslation } from "react-i18next";
+import WarningAlert from "./WarningAlert";
 
 const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
+  const { t } = useTranslation();
   const [menuPosition, setMenuPosition] = useState("translate-x-full");
   const [warningMessage, setWarningMessage] = useState("");
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
   }, [isOpen]);
 
   const handleSettingsClick = () => {
-    setWarningMessage("Settings page is currently under development");
+    setWarningMessage(t("settings_warning"));
   };
 
   const handleCloseWarning = () => {
@@ -58,7 +60,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
         </button>
         <div className="py-4">
           <h5 className="text-base font-semibold uppercase text-gray-400 mt-5 mb-2">
-            Profile
+            {t("profile")}
           </h5>
           <ul className="space-y-2 font-medium">
             <li>
@@ -81,7 +83,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-                <span className="flex ml-3 whitespace-nowrap">Account</span>
+                <span className="flex ml-3 whitespace-nowrap">{t("account")}</span>
               </button>
             </li>
           </ul>
@@ -109,7 +111,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                     <path d="M6.376 18.91a6 6 0 0 1 11.249.003" />
                     <circle cx="12" cy="11" r="4" />
                   </svg>
-                  <span className="flex ml-3 whitespace-nowrap">Admin panel</span>
+                  <span className="flex ml-3 whitespace-nowrap">{t("admin_panel")}</span>
                 </button>
               </li>
             </ul>
@@ -140,7 +142,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                   <path d="M4 18v3" />
                   <path d="M8 14v7" />
                 </svg>
-                <span className="flex ml-3 whitespace-nowrap">Statistics</span>
+                <span className="flex ml-3 whitespace-nowrap">{t("statistics")}</span>
               </button>
             </li>
           </ul>
@@ -165,7 +167,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                   <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
-                <span className="flex ml-3 whitespace-nowrap">Settings</span>
+                <span className="flex ml-3 whitespace-nowrap">{t("settings")}</span>
               </button>
             </li>
           </ul>
@@ -193,7 +195,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                   />
                 </svg>
                 <span className="flex ml-3 text-red-400 whitespace-nowrap">
-                  Sign out
+                  {t("sign_out_usermenu")}
                 </span>
               </button>
             </li>

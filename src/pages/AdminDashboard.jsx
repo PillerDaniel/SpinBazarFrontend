@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
-import { FaUserSlash, FaUserCheck, FaExclamationTriangle } from 'react-icons/fa'; // Példa ikonok
+
+import { FaUserSlash, FaUserCheck, FaExclamationTriangle } from 'react-icons/fa';
 import {
   Card,
   Table,
@@ -35,6 +37,7 @@ ChartJS.register(
 );
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +48,6 @@ const AdminDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState("");
 
-  // proli megoldas elmeletben app.css -el van valami baj, de most igy jo refresh utan is
   useEffect(() => {
     document.body.style.backgroundImage = "url('/background.svg')";
     document.body.style.backgroundSize = "cover";
@@ -58,7 +60,6 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    
     const fetchUsers = async () => {
       try {
         setLoading(true);
@@ -76,7 +77,6 @@ const AdminDashboard = () => {
         const userData = response.data.users || [];
         setUsers(userData);
         setFilteredUsers(userData);
-
         setLoading(false);
       } catch (err) {
         console.error("API Error:", err);
@@ -86,8 +86,6 @@ const AdminDashboard = () => {
     };
 
     fetchUsers();
-
-    return () => {};
   }, []);
 
   const calculateUserStats = () => {
@@ -109,10 +107,10 @@ const AdminDashboard = () => {
       if (role) {
         const filtered = users.filter((user) => user.role === role);
         setFilteredUsers(filtered);
-        setSelectedRole(role);
+        setSelectedRole(t(`adminDashboard.filters.${role === false ? 'suspended' : role === true ? 'active' : role}`));
       } else {
         setFilteredUsers(users);
-        setSelectedRole("");
+        setSelectedRole(t('adminDashboard.filters.allRoles'));
       }
     } catch (err) {
       setError("Failed to filter users. Please try again later.");
@@ -123,7 +121,7 @@ const AdminDashboard = () => {
   const filterByActiveStatus = (status) => {
     const filtered = users.filter((user) => user.isActive === status);
     setFilteredUsers(filtered);
-    setSelectedRole(status === false ? "suspended" : "active");
+    setSelectedRole(t(`adminDashboard.filters.${status ? 'active' : 'suspended'}`));
   };
 
   const stats = calculateUserStats();
@@ -133,7 +131,6 @@ const AdminDashboard = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
-  // Open modal for suspend action
   const openSuspendModal = (userId, username) => {
     setSelectedUserId(userId);
     setSelectedUsername(username);
@@ -141,7 +138,6 @@ const AdminDashboard = () => {
     setShowModal(true);
   };
 
-  // Open modal for activate action
   const openActivateModal = (userId, username) => {
     setSelectedUserId(userId);
     setSelectedUsername(username);
@@ -149,7 +145,6 @@ const AdminDashboard = () => {
     setShowModal(true);
   };
 
-  // Handle suspension after confirmation
   const handleSuspendUser = async () => {
     try {
       setLoading(true);
@@ -164,13 +159,11 @@ const AdminDashboard = () => {
         }
       );
 
-      // Update user in the state
       const updatedUsers = users.map((user) =>
         user._id === selectedUserId ? { ...user, isActive: false } : user
       );
       setUsers(updatedUsers);
 
-      // Update filtered users as well
       const updatedFilteredUsers = filteredUsers.map((user) =>
         user._id === selectedUserId ? { ...user, isActive: false } : user
       );
@@ -187,7 +180,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle activation after confirmation
   const handleActivateUser = async () => {
     try {
       setLoading(true);
@@ -202,13 +194,11 @@ const AdminDashboard = () => {
         }
       );
 
-      // Update user in the state
       const updatedUsers = users.map((user) =>
         user._id === selectedUserId ? { ...user, isActive: true } : user
       );
       setUsers(updatedUsers);
 
-      // Update filtered users as well
       const updatedFilteredUsers = filteredUsers.map((user) =>
         user._id === selectedUserId ? { ...user, isActive: true } : user
       );
@@ -229,7 +219,9 @@ const AdminDashboard = () => {
     <div className="app-container flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow flex flex-col pt-16 px-4 md:px-40 text-white mt-10">
-        <h1 className="text-3xl font-extrabold mb-6 text-white">Admin Dashboard</h1>
+        <h1 className="text-3xl font-extrabold mb-6 text-white">
+          {t('adminDashboard.title')}
+        </h1>
 
         {error && (
           <Alert color="failure" className="mb-4">
@@ -241,21 +233,21 @@ const AdminDashboard = () => {
         )}
 
         <div className="mb-6">
-          <Dropdown label={selectedRole || "All Roles"} color="dark">
+          <Dropdown label={selectedRole || t('adminDashboard.filters.allRoles')} color="dark">
             <Dropdown.Item onClick={() => filterByRole("")}>
-              All Roles
+              {t('adminDashboard.filters.allRoles')}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByRole("admin")}>
-              Admin
+              {t('adminDashboard.filters.admin')}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByRole("user")}>
-              User
+              {t('adminDashboard.filters.user')}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
-              Suspended
+              {t('adminDashboard.filters.suspended')}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
-              Active
+              {t('adminDashboard.filters.active')}
             </Dropdown.Item>
           </Dropdown>
         </div>
@@ -272,7 +264,7 @@ const AdminDashboard = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Total Users
+                        {t('adminDashboard.totalUsers')}
                       </h5>
                       <div className="p-2 bg-blue-600 rounded-full">
                         <svg
@@ -301,7 +293,7 @@ const AdminDashboard = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        Admin Users
+                        {t('adminDashboard.adminUsers')}
                       </h5>
                       <div className="p-2 bg-green-600 rounded-full">
                         <svg
@@ -332,13 +324,13 @@ const AdminDashboard = () => {
               <div className="overflow-x-auto">
                 <Table striped>
                   <Table.Head>
-                    <Table.HeadCell className="bg-gray-700">ID</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Username</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Email</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Role</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Joined</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Status</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">Actions</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.id')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.username')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.email')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.role')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.joined')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.status')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.actions')}</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y divide-gray-700">
                     {filteredUsers.length > 0 ? (
@@ -356,20 +348,20 @@ const AdminDashboard = () => {
                             <Badge
                               color={user.role === "admin" ? "success" : "info"}
                             >
-                              {user.role || "user"}
+                              {user.role || t('adminDashboard.filters.user')}
                             </Badge>
                           </Table.Cell>
                           <Table.Cell className="text-gray-300">{formatDate(user.createdAt)}</Table.Cell>
                           <Table.Cell>
                             {user.isActive ? (
-                              <Badge color="success">Active</Badge>
+                              <Badge color="success">{t('adminDashboard.status.active')}</Badge>
                             ) : (
-                              <Badge color="failure">Suspended</Badge>
+                              <Badge color="failure">{t('adminDashboard.status.suspended')}</Badge>
                             )}
                           </Table.Cell>
                           <Table.Cell>
                             <button className="text-blue-500 hover:text-blue-400 mr-3">
-                              Edit
+                              {t('adminDashboard.actions.edit')}
                             </button>
                             {user.isActive ? (
                               <button
@@ -378,7 +370,7 @@ const AdminDashboard = () => {
                                   openSuspendModal(user._id, user.userName)
                                 }
                               >
-                                Suspend
+                                {t('adminDashboard.actions.suspend')}
                               </button>
                             ) : (
                               <button
@@ -387,7 +379,7 @@ const AdminDashboard = () => {
                                   openActivateModal(user._id, user.userName)
                                 }
                               >
-                                Activate
+                                {t('adminDashboard.actions.activate')}
                               </button>
                             )}
                           </Table.Cell>
@@ -396,7 +388,7 @@ const AdminDashboard = () => {
                     ) : (
                       <Table.Row className="bg-gray-800">
                         <Table.Cell colSpan={7} className="text-center py-4 text-gray-300">
-                          No users found
+                          {t('adminDashboard.userTable.noUsers')}
                         </Table.Cell>
                       </Table.Row>
                     )}
@@ -438,10 +430,10 @@ const AdminDashboard = () => {
             footer: {
                 base: "flex items-center space-x-2 rounded-b border-t p-6 border-gray-600",
             }
-            
         }}
       >
         <Modal.Header>
+          {t(`adminDashboard.modals.${modalAction}.title`)}
         </Modal.Header>
         <Modal.Body>
           <div className="text-center">
@@ -450,25 +442,22 @@ const AdminDashboard = () => {
               ) : (
                   <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" /> 
               )}
-              <h3 className="mb-5 text-lg font-normal text-gray-400"> 
-                  Biztosan szeretnéd{" "}
-                  <span className="font-semibold text-white">{modalAction === "suspend" ? "felfüggeszteni" : "aktiválni"}</span>{" "}
-                  a következő felhasználót:{" "}
-                  <span className="font-semibold text-white">{selectedUsername}</span>?
+              <h3 className="mb-5 text-lg font-normal text-gray-400">
+                  {t(`adminDashboard.modals.${modalAction}.message`, { username: selectedUsername })}
               </h3>
           </div>
         </Modal.Body>
-        <Modal.Footer className="flex justify-center"> {}
+        <Modal.Footer className="flex justify-center">
           <Button
             color={modalAction === "suspend" ? "failure" : "success"}
             onClick={
               modalAction === "suspend" ? handleSuspendUser : handleActivateUser
             }
           >
-            Igen, {modalAction === "suspend" ? "felfüggesztés" : "aktiválás"}
+            {t(`adminDashboard.modals.${modalAction}.confirm`)}
           </Button>
           <Button color="gray" onClick={() => setShowModal(false)}>
-            Mégse
+            {t('adminDashboard.modals.cancel')}
           </Button>
         </Modal.Footer>
       </Modal>
