@@ -702,7 +702,7 @@ const GameStatistics = () => {
               {/* Results Chart */}
               <Card className="col-span-4">
                 <h5 className="text-xl font-bold mb-2 text-white p-4">
-                  {t("Result Distribution")}
+                  {t("Results Distribution")}
                 </h5>
                 <div className="p-4 h-64 flex justify-center items-center">
                   {stats && (

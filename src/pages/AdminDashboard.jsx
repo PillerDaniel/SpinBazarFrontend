@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
+import { FaSearch } from 'react-icons/fa';
 
-import { FaUserSlash, FaUserCheck, FaExclamationTriangle } from 'react-icons/fa';
+import {
+  FaUserSlash,
+  FaUserCheck,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import {
   Card,
   Table,
@@ -47,13 +52,14 @@ const AdminDashboard = () => {
   const [modalAction, setModalAction] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     document.body.style.backgroundImage = "url('/background.svg')";
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundPosition = "center center";
     document.body.style.backgroundAttachment = "fixed";
-  
+
     return () => {
       document.body.style.backgroundImage = "";
     };
@@ -88,6 +94,27 @@ const AdminDashboard = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    let filtered = users;
+    if (selectedRole && selectedRole !== t("adminDashboard.filters.allRoles")) {
+      if (selectedRole === t("adminDashboard.filters.admin")) {
+        filtered = filtered.filter((user) => user.role === "admin");
+      } else if (selectedRole === t("adminDashboard.filters.user")) {
+        filtered = filtered.filter((user) => user.role === "user");
+      } else if (selectedRole === t("adminDashboard.filters.suspended")) {
+        filtered = filtered.filter((user) => !user.isActive);
+      } else if (selectedRole === t("adminDashboard.filters.active")) {
+        filtered = filtered.filter((user) => user.isActive);
+      }
+    }
+    if (searchQuery) {
+      filtered = filtered.filter((user) =>
+        user.userName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    setFilteredUsers(filtered);
+  }, [searchQuery, selectedRole, users, t]);
+
   const calculateUserStats = () => {
     if (!filteredUsers || !filteredUsers.length) return null;
 
@@ -105,12 +132,15 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       if (role) {
-        const filtered = users.filter((user) => user.role === role);
-        setFilteredUsers(filtered);
-        setSelectedRole(t(`adminDashboard.filters.${role === false ? 'suspended' : role === true ? 'active' : role}`));
+        setSelectedRole(
+          t(
+            `adminDashboard.filters.${
+              role === false ? "suspended" : role === true ? "active" : role
+            }`
+          )
+        );
       } else {
-        setFilteredUsers(users);
-        setSelectedRole(t('adminDashboard.filters.allRoles'));
+        setSelectedRole(t("adminDashboard.filters.allRoles"));
       }
     } catch (err) {
       setError("Failed to filter users. Please try again later.");
@@ -119,9 +149,9 @@ const AdminDashboard = () => {
   };
 
   const filterByActiveStatus = (status) => {
-    const filtered = users.filter((user) => user.isActive === status);
-    setFilteredUsers(filtered);
-    setSelectedRole(t(`adminDashboard.filters.${status ? 'active' : 'suspended'}`));
+    setSelectedRole(
+      t(`adminDashboard.filters.${status ? "active" : "suspended"}`)
+    );
   };
 
   const stats = calculateUserStats();
@@ -149,7 +179,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setShowModal(false);
-      const response = await axiosInstance.put(
+      await axiosInstance.put(
         `http://localhost:5001/admin/suspenduser/${selectedUserId}`,
         {},
         {
@@ -163,12 +193,6 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: false } : user
       );
       setUsers(updatedUsers);
-
-      const updatedFilteredUsers = filteredUsers.map((user) =>
-        user._id === selectedUserId ? { ...user, isActive: false } : user
-      );
-      setFilteredUsers(updatedFilteredUsers);
-
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -184,7 +208,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setShowModal(false);
-      const response = await axiosInstance.put(
+      await axiosInstance.put(
         `http://localhost:5001/admin/activateuser/${selectedUserId}`,
         {},
         {
@@ -198,12 +222,6 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: true } : user
       );
       setUsers(updatedUsers);
-
-      const updatedFilteredUsers = filteredUsers.map((user) =>
-        user._id === selectedUserId ? { ...user, isActive: true } : user
-      );
-      setFilteredUsers(updatedFilteredUsers);
-
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -215,12 +233,16 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="app-container flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow flex flex-col pt-16 px-4 md:px-40 text-white mt-10">
         <h1 className="text-3xl font-extrabold mb-6 text-white">
-          {t('adminDashboard.title')}
+          {t("adminDashboard.title")}
         </h1>
 
         {error && (
@@ -232,24 +254,36 @@ const AdminDashboard = () => {
           </Alert>
         )}
 
-        <div className="mb-6">
-          <Dropdown label={selectedRole || t('adminDashboard.filters.allRoles')} color="dark">
+        <div className="mb-6 flex flex-col md:flex-row md:justify-between items-center">
+          <Dropdown
+            label={selectedRole || t("adminDashboard.filters.allRoles")}
+            color="dark"
+          >
             <Dropdown.Item onClick={() => filterByRole("")}>
-              {t('adminDashboard.filters.allRoles')}
+              {t("adminDashboard.filters.allRoles")}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByRole("admin")}>
-              {t('adminDashboard.filters.admin')}
+              {t("adminDashboard.filters.admin")}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByRole("user")}>
-              {t('adminDashboard.filters.user')}
+              {t("adminDashboard.filters.user")}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
-              {t('adminDashboard.filters.suspended')}
+              {t("adminDashboard.filters.suspended")}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
-              {t('adminDashboard.filters.active')}
+              {t("adminDashboard.filters.active")}
             </Dropdown.Item>
           </Dropdown>
+          <div className="relative mt-4 md:mt-0 w-full md:w-1/3">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="pl-10 p-2 rounded bg-gray-800 text-white border border-gray-600 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            />
+          </div>
         </div>
 
         {loading ? (
@@ -258,13 +292,13 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <>
-            {stats && (
+            {!searchQuery && stats && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <Card className="w-full bg-gray-800 border-gray-700">
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        {t('adminDashboard.totalUsers')}
+                        {t("adminDashboard.totalUsers")}
                       </h5>
                       <div className="p-2 bg-blue-600 rounded-full">
                         <svg
@@ -293,7 +327,7 @@ const AdminDashboard = () => {
                   <div className="p-4 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                       <h5 className="text-xl font-bold tracking-tight text-white">
-                        {t('adminDashboard.adminUsers')}
+                        {t("adminDashboard.adminUsers")}
                       </h5>
                       <div className="p-2 bg-green-600 rounded-full">
                         <svg
@@ -324,13 +358,27 @@ const AdminDashboard = () => {
               <div className="overflow-x-auto">
                 <Table striped>
                   <Table.Head>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.id')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.username')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.email')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.role')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.joined')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.status')}</Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">{t('adminDashboard.userTable.actions')}</Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.id")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.username")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.email")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.role")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.joined")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.status")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
+                      {t("adminDashboard.userTable.actions")}
+                    </Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y divide-gray-700">
                     {filteredUsers.length > 0 ? (
@@ -342,26 +390,36 @@ const AdminDashboard = () => {
                           <Table.Cell className="whitespace-nowrap font-medium text-white">
                             {user._id.substring(0, 8)}...
                           </Table.Cell>
-                          <Table.Cell className="text-gray-300">{user.userName}</Table.Cell>
-                          <Table.Cell className="text-gray-300">{user.email}</Table.Cell>
+                          <Table.Cell className="text-gray-300">
+                            {user.userName}
+                          </Table.Cell>
+                          <Table.Cell className="text-gray-300">
+                            {user.email}
+                          </Table.Cell>
                           <Table.Cell>
                             <Badge
                               color={user.role === "admin" ? "success" : "info"}
                             >
-                              {user.role || t('adminDashboard.filters.user')}
+                              {user.role || t("adminDashboard.filters.user")}
                             </Badge>
                           </Table.Cell>
-                          <Table.Cell className="text-gray-300">{formatDate(user.createdAt)}</Table.Cell>
+                          <Table.Cell className="text-gray-300">
+                            {formatDate(user.createdAt)}
+                          </Table.Cell>
                           <Table.Cell>
                             {user.isActive ? (
-                              <Badge color="success">{t('adminDashboard.status.active')}</Badge>
+                              <Badge color="success">
+                                {t("adminDashboard.status.active")}
+                              </Badge>
                             ) : (
-                              <Badge color="failure">{t('adminDashboard.status.suspended')}</Badge>
+                              <Badge color="failure">
+                                {t("adminDashboard.status.suspended")}
+                              </Badge>
                             )}
                           </Table.Cell>
                           <Table.Cell>
                             <button className="text-blue-500 hover:text-blue-400 mr-3">
-                              {t('adminDashboard.actions.edit')}
+                              {t("adminDashboard.actions.edit")}
                             </button>
                             {user.isActive ? (
                               <button
@@ -370,7 +428,7 @@ const AdminDashboard = () => {
                                   openSuspendModal(user._id, user.userName)
                                 }
                               >
-                                {t('adminDashboard.actions.suspend')}
+                                {t("adminDashboard.actions.suspend")}
                               </button>
                             ) : (
                               <button
@@ -379,7 +437,7 @@ const AdminDashboard = () => {
                                   openActivateModal(user._id, user.userName)
                                 }
                               >
-                                {t('adminDashboard.actions.activate')}
+                                {t("adminDashboard.actions.activate")}
                               </button>
                             )}
                           </Table.Cell>
@@ -387,8 +445,11 @@ const AdminDashboard = () => {
                       ))
                     ) : (
                       <Table.Row className="bg-gray-800">
-                        <Table.Cell colSpan={7} className="text-center py-4 text-gray-300">
-                          {t('adminDashboard.userTable.noUsers')}
+                        <Table.Cell
+                          colSpan={7}
+                          className="text-center py-4 text-gray-300"
+                        >
+                          {t("adminDashboard.userTable.noUsers")}
                         </Table.Cell>
                       </Table.Row>
                     )}
@@ -405,31 +466,32 @@ const AdminDashboard = () => {
         size="md"
         popup
         theme={{
-            root: {
-              base: "fixed inset-0 flex items-center justify-center z-50",
-              show: {
-                on: "flex",
-                off: "hidden",
-              },
+          root: {
+            base: "fixed inset-0 flex items-center justify-center z-50",
+            show: {
+              on: "flex",
+              off: "hidden",
             },
-            content: {
-              base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md transition-all duration-300 ease-in-out",
-              inner: "relative rounded-lg bg-gray-800 shadow flex flex-col max-h-[90vh]"
+          },
+          content: {
+            base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md transition-all duration-300 ease-in-out",
+            inner:
+              "relative rounded-lg bg-gray-800 shadow flex flex-col max-h-[90vh]",
+          },
+          header: {
+            base: "flex items-start justify-between rounded-t border-b p-5 border-gray-600",
+            title: "text-xl font-medium text-white",
+            close: {
+              base: "ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-600 hover:text-white",
+              icon: "h-5 w-5",
             },
-            header: {
-                base: "flex items-start justify-between rounded-t border-b p-5 border-gray-600",
-                title: "text-xl font-medium text-white",
-                close: {
-                    base: "ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-600 hover:text-white",
-                    icon: "h-5 w-5",
-                }
-            },
-            body: {
-                base: "p-6 flex-1 overflow-auto", 
-            },
-            footer: {
-                base: "flex items-center space-x-2 rounded-b border-t p-6 border-gray-600",
-            }
+          },
+          body: {
+            base: "p-6 flex-1 overflow-auto",
+          },
+          footer: {
+            base: "flex items-center space-x-2 rounded-b border-t p-6 border-gray-600",
+          },
         }}
       >
         <Modal.Header>
@@ -437,14 +499,16 @@ const AdminDashboard = () => {
         </Modal.Header>
         <Modal.Body>
           <div className="text-center">
-              {modalAction === "suspend" ? (
-                  <FaExclamationTriangle className="mx-auto mb-4 h-14 w-14 text-red-500" /> 
-              ) : (
-                  <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" /> 
-              )}
-              <h3 className="mb-5 text-lg font-normal text-gray-400">
-                  {t(`adminDashboard.modals.${modalAction}.message`, { username: selectedUsername })}
-              </h3>
+            {modalAction === "suspend" ? (
+              <FaExclamationTriangle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+            ) : (
+              <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" />
+            )}
+            <h3 className="mb-5 text-lg font-normal text-gray-400">
+              {t(`adminDashboard.modals.${modalAction}.message`, {
+                username: selectedUsername,
+              })}
+            </h3>
           </div>
         </Modal.Body>
         <Modal.Footer className="flex justify-center">
@@ -457,7 +521,7 @@ const AdminDashboard = () => {
             {t(`adminDashboard.modals.${modalAction}.confirm`)}
           </Button>
           <Button color="gray" onClick={() => setShowModal(false)}>
-            {t('adminDashboard.modals.cancel')}
+            {t("adminDashboard.modals.cancel")}
           </Button>
         </Modal.Footer>
       </Modal>
