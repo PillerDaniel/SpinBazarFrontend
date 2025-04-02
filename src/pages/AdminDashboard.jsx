@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch } from "react-icons/fa";
 
 import {
   FaUserSlash,
@@ -53,7 +53,12 @@ const AdminDashboard = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    userName: "",
+    email: "",
+    role: "",
+  });
   useEffect(() => {
     document.body.style.backgroundImage = "url('/background.svg')";
     document.body.style.backgroundSize = "cover";
@@ -127,7 +132,34 @@ const AdminDashboard = () => {
       adminUsers,
     };
   };
+  const handleEditUser = async () => {
+    try {
+      setLoading(true);
+      setShowModal(false);
+      await axiosInstance.put(
+        `http://localhost:5001/admin/edituser/${editingUser._id}`,
+        editFormData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
+      const updatedUsers = users.map((user) =>
+        user._id === editingUser._id ? { ...user, ...editFormData } : user
+      );
+      setUsers(updatedUsers);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (error.response && error.response.status === 400) {
+        setError(error.response.data.message);
+      } else {
+        setError("Failed to edit user. Please try again later.");
+      }
+    }
+  };
   const filterByRole = (role) => {
     setLoading(true);
     try {
@@ -175,6 +207,16 @@ const AdminDashboard = () => {
     setShowModal(true);
   };
 
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    setEditFormData({
+      userName: user.userName,
+      email: user.email,
+      role: user.role,
+    });
+    setModalAction("edit"); 
+    setShowModal(true);
+  };
   const handleSuspendUser = async () => {
     try {
       setLoading(true);
@@ -418,7 +460,10 @@ const AdminDashboard = () => {
                             )}
                           </Table.Cell>
                           <Table.Cell>
-                            <button className="text-blue-500 hover:text-blue-400 mr-3">
+                            <button
+                              className="text-blue-500 hover:text-blue-400 mr-3"
+                              onClick={() => openEditModal(user)}
+                            >
                               {t("adminDashboard.actions.edit")}
                             </button>
                             {user.isActive ? (
@@ -495,34 +540,116 @@ const AdminDashboard = () => {
         }}
       >
         <Modal.Header>
-          {t(`adminDashboard.modals.${modalAction}.title`)}
+          {modalAction === "edit"
+            ? t("adminDashboard.editModal.title")
+            : t(`adminDashboard.modals.${modalAction}.title`)}
         </Modal.Header>
         <Modal.Body>
-          <div className="text-center">
-            {modalAction === "suspend" ? (
-              <FaExclamationTriangle className="mx-auto mb-4 h-14 w-14 text-red-500" />
-            ) : (
-              <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" />
-            )}
-            <h3 className="mb-5 text-lg font-normal text-gray-400">
-              {t(`adminDashboard.modals.${modalAction}.message`, {
-                username: selectedUsername,
-              })}
-            </h3>
-          </div>
+          {modalAction === "edit" ? (
+            <div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-username"
+                  className="block text-gray-300 text-sm font-bold mb-2"
+                >
+                  {t("adminDashboard.editModal.usernameLabel")}
+                </label>
+                <input
+                  type="text"
+                  id="edit-username"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  value={editFormData.userName}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      userName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-email"
+                  className="block text-gray-300 text-sm font-bold mb-2"
+                >
+                  {t("adminDashboard.editModal.emailLabel")}
+                </label>
+                <input
+                  type="email"
+                  id="edit-email"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  value={editFormData.email}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="edit-role"
+                  className="block text-gray-300 text-sm font-bold mb-2"
+                >
+                  {t("adminDashboard.editModal.roleLabel")}
+                </label>
+                <select
+                  id="edit-role"
+                  className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  value={editFormData.role}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, role: e.target.value })
+                  }
+                >
+                  <option value="user">
+                    {t("adminDashboard.filters.user")}
+                  </option>
+                  <option value="admin">
+                    {t("adminDashboard.filters.admin")}
+                  </option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center">
+              {modalAction === "suspend" ? (
+                <FaExclamationTriangle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+              ) : (
+                <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" />
+              )}
+              <h3 className="mb-5 text-lg font-normal text-gray-400">
+                {t(`adminDashboard.modals.${modalAction}.message`, {
+                  username: selectedUsername,
+                })}
+              </h3>
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer className="flex justify-center">
-          <Button
-            color={modalAction === "suspend" ? "failure" : "success"}
-            onClick={
-              modalAction === "suspend" ? handleSuspendUser : handleActivateUser
-            }
-          >
-            {t(`adminDashboard.modals.${modalAction}.confirm`)}
-          </Button>
-          <Button color="gray" onClick={() => setShowModal(false)}>
-            {t("adminDashboard.modals.cancel")}
-          </Button>
+          {modalAction === "edit" ? (
+            <>
+              <Button color="blue" onClick={handleEditUser}>
+                {t("adminDashboard.editModal.save")}
+              </Button>
+              <Button color="red" onClick={() => setShowModal(false)}>
+                {t("adminDashboard.modals.cancel")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                color={modalAction === "suspend" ? "failure" : "success"}
+                onClick={
+                  modalAction === "suspend"
+                    ? handleSuspendUser
+                    : handleActivateUser
+                }
+              >
+                {t(`adminDashboard.modals.${modalAction}.confirm`)}
+              </Button>
+              <Button color="gray" onClick={() => setShowModal(false)}>
+                {t("adminDashboard.modals.cancel")}
+              </Button>
+            </>
+          )}
         </Modal.Footer>
       </Modal>
 

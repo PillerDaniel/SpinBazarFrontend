@@ -122,18 +122,18 @@
   "sign_out_usermenu": "Kijelentkezés",
   "settings_warning": "A beállítások oldal jelenleg fejlesztés alatt áll",
   "adminDashboard": {
-    "title": "Admin Irányítópult",
+    "title": "Admin Vezérlőpult",
     "totalUsers": "Összes Felhasználó",
     "adminUsers": "Admin Felhasználók",
     "userTable": {
-      "id": "Azonosító",
+      "id": "ID",
       "username": "Felhasználónév",
       "email": "Email",
       "role": "Szerepkör",
       "joined": "Csatlakozott",
-      "status": "Állapot",
+      "status": "Státusz",
       "actions": "Műveletek",
-      "noUsers": "Nincsenek felhasználók"
+      "noUsers": "Nincs találat"
     },
     "filters": {
       "allRoles": "Összes Szerepkör",
@@ -145,15 +145,21 @@
     "modals": {
       "suspend": {
         "title": "Felhasználó Felfüggesztése",
-        "message": "Biztosan felfüggeszti a következő felhasználót: {{username}}?",
-        "confirm": "Igen, felfüggesztés"
+        "message": "Biztosan fel akarod függeszteni a következő felhasználót: {{username}}?",
+        "confirm": "Igen, függessze fel",
+        "cancel": "Mégse"
       },
       "activate": {
         "title": "Felhasználó Aktiválása",
-        "message": "Biztosan aktiválja a következő felhasználót: {{username}}?",
-        "confirm": "Igen, aktiválás"
+        "message": "Biztosan aktiválni akarod a következő felhasználót: {{username}}?",
+        "confirm": "Igen, aktiválja",
+        "cancel": "Mégse"
       },
-      "cancel": "Mégse"
+      "cancel": "Mégse",
+      "edit": {
+        "title": "Felhasználó Szerkesztése",
+        "message": "Felhasználó szerkesztése: {{username}}?"
+      }
     },
     "status": {
       "active": "Aktív",
@@ -163,6 +169,14 @@
       "edit": "Szerkesztés",
       "suspend": "Felfüggesztés",
       "activate": "Aktiválás"
+    },
+    "editModal": {
+      "title": "Felhasználó Szerkesztése",
+      "usernameLabel": "Felhasználónév",
+      "emailLabel": "Email",
+      "roleLabel": "Szerepkör",
+      "save": "Mentés",
+      "cancel": "Mégse"
     }
   },
   "Game History Statistics": "Játék történet statisztika",
