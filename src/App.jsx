@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Home from "./pages/HomePage";
 import Blackjack from "./pages/Blackjack";
 import Roulette from "./pages/Roulette";
+import Slot from "./pages/Slot";
 import AdminDashboard from "./pages/AdminDashboard";
 import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -41,7 +42,14 @@ function App() {
                   <Roulette />
                 </ProtectedRoutes>
               }
-            />
+            /><Route
+            path="/slot"
+            element={
+              <ProtectedRoutes>
+                <Slot />
+              </ProtectedRoutes>
+            }
+          />
             <Route path="/statistics" element={<GameStatistics />} />
             <Route
               path="/admin/dashboard"

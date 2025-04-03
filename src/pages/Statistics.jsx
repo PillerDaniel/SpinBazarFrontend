@@ -34,6 +34,7 @@ const GameStatistics = () => {
   const [error, setError] = useState(null);
   const [games, setGames] = useState([]);
   const { t } = useTranslation();
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -53,9 +54,10 @@ const GameStatistics = () => {
         console.log("API Response:", response.data);
         const historyData = response.data.history || [];
         setHistory(historyData);
-        setFilteredHistory(historyData);
+        setFilteredHistory(selectedGame ? historyData.filter(item => item.game === selectedGame) : historyData);
 
-        const uniqueGames = [...new Set(historyData.map((item) => item.game))];
+
+        const uniqueGames = ["All Games", ...new Set(historyData.map((item) => item.game))];
         setGames(uniqueGames);
 
         setLoading(false);
@@ -67,48 +69,37 @@ const GameStatistics = () => {
     };
 
     fetchHistory();
-  }, []);
+  }, [selectedGame]);
 
-  const filterByGame = async (game) => {
+  const filterByGame = (game) => {
     setLoading(true);
-    try {
-      if (game) {
-        const response = await axiosInstance.get("/history/gethistory", {
-          data: { game },
-        });
-        setFilteredHistory(response.data.history);
-        setSelectedGame(game);
-      } else {
-        setFilteredHistory(history);
-        setSelectedGame("");
-      }
-    } catch (err) {
-      setError("Failed to filter game history. Please try again later.");
-    }
+    setSelectedGame(game === "All Games" ? "" : game);
     setLoading(false);
   };
 
   const calculateStats = () => {
-    if (!filteredHistory || !filteredHistory.length) return null;
+    const dataToUse = filteredHistory.length > 0 ? filteredHistory : history;
 
-    const totalGames = filteredHistory.length;
-    const wins = filteredHistory.filter(
+    if (!dataToUse || !dataToUse.length) return null;
+
+    const totalGames = dataToUse.length;
+    const wins = dataToUse.filter(
       (game) => game.winAmount > game.betAmount
     ).length;
-    const losses = filteredHistory.filter(
+    const losses = dataToUse.filter(
       (game) => game.winAmount <= 0 || game.winAmount < game.betAmount
     ).length;
-    const draws = filteredHistory.filter(
+    const draws = dataToUse.filter(
       (game) => game.winAmount === game.betAmount
     ).length;
 
-    const winRate = ((wins / totalGames) * 100).toFixed(1);
+    const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : 0;
 
-    const totalBet = filteredHistory.reduce(
+    const totalBet = dataToUse.reduce(
       (sum, game) => sum + game.betAmount,
       0
     );
-    const totalWin = filteredHistory.reduce(
+    const totalWin = dataToUse.reduce(
       (sum, game) => sum + game.winAmount,
       0
     );
@@ -117,7 +108,7 @@ const GameStatistics = () => {
     let currentStreak = 0;
     let streakType = null;
 
-    const sortedHistory = [...filteredHistory].sort(
+    const sortedHistory = [...dataToUse].sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     );
 
@@ -146,7 +137,7 @@ const GameStatistics = () => {
       }
     }
 
-    const bestGame = filteredHistory.reduce((best, current) => {
+    const bestGame = dataToUse.reduce((best, current) => {
       const currentProfit = current.winAmount - current.betAmount;
       const bestProfit = best ? best.winAmount - best.betAmount : 0;
       return currentProfit > bestProfit ? current : best;
@@ -287,7 +278,7 @@ const GameStatistics = () => {
           >
             <path
               fillRule="evenodd"
-              d="M12 13a1 1 0 110 2H7a1 1 0 01-1-1v-5a1 1 0 112 0v2.586l4.293-4.293a1 1 0 011.414 0L16 9.586V7a1 1 0 112 0v5a1 1 0 01-1 1h-5z"
+              d="M12 13a1 1 0 110 2H7a1 1 0 01-1-1v-5a1 1 0 112 0v2.586l4.293-4.293a1 1 0 011.414 0L16 9.586V7a1 1 0 012 0v5a1 1 0 01-1 1h-5z"
               clipRule="evenodd"
             />
           </svg>
@@ -332,12 +323,9 @@ const GameStatistics = () => {
 
         <div className="mb-6">
           <Dropdown label={selectedGame || "All Games"} color="dark">
-            <Dropdown.Item onClick={() => filterByGame("")}>
-              All Games
-            </Dropdown.Item>
             {games.map((game) => (
               <Dropdown.Item key={game} onClick={() => filterByGame(game)}>
-                {game}
+                {t(game)}
               </Dropdown.Item>
             ))}
           </Dropdown>
@@ -498,9 +486,7 @@ const GameStatistics = () => {
                           )}%`,
                         }}
                       >
-                        {Math.min(100, (stats.totalBet / 1000) * 100).toFixed(
-                          0
-                        )}
+                        {Math.min(100, (stats.totalBet / 1000) * 100).toFixed(0)}
                         %
                       </div>
                     </div>
@@ -543,8 +529,7 @@ const GameStatistics = () => {
                     </p>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="text-gray-400">
-                        {t("ROI")}{" "}
-                        {((stats.profit / stats.totalBet) * 100).toFixed(1)}%
+                        {t("ROI")} {((stats.profit / stats.totalBet) * 100).toFixed(1)}%
                       </span>
                       <div className="ml-auto">
                         {getTrendIndicator(stats.profit > 0 ? 8 : -8)}
@@ -659,7 +644,7 @@ const GameStatistics = () => {
                       <div className="h-20 w-20 rounded-full bg-purple-600 flex items-center justify-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-12 w-12   text-white"
+                          className="h-12 w-12  text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -673,13 +658,13 @@ const GameStatistics = () => {
                         </svg>
                       </div>
                       <div className="ml-4">
-                        {games.length > 0 ? (
+                        {games.length > 1 ? (
                           <>
-                            <p className="text-3xl text-gray-200">{games[0]}</p>
+                            <p className="text-3xl text-gray-200">{games[1]}</p>
                             <p className="text-xl text-gray-400 mt-2">
                               {
                                 filteredHistory.filter(
-                                  (item) => item.game === games[0]
+                                  (item) => item.game === games[1]
                                 ).length
                               }{" "}
                               plays
@@ -697,9 +682,7 @@ const GameStatistics = () => {
               </div>
             )}
 
-            {/* Charts */}
             <div className="grid grid-cols-12 gap-6 mb-6">
-              {/* Results Chart */}
               <Card className="col-span-4">
                 <h5 className="text-xl font-bold mb-2 text-white p-4">
                   {t("Results Distribution")}
@@ -719,7 +702,6 @@ const GameStatistics = () => {
                 </div>
               </Card>
 
-              {/* Financial Chart */}
               <Card className="col-span-8">
                 <h5 className="text-xl font-bold mb-2 text-white p-4">
                   {t("Recent Bets & Wins")}
@@ -738,7 +720,6 @@ const GameStatistics = () => {
               </Card>
             </div>
 
-            {/* History Table */}
             <Card className="mb-6 overflow-x-auto">
               <h5 className="text-xl font-bold mb-2 text-white p-4">
                 {t("Game History")}
@@ -755,25 +736,27 @@ const GameStatistics = () => {
                   </Table.Head>
                   <Table.Body className="divide-y">
                     {filteredHistory.length > 0 ? (
-                      filteredHistory.map((item) => (
-                        <Table.Row
-                          key={item.id}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                        >
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {item.game}
-                          </Table.Cell>
-                          <Table.Cell>{formatDate(item.date)}</Table.Cell>
-                          <Table.Cell>{item.betAmount}</Table.Cell>
-                          <Table.Cell>{item.winAmount}</Table.Cell>
-                          <Table.Cell>
-                            {getProfit(item.betAmount, item.winAmount)}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {getResultBadge(item.betAmount, item.winAmount)}
-                          </Table.Cell>
-                        </Table.Row>
-                      ))
+                      [...filteredHistory]
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map((item) => (
+                          <Table.Row
+                            key={item.id}
+                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                          >
+                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                              {item.game}
+                            </Table.Cell>
+                            <Table.Cell>{formatDate(item.date)}</Table.Cell>
+                            <Table.Cell>{item.betAmount}</Table.Cell>
+                            <Table.Cell>{item.winAmount}</Table.Cell>
+                            <Table.Cell>
+                              {getProfit(item.betAmount, item.winAmount)}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {getResultBadge(item.betAmount, item.winAmount)}
+                            </Table.Cell>
+                          </Table.Row>
+                        ))
                     ) : (
                       <Table.Row>
                         <Table.Cell colSpan={6} className="text-center py-4">
