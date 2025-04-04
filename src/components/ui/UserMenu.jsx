@@ -5,26 +5,11 @@ import WarningAlert from "./WarningAlert";
 import { X, User, ShieldCheck, BarChartHorizontal, Settings, LogOut as LogOutIcon, Wallet } from "lucide-react";
 import Logo from "../../assets/img/SpinBazar.svg";
 
-// Propként kapja: isOpen, onClose, onLogout, userRole
 const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
   const { t } = useTranslation();
-  // const [isRendered, setIsRendered] = useState(isOpen); // <<< ELTÁVOLÍTVA
   const [warningMessage, setWarningMessage] = useState("");
   const navigate = useNavigate();
   const isAdmin = userRole === "admin";
-
-  // useEffect az isRendered állapothoz <<< ELTÁVOLÍTVA
-  /*
-  useEffect(() => {
-    let timeoutId;
-    if (isOpen) {
-      setIsRendered(true);
-    } else {
-      timeoutId = setTimeout(() => setIsRendered(false), 500);
-    }
-    return () => clearTimeout(timeoutId);
-  }, [isOpen]);
-  */
 
   const handleNavigate = (path) => {
     if (path) {
@@ -35,43 +20,29 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
 
   const handleSettingsClick = () => {
     setWarningMessage(t("settings_warning", "Settings are currently unavailable."));
-    // onClose(); // Opcionális
   };
 
   const handleCloseWarning = () => {
     setWarningMessage("");
   };
 
-  // Komponens renderelése mindig megtörténik, a láthatóságot a CSS kezeli
-  // if (!isRendered && !isOpen) { return null; } // <<< ELTÁVOLÍTVA
-
   return (
     <>
-      {/* Warning Alert */}
       {warningMessage && (
         <div className="fixed top-5 right-5 z-[60]">
             <WarningAlert message={warningMessage} onClose={handleCloseWarning} />
         </div>
        )}
 
-      {/* OVERLAY NINCS */}
-
-      {/* Menu Panel */}
-      {/*
-        VÁLTOZTATÁSOK itt a className-ben:
-        - Hozzáadva: transition-opacity, pointer-events-none (ha zárva)
-        - Az opacity-t is az `isOpen` vezérli
-        - Az `invisible` helyett opacity-t használunk, hogy a transition működjön
-      */}
       <div
          className={`fixed top-0 right-0 z-50 min-h-screen h-full
                     w-72 bg-slate-900 border-l border-slate-700/50 shadow-xl
                     transition-all duration-500 ease-in-out transform flex flex-col
-                    ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}`} // Pozíció ÉS Opacity animálása + pointer events kikapcsolása ha zárva
+                    ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="user-menu-title"
-        aria-hidden={!isOpen} // Hozzáférhetőség miatt
+        aria-hidden={!isOpen} 
       >
         {/* --- Menu Header --- */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 flex-shrink-0">
@@ -85,8 +56,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
              </button>
         </div>
 
-         {/* --- Menu Content (Scrollable) --- */}
-         {/* tabindex="-1" lehet szükséges, ha a fókuszt ide akarjuk irányítani megnyitáskor */}
+         {/* --- Menu Content --- */}
         <div className="flex-grow p-4 overflow-y-auto" tabIndex="-1">
             {/* Profil Szekció */}
             <ul className="space-y-1 font-medium">
