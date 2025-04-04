@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Link hozzáadva, ha esetleg mégis használnád
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/img/SpinBazar.svg";
-// CircleUser marad, Languages hozzáadva az új váltóhoz
 import { CircleUser, Languages } from "lucide-react";
-import UserMenu from "./UserMenu"; // Az eredeti UserMenu marad
+import UserMenu from "./UserMenu";
 import { useTranslation } from "react-i18next";
-// LanguageDropdown import eltávolítva, ha az új gombot használjuk
-// import LanguageDropdown from "./LanguageDropdown";
 import CasinoActiveImg from "../../assets/img/casino-btn-active.jpg";
 import CasinoInactiveImg from "../../assets/img/casino-btn-inactive.jpg";
 import SportActiveImg from "../../assets/img/sport-btn-active.jpg";
@@ -16,44 +13,38 @@ import SportInactiveImg from "../../assets/img/sport-btn-inactive.jpg";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false); // Ezt használja az eredeti UserMenu
+  const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeTab, setActiveTab] = useState("casino");
-  const [hoverTab, setHoverTab] = useState(null); // Marad a hover logika a képváltáshoz
+  const [hoverTab, setHoverTab] = useState(null); 
 
   const handleLogout = () => {
     logout();
-    // Biztonság kedvéért a menuOpen-t is false-ra állítjuk
     setMenuOpen(false);
     navigate("/");
   };
 
-  // Ez az eredeti UserMenu nyitását/zárását vezérli
   const toggleMenu = () => setMenuOpen((prev) => !prev);
-  const closeMenu = () => setMenuOpen(false); // Ezt a UserMenu komponensnek kell meghívnia belülről
+  const closeMenu = () => setMenuOpen(false);
 
   const { t, i18n } = useTranslation();
 
-  // Nyelvváltó logika (ugyanaz, mint korábban)
   const changeLanguage = () => {
     const newLanguage = i18n.language === "en" ? "hu" : "en";
     i18n.changeLanguage(newLanguage);
   };
 
-  // Fülváltó logika (eredeti)
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // Itt nem navigálunk automatikusan, mert a gomb onClickje teszi meg
   };
 
-  // Scroll figyelő (eredeti)
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setVisible(false);
-        setMenuOpen(false); // Gördítéskor bezárjuk a menüt is
+        setMenuOpen(false);
       } else {
         setVisible(true);
       }
@@ -64,13 +55,12 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Gomb képváltó logika (eredeti)
   const getButtonImage = (tabName) => {
     const isActive = activeTab === tabName;
     const isHovered = hoverTab === tabName;
     if (tabName === "casino") {
       return (isActive || isHovered) ? CasinoActiveImg : CasinoInactiveImg;
-    } else { // Feltételezve, hogy csak 'sports' van még
+    } else { 
       return (isActive || isHovered) ? SportActiveImg : SportInactiveImg;
     }
   };
@@ -120,7 +110,7 @@ const Navbar = () => {
               <button
                 onClick={() => {
                    handleTabChange("sports");
-                   navigate("/sport-bet");
+                   navigate("");
                 }}
                 onMouseEnter={() => setHoverTab("sports")}
                 onMouseLeave={() => setHoverTab(null)}
