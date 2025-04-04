@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Link hozzáadva, ha esetleg mégis használnád
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/img/SpinBazar.svg";
-import { CircleUser } from "lucide-react";
-import UserMenu from "./UserMenu";
+// CircleUser marad, Languages hozzáadva az új váltóhoz
+import { CircleUser, Languages } from "lucide-react";
+import UserMenu from "./UserMenu"; // Az eredeti UserMenu marad
 import { useTranslation } from "react-i18next";
-import LanguageDropdown from "./LanguageDropdown";
+// LanguageDropdown import eltávolítva, ha az új gombot használjuk
+// import LanguageDropdown from "./LanguageDropdown";
 import CasinoActiveImg from "../../assets/img/casino-btn-active.jpg";
 import CasinoInactiveImg from "../../assets/img/casino-btn-inactive.jpg";
 import SportActiveImg from "../../assets/img/sport-btn-active.jpg";
@@ -14,63 +16,68 @@ import SportInactiveImg from "../../assets/img/sport-btn-inactive.jpg";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // Ezt használja az eredeti UserMenu
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeTab, setActiveTab] = useState("casino");
-  const [hoverTab, setHoverTab] = useState(null);
+  const [hoverTab, setHoverTab] = useState(null); // Marad a hover logika a képváltáshoz
 
   const handleLogout = () => {
     logout();
+    // Biztonság kedvéért a menuOpen-t is false-ra állítjuk
+    setMenuOpen(false);
     navigate("/");
   };
 
+  // Ez az eredeti UserMenu nyitását/zárását vezérli
   const toggleMenu = () => setMenuOpen((prev) => !prev);
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => setMenuOpen(false); // Ezt a UserMenu komponensnek kell meghívnia belülről
 
   const { t, i18n } = useTranslation();
 
+  // Nyelvváltó logika (ugyanaz, mint korábban)
   const changeLanguage = () => {
     const newLanguage = i18n.language === "en" ? "hu" : "en";
     i18n.changeLanguage(newLanguage);
   };
 
+  // Fülváltó logika (eredeti)
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    // Itt nem navigálunk automatikusan, mert a gomb onClickje teszi meg
   };
 
+  // Scroll figyelő (eredeti)
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setVisible(false);
-      }
-      else {
+        setMenuOpen(false); // Gördítéskor bezárjuk a menüt is
+      } else {
         setVisible(true);
       }
-
-      setLastScrollY(currentScrollY);
+      setLastScrollY(currentScrollY <= 0 ? 0 : currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
+  // Gomb képváltó logika (eredeti)
   const getButtonImage = (tabName) => {
     const isActive = activeTab === tabName;
     const isHovered = hoverTab === tabName;
-    
     if (tabName === "casino") {
       return (isActive || isHovered) ? CasinoActiveImg : CasinoInactiveImg;
-    } else {
+    } else { // Feltételezve, hogy csak 'sports' van még
       return (isActive || isHovered) ? SportActiveImg : SportInactiveImg;
     }
   };
 
   return (
     <nav
-      className={`bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-800 transition-transform duration-300 ${
+      className={`bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-900 transition-transform duration-300 ${
         visible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
@@ -78,12 +85,19 @@ const Navbar = () => {
         {/* Left section */}
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
           <a href="/" className="flex items-center">
-            <img src={Logo} onClick={() => navigate("/")} className="h-12 pr-3" alt="Spinbazar Logo" />
+            <img src={Logo} className="h-12 pr-3 cursor-pointer" alt="Spinbazar Logo" onClick={(e) => { e.preventDefault(); navigate('/'); }} />
           </a>
-          <LanguageDropdown changeLanguage={changeLanguage} i18n={i18n} />
+          <button
+            onClick={changeLanguage}
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
+            aria-label={t('change_language_aria_label', { currentLang: i18n.language === 'en' ? 'English' : 'Magyar' })}
+            title={t('change_language_title', { nextLang: i18n.language === 'en' ? 'Magyar' : 'English' })}
+          >
+              <Languages size={20} />
+          </button>
         </div>
 
-        {/* Center section - Tab buttons */}
+        {/* Center section */}
         <div className="flex items-center justify-center">
           <div className="inline-flex space-x-2 overflow-hidden">
             <button
@@ -91,50 +105,51 @@ const Navbar = () => {
                   handleTabChange("casino");
                   navigate("/casino");
                 }}
-              onMouseEnter={() => setHoverTab("casino")}
-              onMouseLeave={() => setHoverTab(null)}
-              className="relative overflow-hidden h-10 px-6 uppercase font-medium text-white flex items-center justify-center transition-all duration-200 rounded-md"
-              style={{ width: "120px" }}
-            >
-              <img 
-                src={getButtonImage("casino")} 
-                alt="Casino" 
-                className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
-              />
-              <span className="relative z-10">Casino</span>
-            </button>
-            <button
-              onClick={() => handleTabChange("sports")}
-              onMouseEnter={() => setHoverTab("sports")}
-              onMouseLeave={() => setHoverTab(null)}
-              className="relative overflow-hidden h-10 px-6 uppercase font-medium text-white flex items-center justify-center transition-all duration-200 rounded-md"
-              style={{ width: "120px" }}
-            >
-              <img 
-                src={getButtonImage("sports")} 
-                alt="Sports" 
-                className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
-              />
-              <span className="relative z-10">Sports</span>
-            </button>
+                onMouseEnter={() => setHoverTab("casino")}
+                onMouseLeave={() => setHoverTab(null)}
+                className="relative overflow-hidden h-10 px-6 uppercase font-medium text-white flex items-center justify-center transition-all duration-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
+                style={{ width: "120px" }}
+              >
+                <img
+                  src={getButtonImage("casino")}
+                  alt="Casino"
+                  className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
+                />
+                <span className="relative z-10">{t('navbar_casino_button', 'Casino')}</span> 
+              </button>
+              <button
+                onClick={() => {
+                   handleTabChange("sports");
+                   navigate("/sport-bet");
+                }}
+                onMouseEnter={() => setHoverTab("sports")}
+                onMouseLeave={() => setHoverTab(null)}
+                className="relative overflow-hidden h-10 px-6 uppercase font-medium text-white flex items-center justify-center transition-all duration-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
+                style={{ width: "120px" }}
+              >
+                <img
+                  src={getButtonImage("sports")}
+                  alt="Sports"
+                  className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
+                />
+                <span className="relative z-10">{t('navbar_sports_button', 'Sports')}</span>
+              </button>
           </div>
         </div>
 
-        {/* Right section */}
-        <div className="flex space-x-3 rtl:space-x-reverse">
+        <div className="flex items-center space-x-3 rtl:space-x-reverse">
           {user ? (
             <div className="flex items-center space-x-3">
               <button
                 onClick={toggleMenu}
-                className="flex items-center space-x-1 rtl:space-x-reverse"
+                className="flex items-center space-x-2 text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 rounded-full pr-2" // rounded-full és pr-2 a jobb megjelenésért
               >
-                <div className="flex">
-                  <span className="text-white font-medium mr-1">
-                    {user.userName}
-                  </span>
-                  <CircleUser className="text-white w-6 h-6 transform hover:scale-110" />
-                </div>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 ring-1 ring-gray-500 group-hover:ring-blue-400 transition-shadow">
+                  <CircleUser className="w-5 h-5 text-gray-300" />
+                </span>
+                <span className="hidden sm:inline">{user.userName}</span>
               </button>
+
               <UserMenu
                 isOpen={menuOpen}
                 onClose={closeMenu}

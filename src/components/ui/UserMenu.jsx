@@ -1,206 +1,146 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; // useEffect itt már nem feltétlenül kell, de maradhat
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import WarningAlert from "./WarningAlert";
+import { X, User, ShieldCheck, BarChartHorizontal, Settings, LogOut as LogOutIcon, Wallet } from "lucide-react";
+import Logo from "../../assets/img/SpinBazar.svg";
 
+// Propként kapja: isOpen, onClose, onLogout, userRole
 const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
   const { t } = useTranslation();
-  const [menuPosition, setMenuPosition] = useState("translate-x-full");
+  // const [isRendered, setIsRendered] = useState(isOpen); // <<< ELTÁVOLÍTVA
   const [warningMessage, setWarningMessage] = useState("");
   const navigate = useNavigate();
   const isAdmin = userRole === "admin";
 
+  // useEffect az isRendered állapothoz <<< ELTÁVOLÍTVA
+  /*
   useEffect(() => {
+    let timeoutId;
     if (isOpen) {
-      setMenuPosition("translate-x-0");
+      setIsRendered(true);
     } else {
-      const timeout = setTimeout(() => {
-        setMenuPosition("translate-x-full");
-      }, 200);
-
-      return () => clearTimeout(timeout);
+      timeoutId = setTimeout(() => setIsRendered(false), 500);
     }
+    return () => clearTimeout(timeoutId);
   }, [isOpen]);
+  */
+
+  const handleNavigate = (path) => {
+    if (path) {
+      navigate(path);
+    }
+    onClose();
+  };
 
   const handleSettingsClick = () => {
-    setWarningMessage(t("settings_warning"));
+    setWarningMessage(t("settings_warning", "Settings are currently unavailable."));
+    // onClose(); // Opcionális
   };
 
   const handleCloseWarning = () => {
     setWarningMessage("");
   };
 
+  // Komponens renderelése mindig megtörténik, a láthatóságot a CSS kezeli
+  // if (!isRendered && !isOpen) { return null; } // <<< ELTÁVOLÍTVA
+
   return (
     <>
-      <WarningAlert message={warningMessage} onClose={handleCloseWarning} />
-      <div
-        className={`fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto w-64 bg-gray-800 transition-transform duration-500 ease-in-out transform ${menuPosition}`}
-      >
-        <button
-          onClick={onClose}
-          className="text-white-400 bg-transparent hover:text-white-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 left-2.5"
-        >
-          <svg
-            className="w-6 h-6 text-white ease-in-out transform hover:scale-110"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18 17.94 6M18 18 6.06 6"
-            />
-          </svg>
-        </button>
-        <div className="py-4">
-          <h5 className="text-base font-semibold uppercase text-gray-400 mt-5 mb-2">
-            {t("profile")}
-          </h5>
-          <ul className="space-y-2 font-medium">
-            <li>
-              <button
-                onClick={() => navigate("/profile")}
-                className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-user"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <span className="flex ml-3 whitespace-nowrap">{t("account")}</span>
-              </button>
-            </li>
-          </ul>
-          
-          {isAdmin && (
-            <ul className="space-y-2 font-medium">
-              <li>
-                <button
-                  onClick={() => navigate("/admin/dashboard")}
-                  className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-shield-user text-yellow-500"
-                  >
-                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                    <path d="M6.376 18.91a6 6 0 0 1 11.249.003" />
-                    <circle cx="12" cy="11" r="4" />
-                  </svg>
-                  <span className="flex ml-3 whitespace-nowrap">{t("admin_panel")}</span>
-                </button>
-              </li>
-            </ul>
-          )}
-          
-          <ul className="space-y-2 font-medium">
-            <li>
-              <button
-                onClick={() => navigate("/statistics")}
-                className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-chart-no-axes-combined"
-                >
-                  <path d="M12 16v5" />
-                  <path d="M16 14v7" />
-                  <path d="M20 10v11" />
-                  <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
-                  <path d="M4 18v3" />
-                  <path d="M8 14v7" />
-                </svg>
-                <span className="flex ml-3 whitespace-nowrap">{t("statistics")}</span>
-              </button>
-            </li>
-          </ul>
-          <ul className="space-y-2 font-medium">
-            <li>
-              <button
-                onClick={handleSettingsClick}
-                className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-settings"
-                >
-                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                <span className="flex ml-3 whitespace-nowrap">{t("settings")}</span>
-              </button>
-            </li>
-          </ul>
-          <ul className="space-y-2 font-medium">
-            <li>
-              <button
-                onClick={onLogout}
-                className="flex items-center p-2 rounded-lg text-white hover:bg-gray-700 group w-full"
-              >
-                <svg
-                  className="w-6 h-6 text-red-400 rtl:rotate-180 ease-in-out transform group-hover:scale-110"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
-                  />
-                </svg>
-                <span className="flex ml-3 text-red-400 whitespace-nowrap">
-                  {t("sign_out_usermenu")}
-                </span>
-              </button>
-            </li>
-          </ul>
+      {/* Warning Alert */}
+      {warningMessage && (
+        <div className="fixed top-5 right-5 z-[60]">
+            <WarningAlert message={warningMessage} onClose={handleCloseWarning} />
         </div>
+       )}
+
+      {/* OVERLAY NINCS */}
+
+      {/* Menu Panel */}
+      {/*
+        VÁLTOZTATÁSOK itt a className-ben:
+        - Hozzáadva: transition-opacity, pointer-events-none (ha zárva)
+        - Az opacity-t is az `isOpen` vezérli
+        - Az `invisible` helyett opacity-t használunk, hogy a transition működjön
+      */}
+      <div
+         className={`fixed top-0 right-0 z-50 min-h-screen h-full
+                    w-72 bg-slate-900 border-l border-slate-700/50 shadow-xl
+                    transition-all duration-500 ease-in-out transform flex flex-col
+                    ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}`} // Pozíció ÉS Opacity animálása + pointer events kikapcsolása ha zárva
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="user-menu-title"
+        aria-hidden={!isOpen} // Hozzáférhetőség miatt
+      >
+        {/* --- Menu Header --- */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 flex-shrink-0">
+            <img src={Logo} className="h-8" alt="Spinbazar Logo" />
+             <button
+               onClick={onClose}
+               className="text-gray-400 bg-transparent hover:bg-slate-700 hover:text-white rounded-lg p-1.5 transition-colors duration-200"
+               aria-label={t('close_menu_aria', 'Close menu')}
+             >
+               <X className="w-5 h-5" />
+             </button>
+        </div>
+
+         {/* --- Menu Content (Scrollable) --- */}
+         {/* tabindex="-1" lehet szükséges, ha a fókuszt ide akarjuk irányítani megnyitáskor */}
+        <div className="flex-grow p-4 overflow-y-auto" tabIndex="-1">
+            {/* Profil Szekció */}
+            <ul className="space-y-1 font-medium">
+                <li>
+                  <button onClick={() => handleNavigate("/profile")} className="flex items-center w-full p-3 rounded-lg text-base text-gray-200 hover:bg-slate-700/70 group transition-colors duration-200">
+                    <User className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
+                    <span className="ml-3">{t("account", "Account")}</span>
+                  </button>
+                </li>
+            </ul>
+
+            <hr className="my-4 border-slate-700/50" />
+
+            {/* Általános Szekció */}
+            <ul className="space-y-1 font-medium">
+                <li>
+                  <button onClick={() => handleNavigate("/statistics")} className="flex items-center w-full p-3 rounded-lg text-base text-gray-200 hover:bg-slate-700/70 group transition-colors duration-200">
+                    <BarChartHorizontal className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
+                    <span className="ml-3">{t("statistics", "Statistics")}</span>
+                  </button>
+                </li>
+                <li>
+                  <button onClick={handleSettingsClick} className="flex items-center w-full p-3 rounded-lg text-base text-gray-200 hover:bg-slate-700/70 group transition-colors duration-200">
+                    <Settings className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-200" />
+                    <span className="ml-3">{t("settings", "Settings")}</span>
+                  </button>
+                </li>
+            </ul>
+
+            {/* Admin Szekció */}
+            {isAdmin && (
+                <>
+                  <hr className="my-4 border-slate-700/50" />
+                  <ul className="space-y-1 font-medium">
+                    <li>
+                      <button onClick={() => handleNavigate("/admin/dashboard")} className="flex items-center w-full p-3 rounded-lg text-base text-yellow-400 hover:bg-slate-700/70 group transition-colors duration-200">
+                        <ShieldCheck className="w-5 h-5 text-yellow-500 group-hover:text-yellow-400 transition-colors duration-200" />
+                        <span className="ml-3">{t("admin_panel", "Admin Panel")}</span>
+                      </button>
+                    </li>
+                  </ul>
+                </>
+            )}
+
+        </div>
+
+         {/* --- Menu Footer (Logout) --- */}
+        <div className="p-4 mt-auto border-t border-slate-700/50 flex-shrink-0">
+           <button onClick={onLogout} className="flex items-center w-full p-3 rounded-lg text-base text-red-400 hover:bg-red-900/30 group transition-colors duration-200">
+             <LogOutIcon className="w-5 h-5 text-red-500 group-hover:text-red-400 transition-colors duration-200" />
+             <span className="ml-3 font-medium">{t("sign_out_usermenu", "Sign Out")}</span>
+           </button>
+        </div>
+
       </div>
     </>
   );

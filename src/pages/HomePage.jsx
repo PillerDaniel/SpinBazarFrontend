@@ -32,7 +32,7 @@ const HomePage = () => {
 
     eventSource.onmessage = (event) => {
         try {
-            const message = JSON.parse(event.data); //-- userData is here for you Akos my beloved
+            const message = JSON.parse(event.data);
             console.log("Received message:", message); 
         } catch (error) {
             console.error("Error parsing message:", error);
