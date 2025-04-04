@@ -1,255 +1,190 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, Spinner } from "flowbite-react";
+import { useTranslation } from "react-i18next";
 
 const USE_MOCK_DATA = true;
 
 const mockMatches = [
-  {
-    id: 1,
-    homeTeam: "Real Madrid",
-    homeLogo:
-      "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
-    awayTeam: "Barcelona",
-    awayLogo:
-      "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
-    date: new Date(Date.now() + 3600000).toISOString(),
-    timezone: "UTC",
-  },
-  {
-    id: 2,
-    homeTeam: "Atletico Madrid",
-    homeLogo:
-      "https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg",
-    awayTeam: "Sevilla",
-    awayLogo:
-      "https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg",
-    date: new Date(Date.now() + 7200000).toISOString(),
-    timezone: "UTC",
-  },
-  {
-    id: 3,
-    homeTeam: "Valencia",
-    homeLogo:
-      "https://upload.wikimedia.org/wikipedia/sco/c/ce/Valenciacf.svg",
-    awayTeam: "Villarreal",
-    awayLogo:
-      "https://upload.wikimedia.org/wikipedia/en/b/b9/Villarreal_CF_logo-en.svg",
-    date: new Date(Date.now() + 10800000).toISOString(),
-    timezone: "UTC",
-  },
+  { id: 1, homeTeam: "Real Madrid", homeLogo: "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg", awayTeam: "Barcelona", awayLogo: "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg", date: new Date(Date.now() + 3600000).toISOString(), timezone: "UTC", },
+  { id: 2, homeTeam: "Atletico Madrid", homeLogo: "https://upload.wikimedia.org/wikipedia/en/c/c1/Atletico_Madrid_logo.svg", awayTeam: "Sevilla", awayLogo: "https://upload.wikimedia.org/wikipedia/en/3/3b/Sevilla_FC_logo.svg", date: new Date(Date.now() + 7200000).toISOString(), timezone: "UTC", },
+  { id: 3, homeTeam: "Valencia", homeLogo: "https://upload.wikimedia.org/wikipedia/sco/c/ce/Valenciacf.svg", awayTeam: "Villarreal", awayLogo: "https://upload.wikimedia.org/wikipedia/en/b/b9/Villarreal_CF_logo-en.svg", date: new Date(Date.now() + 10800000).toISOString(), timezone: "UTC", },
+  { id: 4, homeTeam: "Manchester United", homeLogo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg", awayTeam: "Liverpool", awayLogo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg", date: new Date(Date.now() + 14400000).toISOString(), timezone: "UTC", },
+  { id: 5, homeTeam: "Bayern Munich", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg", awayTeam: "Borussia Dortmund", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg", date: new Date(Date.now() + 18000000).toISOString(), timezone: "UTC", },
+  { id: 6, homeTeam: "Paris Saint-Germain", homeLogo: "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg", awayTeam: "Olympique Marseille", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/d/d8/Olympique_Marseille_logo.svg", date: new Date(Date.now() + 21600000).toISOString(), timezone: "UTC", },
+  { id: 7, homeTeam: "Juventus", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/1/15/Juventus_FC_2017_logo.svg", awayTeam: "Inter Milan", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg", date: new Date(Date.now() + 25200000).toISOString(), timezone: "UTC", },
+  { id: 8, homeTeam: "AC Milan", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg", awayTeam: "AS Roma", awayLogo: "https://upload.wikimedia.org/wikipedia/en/f/f7/AS_Roma_logo_%282017%29.svg", date: new Date(Date.now() + 28800000).toISOString(), timezone: "UTC", },
 ];
+
+const MatchCard = ({ match }) => {
+  const { t } = useTranslation();
+
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "https://dummyimage.com/60x60/cccccc/000.png&text=N/A";
+  };
+
+  const formatDate = (dateString) => {
+     if (!dateString) return 'N/A';
+     try { return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+     catch(e) { return 'Invalid Date'; }
+  };
+  const formatTime = (dateString) => {
+     if (!dateString) return 'N/A';
+     try { return new Date(dateString).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false }); }
+     catch(e) { return 'Invalid Time'; }
+  }
+
+  return (
+    <div className="flex flex-col items-center bg-white/5 dark:bg-slate-800/60 backdrop-blur-lg border border-white/10 dark:border-slate-700/50 rounded-xl shadow-lg p-4 sm:p-5 transition-transform duration-300 hover:scale-105 hover:shadow-xl h-full">
+      <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex flex-col items-center w-2/5 text-center">
+          <img
+            src={match?.homeLogo ?? "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"}
+            alt={match?.homeTeam ?? 'Home Team'}
+            onError={handleImageError}
+            className="w-10 h-10 sm:w-12 sm:h-12 mb-2 object-contain"
+            loading="lazy"
+          />
+          <h5 className="text-sm sm:text-base font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
+            {match?.homeTeam ?? 'N/A'}
+          </h5>
+        </div>
+
+        <div className="flex flex-col items-center px-1 flex-shrink-0">
+          <span className="text-xs text-gray-400 dark:text-gray-400 mb-0.5">
+              {formatDate(match?.date)}
+          </span>
+          <span className="text-lg sm:text-xl font-bold text-gray-300 dark:text-gray-200 bg-white/10 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
+            {formatTime(match?.date)}
+          </span>
+           <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+             {match?.timezone ?? 'UTC'}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center w-2/5 text-center">
+          <img
+            src={match?.awayLogo ?? "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"}
+            alt={match?.awayTeam ?? 'Away Team'}
+            onError={handleImageError}
+            className="w-10 h-10 sm:w-12 sm:h-12 mb-2 object-contain"
+            loading="lazy"
+          />
+          <h5 className="text-sm sm:text-base font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
+            {match?.awayTeam ?? 'N/A'}
+          </h5>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const SportBettingSection = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleCards, setVisibleCards] = useState(3);
-  const carouselRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    const updateVisibleCards = () => {
-      if (carouselRef.current) {
-        const containerWidth = carouselRef.current.offsetWidth;
-        const cardsToShow = Math.max(1, Math.floor(containerWidth / 350));
-        setVisibleCards(Math.min(cardsToShow, 5));
+     if (USE_MOCK_DATA) {
+      let extendedMatches = [...mockMatches];
+      while (extendedMatches.length > 0 && extendedMatches.length < 8) {
+          extendedMatches = [...extendedMatches, ...mockMatches.map(m => ({...m, id: `${m.id}-${extendedMatches.length}`}))];
       }
-    };
-
-    updateVisibleCards();
-    window.addEventListener("resize", updateVisibleCards);
-    return () => window.removeEventListener("resize", updateVisibleCards);
-  }, []);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) {
-      setMatches(mockMatches);
+      setMatches(extendedMatches);
       setLoading(false);
     } else {
-      const fetchLaLigaMatches = async () => {
-        const options = {
-          method: "GET",
-          url: "https://api-football-v1.p.rapidapi.com/v3/fixtures",
-          params: { league: "140", season: "2024" },
-          headers: {
-            "X-RapidAPI-Key":
-              "36c318f0a4msh9711a935c650148p1e00cejsn042ab037588c",
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-          },
-        };
-
-        try {
-          setLoading(true);
-          const response = await axios.request(options);
-          const now = new Date();
-          const futureMatches = response.data.response.filter(
-            (match) => new Date(match.fixture.date) > now
-          );
-
-          const processedMatches = futureMatches.map((match) => ({
-            id: match.fixture.id,
-            homeTeam: match.teams.home.name,
-            homeLogo: match.teams.home.logo,
-            awayTeam: match.teams.away.name,
-            awayLogo: match.teams.away.logo,
-            date: match.fixture.date,
-            referee: match.fixture.referee || "N/A",
-            timezone: match.fixture.timezone,
-            status: match.fixture.status.short || "N/A",
-          }));
-
-          setMatches(processedMatches);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching matches:", error);
-          setError("Failed to fetch live matches");
-          setLoading(false);
-        }
-      };
-
-      fetchLaLigaMatches();
-      const intervalId = setInterval(fetchLaLigaMatches, 5 * 60 * 1000);
-      return () => clearInterval(intervalId);
+        setError("API data fetching is disabled in this example.");
+        setLoading(false);
     }
   }, []);
 
+  const itemsToScroll = 1;
+  const totalItems = matches.length;
+
   const handlePrev = () => {
-    setCurrentIndex((prev) => {
-      if (prev === 0) {
-        return matches.length - visibleCards;
-      }
-      return Math.max(0, prev - visibleCards);
-    });
+    setCurrentIndex((prevIndex) =>
+      (prevIndex - itemsToScroll + totalItems) % totalItems
+    );
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => {
-      if (prev + visibleCards >= matches.length) {
-        return 0;
-      }
-      return prev + visibleCards;
-    });
+    setCurrentIndex((prevIndex) =>
+      (prevIndex + itemsToScroll) % totalItems
+    );
   };
 
-  useEffect(() => {
-    if (matches.length <= visibleCards) return;
-    const autoScroll = setInterval(handleNext, 5000);
-    return () => clearInterval(autoScroll);
-  }, [matches, visibleCards]);
+  const translatePercentage = useMemo(() => {
+      const itemsVisibleApprox = 4.5;
+      const itemBasisPercent = 100 / itemsVisibleApprox;
+      return currentIndex * -itemBasisPercent;
+  }, [currentIndex, totalItems]);
+
 
   if (loading) {
     return (
-      <Card className="w-full">
-        <div className="flex justify-center items-center h-64">
-          <Spinner size="xl" />
-        </div>
-      </Card>
+      <div className="w-full bg-slate-800/50 rounded-lg p-4 flex justify-center items-center h-64 my-4">
+        <Spinner size="xl" color="info" />
+        <span className="ml-3 text-gray-300">{t('loading_matches', 'Loading matches...')}</span>
+      </div>
     );
   }
-
   if (error) {
-    return (
-      <Card className="w-full">
-        <div className="text-center text-red-500">{error}</div>
-      </Card>
-    );
-  }
-
+     return (
+       <div className="w-full bg-red-900/30 rounded-lg p-4 text-center text-red-400 my-4">{error}</div>
+     );
+   }
   if (matches.length === 0) {
-    return (
-      <Card className="w-full">
-        <div className="text-center">No upcoming matches found</div>
-      </Card>
-    );
-  }
+     return (
+       <div className="w-full bg-slate-800/50 rounded-lg p-4 text-center text-gray-400 my-4">{t('no_matches_found', 'No upcoming matches found.')}</div>
+     );
+   }
 
-  return (
-    <div className="relative w-full py-4" ref={carouselRef}>
-      {matches.length > visibleCards && (
+   return (
+    <div className="w-full group my-6 relative">
+  
+      <div className="relative">
         <button
           onClick={handlePrev}
-          className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
-          aria-label="Previous games"
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full
+                     text-white rounded-full p-2 z-20
+                     transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
+          aria-label="Previous match"
         >
-          <ChevronLeft size={38} />
+          <ChevronLeft size={32} />
         </button>
-      )}
-
-      <div className="flex justify-center items-center px-12 gap-4 overflow-hidden">
-        {matches
-          .slice(currentIndex, currentIndex + visibleCards)
-          .map((match) => (
-            <MatchCard key={match.id} match={match} />
-          ))}
-      </div>
-
-      {matches.length > visibleCards && (
+  
+        <div className="overflow-hidden w-full">
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(${translatePercentage}%)` }}
+          >
+            {matches.map((match) => (
+              <div
+                key={match.id}
+                className="flex-shrink-0 w-full basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 px-2 sm:px-3"
+              >
+                <MatchCard match={match} />
+              </div>
+            ))}
+          </div>
+        </div>
+  
         <button
           onClick={handleNext}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10"
-          aria-label="Next games"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full
+                     text-white rounded-full p-2 z-20
+                     transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
+          aria-label="Next match"
         >
-          <ChevronRight size={38} />
+          <ChevronRight size={32} />
         </button>
-      )}
-    </div>
-  );
-};
-
-const MatchCard = ({ match }) => {
-  const handleImageError = (e) => {
-    e.target.onerror = null;
-    e.target.src = "https://dummyimage.com/50x50/000/fff.png&text=Logo";
-  };
-  
-
-  return (
-    <div className="flex-shrink-0 w-[400px] p-4 transition-transform duration-300 hover:scale-105">
-      <div className="flex flex-col items-center">
-        <div className="flex items-center justify-between w-full mb-4">
-          <div className="flex flex-col items-center w-2/5">
-            <img
-              src={match.homeLogo}
-              alt={match.homeTeam}
-              onError={handleImageError}
-              className="w-12 h-12 mb-2 object-contain"
-            />
-            <h5 className="text-lg font-bold text-gray-900 dark:text-white text-center w-full break-words">
-              {match.homeTeam}
-            </h5>
-          </div>
-
-          <div className="mx-2 flex flex-col items-center justify-center bg-gray-500 p-2 rounded-4xl">
-            <span className="text-xl font-bold text-gray-700">
-              VS
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center w-2/5">
-            <img
-              src={match.awayLogo}
-              alt={match.awayTeam}
-              onError={handleImageError}
-              className="w-12 h-12 mb-2 object-contain"
-            />
-            <h5 className="text-lg font-bold text-gray-900 dark:text-white text-center w-full break-words">
-              {match.awayTeam}
-            </h5>
-          </div>
-        </div>
-
-        <div className="w-full space-y-2">
-          <p className="text-sm text-gray-600 text-center dark:text-gray-300">
-            <span className="font-semibold">Date:</span>{" "}
-            {new Date(match.date).toLocaleString()}
-          </p>
-        </div>
       </div>
     </div>
-  );
+  );  
 };
-
 
 export default SportBettingSection;

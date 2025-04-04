@@ -13,7 +13,7 @@ const BonusCard = () => {
 
       <Gift
         size={220}
-        className="absolute -bottom-12 -right-12 text-white/20 z-[3] transform rotate-[25deg] transition-transform duration-500 group-hover:rotate-[15deg] group-hover:scale-105" // Pozíció módosítva (-12), Opacity növelve (/20), Kisebb rotáció, finomabb hover
+        className="absolute -bottom-12 -right-12 text-white/20 z-[3] transform rotate-[25deg] transition-transform duration-500 group-hover:rotate-[15deg] group-hover:scale-105"
         strokeWidth={1}
       />
 
