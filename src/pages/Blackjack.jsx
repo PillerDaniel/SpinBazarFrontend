@@ -8,7 +8,7 @@ import axiosInstance from "../utils/axios";
 import { WalletMinimal, Coins } from "lucide-react";
 
 const Blackjack = () => {
-  const { user, updateWalletBalance  } = useAuth();
+  const { user, updateWalletBalance } = useAuth();
   const userData = useUser();
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
