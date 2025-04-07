@@ -131,7 +131,28 @@ const UserCard = () => {
     const type = getCardType(cardNumber);
     setCardType(type);
   }, [cardNumber]);
-
+  
+  useEffect(() => {
+    const fetchFreshBalance = async () => {
+      try {
+        const response = await axios.get('/api/user/account'); 
+  
+        if (response.data && response.data.userData && response.data.userData.wallet && response.data.userData.wallet.balance !== undefined) {
+          const freshBalance = response.data.userData.wallet.balance;
+          updateWalletBalance(freshBalance);
+        } else {
+          console.warn("A backend válasz ('/api/user/account') nem tartalmazta a várt adatokat (userData.wallet.balance).");
+        }
+  
+      } catch (error) {
+        console.error("Hiba a balance frissítésekor ('/api/user/account'):", error);
+      } 
+    };
+  
+    if (user) {
+        fetchFreshBalance();
+    }
+  }, [user, updateWalletBalance]);
   return (
     <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
       {/* Fő User Kártya */}

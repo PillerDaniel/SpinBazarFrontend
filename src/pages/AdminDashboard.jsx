@@ -69,7 +69,14 @@ const AdminDashboard = () => {
       document.body.style.backgroundImage = "";
     };
   }, []);
-
+  useEffect(() => {
+    if (error) {
+      const timerId = setTimeout(() => {
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timerId);
+    }
+  }, [error]);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -290,9 +297,6 @@ const AdminDashboard = () => {
         {error && (
           <Alert color="failure" className="mb-4">
             {error}
-            <button className="ml-auto text-sm" onClick={() => setError(null)}>
-              Dismiss
-            </button>
           </Alert>
         )}
 
