@@ -420,6 +420,9 @@ const AdminDashboard = () => {
                       {t("adminDashboard.userTable.joined")}
                     </Table.HeadCell>
                     <Table.HeadCell className="bg-gray-700">
+                      {t("lastLogin")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
                       {t("adminDashboard.userTable.status")}
                     </Table.HeadCell>
                     <Table.HeadCell className="bg-gray-700">
@@ -451,6 +454,9 @@ const AdminDashboard = () => {
                           </Table.Cell>
                           <Table.Cell className="text-gray-300">
                             {formatDate(user.createdAt)}
+                          </Table.Cell>
+                          <Table.Cell className="text-gray-300">
+                            {formatDate(user.lastLogin)}
                           </Table.Cell>
                           <Table.Cell>
                             {user.isActive ? (

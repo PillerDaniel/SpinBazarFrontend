@@ -29,7 +29,6 @@ const Profile = () => {
           }
         });
         const {userName, email, createdAt, birthDate, isActive, role, wallet, lastLogin  } = response.data.userData;
-        console.log(lastLogin);
         const activeDays = Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24));
         setUserDetails({
           userName: userName || 'User',
