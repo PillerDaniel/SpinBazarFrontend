@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bomb, Gem, WalletMinimal, Coins } from "lucide-react"; // Szükséges ikonok importálása
+import { Bomb, Gem, WalletMinimal, Coins } from "lucide-react";
 
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
@@ -11,24 +11,22 @@ import axiosInstance from "../utils/axios";
 const GRID_SIZE = 5;
 const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
 
-// --- Cell Komponens (lehet külön fájlban is) ---
 const Cell = ({ cellData, onClick, revealed }) => {
   const { id, isMine, isRevealed, isClickedMine } = cellData;
 
   let content = null;
-  let bgColor = "bg-gray-600 hover:bg-gray-500"; // Alap, rejtett cella
-  let textColor = "text-transparent"; // Kezdetben ne látszódjon semmi
+  let bgColor = "bg-gray-600 hover:bg-gray-500";
+  let textColor = "text-transparent";
 
   if (isRevealed || revealed) {
-    // Ha fel van fedve, vagy a játék végén felfedjük
     if (isMine) {
-      bgColor = isClickedMine ? "bg-red-700" : "bg-red-500"; // Külön szín a rákattintott aknának
+      bgColor = isClickedMine ? "bg-red-700" : "bg-red-500";
       textColor = "text-white";
       content = <Bomb size={24} />;
     } else {
-      bgColor = "bg-green-500"; // Biztonságos cella
+      bgColor = "bg-green-500";
       textColor = "text-yellow-300";
-      content = <Gem size={24} />; // Vagy Star, Diamond stb.
+      content = <Gem size={24} />;
     }
   }
 
@@ -57,32 +55,25 @@ const Cell = ({ cellData, onClick, revealed }) => {
     </motion.div>
   );
 };
-// --- Cell Komponens vége ---
 
 const Mines = () => {
   const { user, updateWalletBalance } = useAuth();
   const userData = useUser();
-
-  // --- State változók ---
-  // State inicializálás
   const [balance, setBalance] = useState(
     userData?.walletBalance || user?.walletBalance || 0
   );
 
-  // useEffect a frissítéshez
   useEffect(() => {
     if (userData && userData.walletBalance !== undefined) {
       setBalance(userData.walletBalance);
-    }
-    // Hozzáadhatjuk a user?.walletBalance ellenőrzést is a teljesség kedvéért
-    else if (user && user.walletBalance !== undefined) {
+    } else if (user && user.walletBalance !== undefined) {
       setBalance(user.walletBalance);
     }
-  }, [userData, user]); // Vegyük fel a user-t is dependency-nek
+  }, [userData, user]);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
-  const [numMines, setNumMines] = useState(3); // Alapértelmezett aknaszám
+  const [numMines, setNumMines] = useState(3);
   const [maxMines, setMaxMines] = useState(TOTAL_CELLS - 1);
 
   const [gridState, setGridState] = useState([]);
@@ -90,32 +81,26 @@ const Mines = () => {
   const [revealedSafeCount, setRevealedSafeCount] = useState(0);
   const [currentMultiplier, setCurrentMultiplier] = useState(1.0);
 
-  const [gameStatus, setGameStatus] = useState("betting"); // 'betting', 'playing', 'lost', 'cashed_out'
+  const [gameStatus, setGameStatus] = useState("betting");
   const [message, setMessage] = useState(
     "Place your bet and select number of mines."
   );
   const [isBettingActive, setIsBettingActive] = useState(true);
-  const [revealAll, setRevealAll] = useState(false); // Játék végén mindent felfedünk
+  const [revealAll, setRevealAll] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const chips = [5, 25, 100, 500]; // Ugyanazok a chipek, mint Blackjacknél
-
-  // --- useEffect Hookok ---
+  const chips = [5, 25, 100, 500];
   useEffect(() => {
-    // Balance frissítése kontextusból
     if (userData && userData.walletBalance !== undefined) {
       setBalance(userData.walletBalance);
     }
   }, [userData]);
 
   useEffect(() => {
-    // Grid inicializálása betöltéskor (vagy amikor kell)
     initializeGrid();
   }, []);
-
-  // --- Játék Logika Függvények ---
 
   const initializeGrid = () => {
     const initialGrid = [];
@@ -124,7 +109,7 @@ const Mines = () => {
         id: i,
         isMine: false,
         isRevealed: false,
-        isClickedMine: false, // Jelzi, ha pont erre az aknára kattintottak
+        isClickedMine: false,
       });
     }
     setGridState(initialGrid);
@@ -139,28 +124,19 @@ const Mines = () => {
 
     const safeCells = TOTAL_CELLS - minesCount;
     let multiplier = 1.0;
-
-    // Kombinációs képlet (pontosabb, mint a lépésenkénti szorzás)
-    // Multiplier = C(TotalCells, revealedCount) / C(SafeCells, revealedCount)
-    // De ez túl bonyolult lehet, használjunk egy egyszerűbb közelítést, ami a Stake-hez hasonló:
-    // Prod( (TotalCells - i) / (SafeCells - i) ) for i = 0 to revealedCount - 1
-
     for (let i = 0; i < revealedCount; i++) {
-      // Ellenőrzés, hogy ne osszunk nullával vagy negatívval
       if (safeCells - i <= 0) {
-        // Elméletileg nem fordulhat elő, ha a logika jó
         console.error(
           "Error calculating multiplier: Division by zero or negative."
         );
-        return multiplier; // Vagy valami hibaérték
+        return multiplier;
       }
       multiplier *= (TOTAL_CELLS - i) / (safeCells - i);
     }
 
-    // Hozzáadunk egy kis ház előnyt (pl. 1%)
     const houseEdge = 0.99;
-    return Math.max(1.0, multiplier * houseEdge); // Legalább 1x legyen a szorzó
-  }, []); // Dependencies: TOTAL_CELLS
+    return Math.max(1.0, multiplier * houseEdge);
+  }, []);
 
   const placeMines = (numberOfMines, gridSize) => {
     const mines = new Set();
@@ -173,7 +149,7 @@ const Mines = () => {
   };
 
   const handleStartGame = async () => {
-    setError(null); // Hiba törlése új játék előtt
+    setError(null);
     if (currentBet <= 0) {
       setMessage("Please place a valid bet.");
       return;
@@ -185,31 +161,25 @@ const Mines = () => {
 
     setLoading(true);
     try {
-      // 1. Tét levonása a backendről
       const response = await axiosInstance.post(
-        "/bet/placebet", // VAGY '/mines/start' endpoint, ha van külön
-        { betAmount: currentBet /* , numMines: numMines */ }, // Küldheted a numMines-t is, ha a backend igényli
+        "/bet/placebet",
+        { betAmount: currentBet },
         { withCredentials: true }
       );
 
-      // Sikeres tét levonás után
       if (response.data.wallet) {
         const newBalance = response.data.wallet.balance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       } else {
-        // Fallback, ha a backend nem küldi vissza expliciten
         const newBalance = balance - currentBet;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       }
 
-      // 2. Játék inicializálása kliens oldalon
-      initializeGrid(); // Tiszta rács
+      initializeGrid();
       const newMineLocations = placeMines(numMines, GRID_SIZE);
       setMineLocations(newMineLocations);
-
-      // Grid state frissítése az aknákkal (de még nem felfedve)
       setGridState((prevGrid) =>
         prevGrid.map((cell) => ({
           ...cell,
@@ -226,8 +196,7 @@ const Mines = () => {
       setMessage(
         err.response?.data?.message || "Failed to start game. Bet not placed."
       );
-      // Itt nem kell visszatenni a tétet, mert a backend hívás sikertelen volt
-      setCurrentBet(0); // Töröljük a tétet, hogy újra próbálkozhasson
+      setCurrentBet(0);
       setIsBettingActive(true);
     } finally {
       setLoading(false);
@@ -236,13 +205,12 @@ const Mines = () => {
 
   const handleCellClick = (index) => {
     if (gameStatus !== "playing" || gridState[index].isRevealed || revealAll) {
-      return; // Ne csináljon semmit, ha nem játszunk, vagy már fel van fedve
+      return;
     }
 
     const clickedCell = gridState[index];
 
     if (mineLocations.has(index)) {
-      // --- AKNA ---
       setGridState((prevGrid) =>
         prevGrid.map((cell) =>
           cell.id === index
@@ -250,9 +218,8 @@ const Mines = () => {
             : cell
         )
       );
-      handleGameOver(false); // Vesztett
+      handleGameOver(false);
     } else {
-      // --- BIZTONSÁGOS ---
       setGridState((prevGrid) =>
         prevGrid.map((cell) =>
           cell.id === index ? { ...cell, isRevealed: true } : cell
@@ -267,10 +234,9 @@ const Mines = () => {
 
       setMessage(`Multiplier: ${newMultiplier.toFixed(2)}x`);
 
-      // Ellenőrizzük, hogy minden biztonságos mezőt felfedett-e
       const totalSafeCells = TOTAL_CELLS - numMines;
       if (newRevealedCount === totalSafeCells) {
-        handleGameOver(true); // Nyert (automatikus)
+        handleGameOver(true);
       }
     }
   };
@@ -280,36 +246,30 @@ const Mines = () => {
 
     setLoading(true);
     setError(null);
-    const winAmount = parseFloat((currentBet * currentMultiplier).toFixed(2)); // Kerekítés 2 tizedesre
+    const winAmount = parseFloat((currentBet * currentMultiplier).toFixed(2));
 
     try {
-      // 1. Nyeremény jóváírása a backenddel
       const response = await axiosInstance.post(
-        "/bet/winbet", // Vagy '/mines/finish'
+        "/bet/winbet",
         { winAmount: winAmount },
         { withCredentials: true }
       );
 
-      // Balance frissítése
       if (response.data && response.data.walletBalance !== undefined) {
         const newBalance = response.data.walletBalance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       } else {
-        // Fallback
         const newBalance = balance + winAmount;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       }
 
-      // 2. Játék előzmények rögzítése
       await addGameHistory("Mines", currentBet, winAmount);
-
-      // 3. Játék állapot frissítése
       setGameStatus("cashed_out");
       setMessage(`Cashed out! You won $${winAmount.toFixed(2)}`);
-      setRevealAll(true); // Felfedjük a többi mezőt
-      setIsBettingActive(true); // Engedélyezzük az új tétet
+      setRevealAll(true);
+      setIsBettingActive(true);
     } catch (err) {
       console.error("Error cashing out:", err);
       setMessage(
@@ -323,7 +283,7 @@ const Mines = () => {
   };
 
   const handleGameOver = async (isWin) => {
-    setRevealAll(true); 
+    setRevealAll(true);
     let winAmount = 0;
 
     if (isWin) {
@@ -334,7 +294,7 @@ const Mines = () => {
         numMines
       );
       winAmount = parseFloat((currentBet * finalMultiplier).toFixed(2));
-      setCurrentMultiplier(finalMultiplier); 
+      setCurrentMultiplier(finalMultiplier);
 
       try {
         const response = await axiosInstance.post(
@@ -375,7 +335,7 @@ const Mines = () => {
       } catch (err) {
         console.error("Error adding game history for loss:", err);
       }
-      setIsBettingActive(true); 
+      setIsBettingActive(true);
     }
   };
 
@@ -407,7 +367,7 @@ const Mines = () => {
     if (!isBettingActive) return;
     setSelectedChip(value);
     setCustomBetAmount("");
-    setCurrentBet(value); 
+    setCurrentBet(value);
     setMessage(`Bet: $${value}. Select mines and press Start.`);
   };
 
@@ -420,7 +380,7 @@ const Mines = () => {
       setSelectedChip(null);
       if (amount >= 0) {
         if (amount > 500) {
-          setCurrentBet(0); 
+          setCurrentBet(0);
           setMessage("Maximum bet is $500");
         } else if (amount > balance) {
           setCurrentBet(0);
@@ -466,14 +426,14 @@ const Mines = () => {
     };
 
     return (
-      <button 
+      <button
         className={`rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center text-white font-bold cursor-pointer transform transition-all duration-300 hover:scale-110 ${
           colors[value]
         } ${
-          selected && isBettingActive ? "ring-4 ring-yellow-400 scale-110" : "" 
+          selected && isBettingActive ? "ring-4 ring-yellow-400 scale-110" : ""
         } disabled:opacity-50 disabled:cursor-not-allowed disabled:ring-0 disabled:scale-100`}
         onClick={() => selectChip(value)}
-        disabled={!isBettingActive || loading} 
+        disabled={!isBettingActive || loading}
       >
         <span className="text-xs sm:text-sm md:text-base">${value}</span>
       </button>
@@ -495,7 +455,6 @@ const Mines = () => {
               onClick={() => setError(null)}
               className="absolute top-0 bottom-0 right-0 px-4 py-3"
             >
-              {/* Egyszerű 'X' a bezáráshoz */}
               <svg
                 className="fill-current h-6 w-6 text-red-300 hover:text-red-100"
                 role="button"
@@ -510,7 +469,7 @@ const Mines = () => {
         )}
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* --- Vezérlő Panel (Bal oldal) --- */}
+          {/* --- Vezérlő Panel ---*/}
           <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
             {/* Balance és Bet kijelzés */}
             <div className="bg-gray-700 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
@@ -564,9 +523,9 @@ const Mines = () => {
                     $
                   </span>
                   <input
-                    type="text" // text, hogy a pattern működjön
-                    inputMode="numeric" // Mobilon numerikus billentyűzet
-                    pattern="[0-9]*" // Csak számok engedélyezése
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={customBetAmount}
                     onChange={handleCustomBetChange}
                     placeholder="Enter amount"
@@ -606,7 +565,6 @@ const Mines = () => {
                   onClick={clearBet}
                   disabled={currentBet <= 0 || !isBettingActive || loading}
                   className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-medium shadow-md transition text-sm sm:text-base w-full ${
-                    // W-full, hogy kitöltse
                     currentBet <= 0 || !isBettingActive || loading
                       ? "bg-gray-600 text-gray-400 cursor-not-allowed"
                       : "bg-red-600 text-white hover:bg-red-700"
@@ -669,7 +627,7 @@ const Mines = () => {
             </div>
           </div>
 
-          {/* --- Játék Rács (Jobb oldal) --- */}
+          {/* --- Játék Grid --- */}
           <div className="lg:w-2/3">
             <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
@@ -698,7 +656,7 @@ const Mines = () => {
                 {message}
               </div>
 
-              {/* A Rács */}
+              {/* A Grid */}
               <div
                 className={`grid grid-cols-5 gap-2 sm:gap-3 justify-center mx-auto max-w-max ${
                   gameStatus !== "playing" ? "opacity-75" : ""
