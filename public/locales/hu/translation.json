@@ -129,6 +129,7 @@
   "settings": "Beállítások",
   "sign_out_usermenu": "Kijelentkezés",
   "settings_warning": "A beállítások oldal jelenleg fejlesztés alatt áll",
+  "lastLogin": "Utolsó bejelentkezés",
   "adminDashboard": {
     "title": "Admin Vezérlőpult",
     "totalUsers": "Összes Felhasználó",

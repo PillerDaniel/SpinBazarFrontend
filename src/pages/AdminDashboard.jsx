@@ -437,7 +437,7 @@ const AdminDashboard = () => {
                           className="bg-gray-800 border-gray-700"
                         >
                           <Table.Cell className="whitespace-nowrap font-medium text-white">
-                            {user._id.substring(0, 8)}...
+                            {user._id}
                           </Table.Cell>
                           <Table.Cell className="text-gray-300">
                             {user.userName}
