@@ -527,15 +527,6 @@ const Blackjack = () => {
       <Navbar />
 
       <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
-        {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-4 rounded-lg shadow-lg">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-              <p className="text-center mt-2">Processing...</p>
-            </div>
-          </div>
-        )}
-
         {error && (
           <div
             className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"

@@ -8,7 +8,7 @@ import SlotBanner from "../assets/img/slot.png";
 import CasesBanner from "../assets/img/cases.png";
 import PumpBanner from "../assets/img/pump.png";
 import DiamondsBanner from "../assets/img/diamonds.png";
-
+import MinesBanner from "../assets/img/mines.png";
 import BonusCard from "../components/ui/BonusCard";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
@@ -31,10 +31,10 @@ const HomePage = () => {
       requiresAuth: true,
     },
     {
-      id: "rl",
-      imageSrc: RouletteBanner,
-      altText: "Roulette Banner",
-      root: "roulette",
+      id: "mi",
+      imageSrc: MinesBanner,
+      altText: "Mines Banner",
+      root: "mines",
       requiresAuth: true,
     },
     {

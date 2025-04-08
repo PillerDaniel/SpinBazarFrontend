@@ -4,6 +4,7 @@ import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
 import { FaSearch } from "react-icons/fa";
+import WarningAlert from "../components/ui/WarningAlert";
 
 import {
   FaUserSlash,
@@ -221,7 +222,7 @@ const AdminDashboard = () => {
       email: user.email,
       role: user.role,
     });
-    setModalAction("edit"); 
+    setModalAction("edit");
     setShowModal(true);
   };
   const handleSuspendUser = async () => {
@@ -295,9 +296,10 @@ const AdminDashboard = () => {
         </h1>
 
         {error && (
-          <Alert color="failure" className="mb-4">
-            {error}
-          </Alert>
+          <div>
+          <WarningAlert message={error}/>
+          <p>{console.log(error)}</p>
+          </div>
         )}
 
         <div className="mb-6 flex flex-col md:flex-row md:justify-between items-center">
@@ -549,15 +551,11 @@ const AdminDashboard = () => {
           },
         }}
       >
-        <Modal.Header>
-          {modalAction === "edit"
-            ? t("adminDashboard.editModal.title")
-            : t(`adminDashboard.modals.${modalAction}.title`)}
-        </Modal.Header>
+
         <Modal.Body>
           {modalAction === "edit" ? (
             <div>
-              <div className="mb-4">
+              <div className="mb-5">
                 <label
                   htmlFor="edit-username"
                   className="block text-gray-300 text-sm font-bold mb-2"

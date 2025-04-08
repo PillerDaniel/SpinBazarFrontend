@@ -32,7 +32,7 @@ const Login = () => {
     try {
       const response = await axios.post("http://localhost:5001/auth/Login", { userName, password });
 
-      login(response.data.token, userName);
+      login(response.data.token);
       setSuccessMessage(t('login_success_message'));
 
       setTimeout(() => {

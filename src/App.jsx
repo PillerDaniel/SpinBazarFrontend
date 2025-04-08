@@ -9,8 +9,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/HomePage";
 import Blackjack from "./pages/Blackjack";
-import Roulette from "./pages/Roulette";
-import Slot from "./pages/Slot";
+import Mines from "./pages/Mines.jsx";
+import Slot from "./pages/Slot.jsx";
 import AdminDashboard from "./pages/AdminDashboard";
 import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -36,20 +36,21 @@ function App() {
               }
             />
             <Route
-              path="/roulette"
-              element={
-                <ProtectedRoutes>
-                  <Roulette />
-                </ProtectedRoutes>
-              }
-            /><Route
-            path="/slot"
+            path="/mines"
             element={
               <ProtectedRoutes>
-                <Slot />
+                <Mines />
               </ProtectedRoutes>
             }
           />
+          <Route
+          path="/slot"
+          element={
+            <ProtectedRoutes>
+              <Slot />
+            </ProtectedRoutes>
+          }
+        />
             <Route path="/statistics" element={<GameStatistics />} />
             <Route
               path="/admin/dashboard"
