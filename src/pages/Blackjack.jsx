@@ -2,14 +2,12 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useUser } from "../context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../utils/axios";
 import { WalletMinimal, Coins } from "lucide-react";
 
 const Blackjack = () => {
   const { user, updateWalletBalance } = useAuth();
-  const userData = useUser();
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
@@ -18,7 +16,7 @@ const Blackjack = () => {
     "Place your bet and press Deal to start"
   );
 
-  const [balance, setBalance] = useState(userData?.walletBalance || user?.walletBalance || 0);
+  const [balance, setBalance] = useState(user?.walletBalance || user?.walletBalance || 0);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
@@ -28,10 +26,10 @@ const Blackjack = () => {
   const chips = [5, 25, 100, 500];
 
   useEffect(() => {
-    if (userData && userData.walletBalance !== undefined) {
-      setBalance(userData.walletBalance);
+    if (user && user.walletBalance !== undefined) {
+      setBalance(user.walletBalance);
     }
-  }, [userData]);
+  }, [user]);
 
   
   const createDeck = () => {
@@ -527,15 +525,6 @@ const Blackjack = () => {
       <Navbar />
 
       <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
-        {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-4 rounded-lg shadow-lg">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-              <p className="text-center mt-2">Processing...</p>
-            </div>
-          </div>
-        )}
-
         {error && (
           <div
             className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -560,7 +549,9 @@ const Blackjack = () => {
         )}
 
         <div className="flex flex-col lg:flex-row gap-6">
+        {/* --- Vezérlő Panel ---*/}
           <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
+          {/* Balance és Bet kijelzés */}
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
                 Current Bet
@@ -573,7 +564,7 @@ const Blackjack = () => {
                   </span>
                 </span>
               </div>
-              <div className="text-base sm:text-lg font-semibold text-gray-200">
+              <div className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
                 Balance
               </div>
               <div className="text-xl sm:text-2xl font-bold">

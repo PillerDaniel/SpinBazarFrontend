@@ -28,7 +28,7 @@ const Profile = () => {
             Authorization: `Bearer ${token}`
           }
         });
-        const {userName, email, createdAt, birthDate, isActive, role, wallet  } = response.data.userData;
+        const {userName, email, createdAt, birthDate, isActive, role, wallet, lastLogin  } = response.data.userData;
         const activeDays = Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24));
         setUserDetails({
           userName: userName || 'User',
@@ -40,7 +40,7 @@ const Profile = () => {
           walletBalance: wallet.balance,
           stats: {
             daysActive: activeDays,
-            lastLogin: new Date(),
+            lastLogin: lastLogin,
             totalTransactions: 24,
           }
         });

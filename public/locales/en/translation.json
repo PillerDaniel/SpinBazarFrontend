@@ -130,6 +130,7 @@
   "settings": "Settings",
   "sign_out_usermenu": "Sign out",
   "settings_warning": "Settings page is currently under development",
+  "lastLogin": "Last login",
   "adminDashboard": {
     "title": "Admin Dashboard",
     "totalUsers": "Total Users",
@@ -220,5 +221,4 @@
   "Draw": "Draw",
   "Last": "Last",
   "Games": "games"
-
 }

@@ -2,7 +2,6 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useUser } from "../context/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../utils/axios";
 import { WalletMinimal, Coins, Info } from "lucide-react";
@@ -19,7 +18,6 @@ const payoutTable = [
 
 const Slot = () => {
   const { user, updateWalletBalance } = useAuth();
-  const userData = useUser();
   const symbols = ["🍒", "🍋", "🍊", "🍇", "🔔", "7️⃣"];
   const NUM_REELS = 3;
   const SYMBOLS_PER_REEL = 12;
@@ -37,7 +35,7 @@ const Slot = () => {
   const [gameStatus, setGameStatus] = useState("idle");
   const [message, setMessage] = useState("Place your bet and spin to start");
   const [balance, setBalance] = useState(
-    userData?.walletBalance || user?.walletBalance || 0
+    user?.walletBalance || user?.walletBalance || 0
   );
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
@@ -51,10 +49,10 @@ const Slot = () => {
   const [showPayouts, setShowPayouts] = useState(false);
 
   useEffect(() => {
-    if (userData && userData.walletBalance !== undefined) {
-      setBalance(userData.walletBalance);
+    if (user && user.walletBalance !== undefined) {
+      setBalance(user.walletBalance);
     }
-  }, [userData]);
+  }, [user]);
 
   useEffect(() => {
     return () => {

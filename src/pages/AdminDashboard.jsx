@@ -4,6 +4,7 @@ import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../utils/axios";
 import { FaSearch } from "react-icons/fa";
+import WarningAlert from "../components/ui/WarningAlert";
 
 import {
   FaUserSlash,
@@ -69,7 +70,14 @@ const AdminDashboard = () => {
       document.body.style.backgroundImage = "";
     };
   }, []);
-
+  useEffect(() => {
+    if (error) {
+      const timerId = setTimeout(() => {
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timerId);
+    }
+  }, [error]);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -214,7 +222,7 @@ const AdminDashboard = () => {
       email: user.email,
       role: user.role,
     });
-    setModalAction("edit"); 
+    setModalAction("edit");
     setShowModal(true);
   };
   const handleSuspendUser = async () => {
@@ -288,12 +296,10 @@ const AdminDashboard = () => {
         </h1>
 
         {error && (
-          <Alert color="failure" className="mb-4">
-            {error}
-            <button className="ml-auto text-sm" onClick={() => setError(null)}>
-              Dismiss
-            </button>
-          </Alert>
+          <div>
+          <WarningAlert message={error}/>
+          <p>{console.log(error)}</p>
+          </div>
         )}
 
         <div className="mb-6 flex flex-col md:flex-row md:justify-between items-center">
@@ -416,6 +422,9 @@ const AdminDashboard = () => {
                       {t("adminDashboard.userTable.joined")}
                     </Table.HeadCell>
                     <Table.HeadCell className="bg-gray-700">
+                      {t("lastLogin")}
+                    </Table.HeadCell>
+                    <Table.HeadCell className="bg-gray-700">
                       {t("adminDashboard.userTable.status")}
                     </Table.HeadCell>
                     <Table.HeadCell className="bg-gray-700">
@@ -430,7 +439,7 @@ const AdminDashboard = () => {
                           className="bg-gray-800 border-gray-700"
                         >
                           <Table.Cell className="whitespace-nowrap font-medium text-white">
-                            {user._id.substring(0, 8)}...
+                            {user._id}
                           </Table.Cell>
                           <Table.Cell className="text-gray-300">
                             {user.userName}
@@ -447,6 +456,9 @@ const AdminDashboard = () => {
                           </Table.Cell>
                           <Table.Cell className="text-gray-300">
                             {formatDate(user.createdAt)}
+                          </Table.Cell>
+                          <Table.Cell className="text-gray-300">
+                            {formatDate(user.lastLogin)}
                           </Table.Cell>
                           <Table.Cell>
                             {user.isActive ? (
@@ -539,15 +551,11 @@ const AdminDashboard = () => {
           },
         }}
       >
-        <Modal.Header>
-          {modalAction === "edit"
-            ? t("adminDashboard.editModal.title")
-            : t(`adminDashboard.modals.${modalAction}.title`)}
-        </Modal.Header>
+
         <Modal.Body>
           {modalAction === "edit" ? (
             <div>
-              <div className="mb-4">
+              <div className="mb-5">
                 <label
                   htmlFor="edit-username"
                   className="block text-gray-300 text-sm font-bold mb-2"

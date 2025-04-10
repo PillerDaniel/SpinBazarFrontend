@@ -19,6 +19,9 @@ const Footer = () => {
         <span className="text-sm sm:text-center text-gray-400">
           © 2025 <a href="#" className="hover:underline">SpinBazar™</a>. All Rights Reserved.
         </span>
+        <span className="text-sm sm:text-center text-gray-400">
+        <b>Fontos:</b> Ez az oldal egy vizsgaremek, nem igazi online kaszinó. Csak demonstrációs célokat szolgál.
+        </span>
         <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-400 sm:mt-0">
           <li>
             <a href="#" className="hover:underline me-4 md:me-6">About</a>

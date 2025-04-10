@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useUser } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -18,7 +17,6 @@ import {
 const UserCard = () => {
   const { t } = useTranslation();
   const { user, logout, updateWalletBalance } = useAuth();
-  const userData = useUser();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [depositAmount, setDepositAmount] = useState("");
@@ -35,10 +33,10 @@ const UserCard = () => {
     navigate("/");
   };
 
-  const userLevel = userData?.level || 1;
-  const userXP = userData?.xp || 2250;
-  const xpForNextLevel = 5000;
-  const xpProgress = Math.min(Math.max(userXP / xpForNextLevel, 0), 1);
+  const userLevel = Math.floor((user?.xp ?? 0) / 1000);
+  const userXP = user?.xp ?? 0;
+  const xpForNextLevel = userLevel * 1000 + 1000; 
+  const xpProgress = (userXP % 1000) / 1000;
 
   if (!user) {
     return null;

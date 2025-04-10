@@ -13,7 +13,7 @@ const mockMatches = [
   { id: 4, homeTeam: "Manchester United", homeLogo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg", awayTeam: "Liverpool", awayLogo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg", date: new Date(Date.now() + 14400000).toISOString(), timezone: "UTC", },
   { id: 5, homeTeam: "Bayern Munich", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg", awayTeam: "Borussia Dortmund", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg", date: new Date(Date.now() + 18000000).toISOString(), timezone: "UTC", },
   { id: 6, homeTeam: "Paris Saint-Germain", homeLogo: "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg", awayTeam: "Olympique Marseille", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/d/d8/Olympique_Marseille_logo.svg", date: new Date(Date.now() + 21600000).toISOString(), timezone: "UTC", },
-  { id: 7, homeTeam: "Juventus", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/1/15/Juventus_FC_2017_logo.svg", awayTeam: "Inter Milan", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg", date: new Date(Date.now() + 25200000).toISOString(), timezone: "UTC", },
+  { id: 7, homeTeam: "Juventus", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Juventus_FC_-_logo_black_%28Italy%2C_2020%29.svg", awayTeam: "Inter Milan", awayLogo: "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg", date: new Date(Date.now() + 25200000).toISOString(), timezone: "UTC", },
   { id: 8, homeTeam: "AC Milan", homeLogo: "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg", awayTeam: "AS Roma", awayLogo: "https://upload.wikimedia.org/wikipedia/en/f/f7/AS_Roma_logo_%282017%29.svg", date: new Date(Date.now() + 28800000).toISOString(), timezone: "UTC", },
 ];
 
@@ -37,8 +37,8 @@ const MatchCard = ({ match }) => {
   }
 
   return (
-    <div className="flex flex-col items-center bg-white/5 dark:bg-slate-800/60 backdrop-blur-lg border border-white/10 dark:border-slate-700/50 rounded-xl shadow-lg p-4 sm:p-5 transition-transform duration-300 hover:scale-105 hover:shadow-xl h-full">
-      <div className="flex items-center justify-between w-full mb-3">
+    <div className="flex flex-col items-center justify-center bg-white/5 dark:bg-slate-800/60 backdrop-blur-lg border border-white/10 dark:border-slate-700/50 rounded-xl shadow-lg p-4 sm:p-5 transition-transform duration-300 hover:scale-105 hover:shadow-xl h-full">
+      <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-center w-2/5 text-center">
           <img
             src={match?.homeLogo ?? "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"}
