@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { Bell, Clock, CreditCard, HelpCircle, LogOut, Settings, User, Calendar, Mail, Shield, Activity, RefreshCw } from 'lucide-react';
 import Navbar from '../components/ui/Navbar';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 
 const Profile = () => {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ const Profile = () => {
           setLoading(false);
           return;
         }
-        const response = await axios.get("http://localhost:5001/user/account", {
+        const response = await axiosInstance.get("/user/account", {
           headers: {
             Authorization: `Bearer ${token}`
           }

@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import  axiosInstance  from "../utils/axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const decodedToken = jwtDecode(token);
-          const response = await axios.get("http://localhost:5001/data/userdata", {
+          const response = await axiosInstance.get("/data/userdata", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -75,8 +75,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (token) => {
     try {
-      const decodedToken = jwtDecode(token);
-      const response = await axios.get("http://localhost:5001/data/userdata", {
+      const response = await axiosInstance.get("/data/userdata", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import  axiosInstance  from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ErrorAlert from "../components/ui/ErrorAlert";
@@ -30,7 +30,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5001/auth/Login", { userName, password });
+      const response = await axiosInstance.post("/auth/Login", { userName, password });
 
       login(response.data.token);
       setSuccessMessage(t('login_success_message'));

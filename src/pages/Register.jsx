@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance  from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ErrorAlert from "../components/ui/ErrorAlert";
@@ -39,7 +39,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5001/auth/register", {
+      const response = await axiosInstance.post("/auth/register", {
         userName,
         email,
         birthDate,

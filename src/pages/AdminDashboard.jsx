@@ -85,7 +85,7 @@ const AdminDashboard = () => {
         const token = localStorage.getItem("token");
 
         const response = await axiosInstance.get(
-          "http://localhost:5001/admin/getusers",
+          "/admin/getusers",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -145,7 +145,7 @@ const AdminDashboard = () => {
       setLoading(true);
       setShowModal(false);
       await axiosInstance.put(
-        `http://localhost:5001/admin/edituser/${editingUser._id}`,
+        `admin/edituser/${editingUser._id}`,
         editFormData,
         {
           headers: {
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
       setLoading(true);
       setShowModal(false);
       await axiosInstance.put(
-        `http://localhost:5001/admin/suspenduser/${selectedUserId}`,
+        `/admin/suspenduser/${selectedUserId}`,
         {},
         {
           headers: {
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
       setLoading(true);
       setShowModal(false);
       await axiosInstance.put(
-        `http://localhost:5001/admin/activateuser/${selectedUserId}`,
+        `/admin/activateuser/${selectedUserId}`,
         {},
         {
           headers: {

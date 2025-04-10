@@ -45,7 +45,7 @@ const GameStatistics = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axiosInstance.get(
-          "http://localhost:5001/history/gethistory",
+          "/history/gethistory",
           {
             headers: {
               Authorization: `Bearer ${token}`,
