@@ -5,6 +5,10 @@ import { Bomb, Gem, WalletMinimal, Coins } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import { useAuth } from "../context/AuthContext";
+<<<<<<< HEAD
+=======
+import { useUser } from "../context/UserContext";
+>>>>>>> 56e162c78f902cb9094b96cde5384f856b965437
 import axiosInstance from "../utils/axios";
 
 const GRID_SIZE = 5;
@@ -57,6 +61,7 @@ const Cell = ({ cellData, onClick, revealed }) => {
 
 const Mines = () => {
   const { user, updateWalletBalance } = useAuth();
+<<<<<<< HEAD
   const [balance, setBalance] = useState(
     user?.walletBalance || user?.walletBalance || 0
   );
@@ -68,6 +73,20 @@ const Mines = () => {
       setBalance(user.walletBalance);
     }
   }, [user, user]);
+=======
+  const userData = useUser();
+  const [balance, setBalance] = useState(
+    userData?.walletBalance || user?.walletBalance || 0
+  );
+
+  useEffect(() => {
+    if (userData && userData.walletBalance !== undefined) {
+      setBalance(userData.walletBalance);
+    } else if (user && user.walletBalance !== undefined) {
+      setBalance(user.walletBalance);
+    }
+  }, [userData, user]);
+>>>>>>> 56e162c78f902cb9094b96cde5384f856b965437
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
@@ -91,10 +110,17 @@ const Mines = () => {
 
   const chips = [5, 25, 100, 500];
   useEffect(() => {
+<<<<<<< HEAD
     if (user && user.walletBalance !== undefined) {
       setBalance(user.walletBalance);
     }
   }, [user]);
+=======
+    if (userData && userData.walletBalance !== undefined) {
+      setBalance(userData.walletBalance);
+    }
+  }, [userData]);
+>>>>>>> 56e162c78f902cb9094b96cde5384f856b965437
 
   useEffect(() => {
     initializeGrid();
@@ -470,6 +496,7 @@ const Mines = () => {
           {/* --- Vezérlő Panel ---*/}
           <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
             {/* Balance és Bet kijelzés */}
+<<<<<<< HEAD
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
                 Current Bet
@@ -482,16 +509,36 @@ const Mines = () => {
                   </span>
                 </span>
               </div>
+=======
+            <div className="bg-gray-700 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+>>>>>>> 56e162c78f902cb9094b96cde5384f856b965437
               <div className="mb-3">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
                   Balance
                 </h3>
                 <div className="text-xl sm:text-2xl font-bold">
+<<<<<<< HEAD
                   <span className="relative inline-flex items-center space-x-2 py-2.5 px-3 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
                     <WalletMinimal className="text-white w-8 h-8" />
                     <span className="text-lg font-semibold text-gray-100">
                       <b>{balance.toFixed(2)}$</b>
                     </span>
+=======
+                  <span className="relative inline-flex items-center space-x-2 py-2 px-3 bg-gradient-to-br from-green-600 to-blue-700 rounded-md text-gray-100">
+                    <WalletMinimal className="w-6 h-6 sm:w-8 sm:h-8" />
+                    <b>{balance.toFixed(2)}$</b>
+                  </span>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
+                  Current Bet
+                </h3>
+                <div className="text-xl sm:text-2xl font-bold text-yellow-400">
+                  <span className="relative inline-flex items-center space-x-2 py-2 px-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-md text-gray-100">
+                    <Coins className="w-6 h-6 sm:w-8 sm:h-8" />
+                    <b>{currentBet.toFixed(2)}$</b>
+>>>>>>> 56e162c78f902cb9094b96cde5384f856b965437
                   </span>
                 </div>
               </div>
