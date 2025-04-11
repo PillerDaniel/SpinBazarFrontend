@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import  axiosInstance  from "../utils/axios";
+import axiosInstance from "../utils/axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
               role: role,
               xp: xp,
               walletBalance: wallet.balance,
+              dailyBonusClaimed: wallet.dailyBonusClaimed,
             });
           }
         } catch (error) {
@@ -87,6 +88,7 @@ export const AuthProvider = ({ children }) => {
         role: role,
         xp: xp,
         walletBalance: wallet.balance,
+        dailyBonusClaimed: wallet.dailyBonusClaimed,
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -109,6 +111,17 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const updateBonusClaimStatus = (newBalance, claimTime) => {
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+      return {
+        ...prevUser,
+        walletBalance: newBalance,
+        dailyBonusClaimed: claimTime,
+      };
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -118,6 +131,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         loading,
         updateWalletBalance,
+        updateBonusClaimStatus,
       }}
     >
       {children}
