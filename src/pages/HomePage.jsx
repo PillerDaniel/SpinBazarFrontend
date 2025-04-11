@@ -157,7 +157,7 @@ const HomePage = () => {
         <div className="w-full py-8 mb-12 md:mb-16">
           <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white">
             {t("sportbet_head")}
-            <mark className="relative align-baseline inline-block overflow-hidden px-2 text-white rounded-sm bg-blue-500 ml-2">
+            <mark className="relative align-baseline overflow-hidden px-2 text-white rounded-sm bg-blue-500 ml-2 pb-3">
               {t("sportbet_head_highlight")}
             </mark>
           </h1>
@@ -166,7 +166,7 @@ const HomePage = () => {
           </div>
         </div>
       </main>
-      <footer>
+      <footer className="mt-25">
         <Footer />
       </footer>
     </>

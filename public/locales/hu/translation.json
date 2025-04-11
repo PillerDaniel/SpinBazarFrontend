@@ -221,5 +221,8 @@
   "Loss": "Veszteség",
   "Draw": "Döntetlen",
   "Last" : "Utolsó",
-  "Games": "játék(ok)"
+  "Games": "játék(ok)",
+  "alert_modal_title": "Fontos Figyelmeztetés",
+  "alert_modal_content": "Ez az oldal egy iskolai vizsgaremek projekt. Nem valódi online kaszinó, és semmilyen formában nem használható szerencsejátékra vagy pénz elköltésére. Kizárólag demonstrációs és oktatási célokat szolgál.",
+  "alert_modal_close_button": "Megértettem"
 }

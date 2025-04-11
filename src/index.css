@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+@layer utilities {
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes pulse-glow-filter {
+        0%, 100% {
+          /* Enyhébb sárga (yellow-400) drop-shadow */
+          filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6)); /* Kisebb blur, közepes opacity */
+        }
+        50% {
+          /* Erősebb sárga (yellow-400) drop-shadow */
+          filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8)); /* Nagyobb blur, erősebb opacity */
+        }
+      }
+      .animate-pulse-glow-filter {
+        /* Az animáció alkalmazása (pl. közvetlenül az ikonra) */
+        animation: pulse-glow-filter 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+    
+      /* Opcionális: Statikus drop-shadow hover effekthez (világosabb sárga) */
+      .filter-drop-shadow-glow-yellow-hover {
+         filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.9)); /* yellow-300, erős opacity */
+      }
+  }

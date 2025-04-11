@@ -222,5 +222,8 @@
   "Loss": "Loss",
   "Draw": "Draw",
   "Last": "Last",
-  "Games": "games"
+  "Games": "games",
+  "alert_modal_title": "Important Notice",
+  "alert_modal_content": "This page is a school project for an exam. It is not a real online casino and cannot be used for gambling or spending money in any form. It is for demonstration and educational purposes only.",
+  "alert_modal_close_button": "I understand"
 }
