@@ -166,7 +166,7 @@ const HomePage = () => {
           </div>
         </div>
       </main>
-      <footer className="mt-25">
+      <footer>
         <Footer />
       </footer>
     </>

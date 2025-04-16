@@ -64,6 +64,7 @@ const getCardStyles = (level) => {
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-emerald-900/80 rounded-full flex items-center justify-center shadow-inner shadow-emerald-500/40`;
     styles.levelText = `font-black text-3xl text-emerald-200 transition-colors duration-500`;
     styles.xpBar = `bg-gradient-to-r from-emerald-400 to-green-500 h-full rounded-full origin-left transition-all duration-500 ease-out`;
+    styles.balanceBg = `bg-gradient-to-br from-gray-900/30 to-emerald-900 border-2 border-emerald-400 group-hover:border-blue-300`;
     styles.balanceIcon = `text-emerald-400 group-hover:rotate-[-12deg]`;
   }
 

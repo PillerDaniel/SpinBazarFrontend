@@ -7,108 +7,97 @@ import WarningAlert from "./WarningAlert";
 const GameCarousel = ({ games }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleGames, setVisibleGames] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  //games based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+ if (window.innerWidth < 768) {
+        setVisibleCount(2); // Small tablets and phones
+      } else if (window.innerWidth < 1024) {
+        setVisibleCount(3); // Tablets
+      } else {
+        setVisibleCount(6); // Desktop
+      }
+    };
+
+    handleResize(); // Set initial value
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
-    if (!games || games.length === 0) return;
-
-    let gamesToDisplay = [...games];
-    while (gamesToDisplay.length < 6) {
-      gamesToDisplay = [...gamesToDisplay, ...games];
+    if (!games || games.length === 0) {
+      setVisibleGames([]);
+      return;
     }
 
+    let gamesToDisplay = [...games];
+    while (gamesToDisplay.length > 0 && gamesToDisplay.length < visibleCount) {
+      gamesToDisplay = [...gamesToDisplay, ...games];
+    }
+    gamesToDisplay = gamesToDisplay.slice(0, Math.max(games.length, visibleCount));
+
     const visibleOnes = [];
-    for (let i = 0; i < 6; i++) {
-      const index = (currentIndex + i) % gamesToDisplay.length;
-      visibleOnes.push(gamesToDisplay[index]);
+    if (gamesToDisplay.length > 0) {
+      for (let i = 0; i < visibleCount; i++) {
+        const index = (currentIndex + i) % gamesToDisplay.length;
+        visibleOnes.push(gamesToDisplay[index]);
+      }
     }
 
     setVisibleGames(visibleOnes);
-  }, [currentIndex, games]);
+  }, [currentIndex, games, visibleCount]);
+
+  if (!visibleGames || visibleGames.length === 0) {
+    return null;
+  }
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) => {
-      if (prevIndex === 0) {
-        return games.length - 1;
-      }
-      return prevIndex - 1;
+      if (!games || games.length === 0) return 0;
+      return (prevIndex - 1 + games.length) % games.length;
     });
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % games.length);
+    setCurrentIndex((prevIndex) => {
+      if (!games || games.length === 0) return 0;
+      return (prevIndex + 1) % games.length;
+    });
   };
-
-  const placeholderGames = [
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 1",
-      root: "game1",
-      requiresAuth: true,
-    },
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 2",
-      root: "game2",
-      requiresAuth: true,
-    },
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 3",
-      root: "game3",
-      requiresAuth: false,
-    },
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 4",
-      root: "game4",
-      requiresAuth: true,
-    },
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 5",
-      root: "game5",
-      requiresAuth: false,
-    },
-    {
-      imageSrc: "/api/placeholder/200/300",
-      altText: "Game 6",
-      root: "game6",
-      requiresAuth: true,
-    },
-  ];
-
-  const displayGames =
-    visibleGames.length > 0 ? visibleGames : placeholderGames;
 
   return (
     <div className="relative w-full py-4">
       <button
         onClick={handlePrev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-130"
+        className="absolute left-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-105"
         aria-label="Previous games"
       >
-        <ChevronLeft size={38} />
+        <ChevronLeft size={24} className="sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
 
-      <div className="flex justify-between items-center px-12 gap-4 overflow-hidden">
-        {displayGames.map((game, index) => (
+      <div className="flex justify-between items-center px-12 gap-2 md:gap-4 overflow-hidden">
+        {visibleGames.map((game, index) => (
           <div key={index} className="w-full flex-1 min-w-0">
-            <GameCard
-              imageSrc={game.imageSrc}
-              altText={game.altText}
-              root={game.root}
-              requiresAuth={game.requiresAuth}
-            />
+            {game && (
+              <GameCard
+                imageSrc={game.imageSrc}
+                altText={game.altText}
+                root={game.root}
+                requiresAuth={game.requiresAuth}
+              />
+            )}
           </div>
         ))}
       </div>
 
       <button
         onClick={handleNext}
-        className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-130"
+        className="absolute right-0 top-1/2 -translate-y-1/2 bg-opacity-50 hover:bg-opacity-70 text-white rounded-lg p-2 z-10 transition-transform duration-300 hover:scale-105"
         aria-label="Next games"
       >
-        <ChevronRight size={38} />
+        <ChevronRight size={24} className="sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
       </button>
     </div>
   );
@@ -139,11 +128,11 @@ const GameCard = ({ imageSrc, altText, root, requiresAuth = false }) => {
         />
       )}
       <div
-        className="max-w-sm rounded-lg cursor-pointer hover:scale-102 transition-all duration-300 mx-auto my-2"
+        className="rounded-lg cursor-pointer hover:scale-105 transition-all duration-300 mx-auto my-2"
         onClick={handleClick}
       >
         <img
-          className="rounded-lg w-50 h-70 mx-auto"
+          className="rounded-lg w-55 h-auto mx-auto object-contain"
           src={imageSrc}
           alt={altText}
         />

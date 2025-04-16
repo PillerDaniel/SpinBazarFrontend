@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Card, Spinner } from "flowbite-react";
+import { Spinner } from "flowbite-react";
 import { useTranslation } from "react-i18next";
 
 const USE_MOCK_DATA = true;
@@ -26,54 +25,73 @@ const MatchCard = ({ match }) => {
   };
 
   const formatDate = (dateString) => {
-     if (!dateString) return 'N/A';
-     try { return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
-     catch(e) { return 'Invalid Date'; }
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
+    } catch (e) {
+      return "Invalid Date";
+    }
   };
   const formatTime = (dateString) => {
-     if (!dateString) return 'N/A';
-     try { return new Date(dateString).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false }); }
-     catch(e) { return 'Invalid Time'; }
-  }
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } catch (e) {
+      return "Invalid Time";
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white/5 dark:bg-slate-800/60 backdrop-blur-lg border border-white/10 dark:border-slate-700/50 rounded-xl shadow-lg p-4 sm:p-5 transition-transform duration-300 hover:scale-105 hover:shadow-xl h-full">
+    <div className="flex flex-col items-center justify-center bg-white/5 dark:bg-slate-800/60 backdrop-blur-lg border border-white/10 dark:border-slate-700/50 rounded-xl shadow-lg p-2 sm:p-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl h-full">
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-center w-2/5 text-center">
           <img
-            src={match?.homeLogo ?? "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"}
-            alt={match?.homeTeam ?? 'Home Team'}
+            src={
+              match?.homeLogo ??
+              "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"
+            }
+            alt={match?.homeTeam ?? "Home Team"}
             onError={handleImageError}
-            className="w-10 h-10 sm:w-12 sm:h-12 mb-2 object-contain"
+            className="w-8 h-8 sm:w-10 sm:h-10 mb-1 object-contain"
             loading="lazy"
           />
-          <h5 className="text-sm sm:text-base font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
-            {match?.homeTeam ?? 'N/A'}
+          <h5 className="text-xs sm:text-sm font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
+            {match?.homeTeam ?? "N/A"}
           </h5>
         </div>
 
         <div className="flex flex-col items-center px-1 flex-shrink-0">
           <span className="text-xs text-gray-400 dark:text-gray-400 mb-0.5">
-              {formatDate(match?.date)}
+            {formatDate(match?.date)}
           </span>
-          <span className="text-lg sm:text-xl font-bold text-gray-300 dark:text-gray-200 bg-white/10 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
+          <span className="text-sm sm:text-base font-bold text-gray-300 dark:text-gray-200 bg-white/10 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
             {formatTime(match?.date)}
           </span>
-           <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-             {match?.timezone ?? 'UTC'}
+          <span className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {match?.timezone ?? "UTC"}
           </span>
         </div>
 
         <div className="flex flex-col items-center w-2/5 text-center">
           <img
-            src={match?.awayLogo ?? "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"}
-            alt={match?.awayTeam ?? 'Away Team'}
+            src={
+              match?.awayLogo ??
+              "https://dummyimage.com/60x60/cccccc/000.png&text=N/A"
+            }
+            alt={match?.awayTeam ?? "Away Team"}
             onError={handleImageError}
-            className="w-10 h-10 sm:w-12 sm:h-12 mb-2 object-contain"
+            className="w-8 h-8 sm:w-10 sm:h-10 mb-1 object-contain"
             loading="lazy"
           />
-          <h5 className="text-sm sm:text-base font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
-            {match?.awayTeam ?? 'N/A'}
+          <h5 className="text-xs sm:text-sm font-semibold text-gray-100 dark:text-white break-words line-clamp-2">
+            {match?.awayTeam ?? "N/A"}
           </h5>
         </div>
       </div>
@@ -89,74 +107,83 @@ const SportBettingSection = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-     if (USE_MOCK_DATA) {
+    if (USE_MOCK_DATA) {
       let extendedMatches = [...mockMatches];
       while (extendedMatches.length > 0 && extendedMatches.length < 8) {
-          extendedMatches = [...extendedMatches, ...mockMatches.map(m => ({...m, id: `${m.id}-${extendedMatches.length}`}))];
+        extendedMatches = [
+          ...extendedMatches,
+          ...mockMatches.map((m) => ({
+            ...m,
+            id: `${m.id}-${extendedMatches.length}`,
+          })),
+        ];
       }
       setMatches(extendedMatches);
       setLoading(false);
     } else {
-        setError("API data fetching is disabled in this example.");
-        setLoading(false);
+      setError("API data fetching is disabled in this example.");
+      setLoading(false);
     }
   }, []);
 
   const itemsToScroll = 1;
   const totalItems = matches.length;
+  const maxVisibleItems = window.innerWidth < 640 ? 1 : 5;
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      (prevIndex - itemsToScroll + totalItems) % totalItems
-    );
+    if (currentIndex > 0) {
+      setCurrentIndex((prevIndex) => prevIndex - itemsToScroll);
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      (prevIndex + itemsToScroll) % totalItems
-    );
+    if (currentIndex < totalItems - maxVisibleItems) {
+      setCurrentIndex((prevIndex) => prevIndex + itemsToScroll);
+    }
   };
 
   const translatePercentage = useMemo(() => {
-      const itemsVisibleApprox = 4.5;
-      const itemBasisPercent = 100 / itemsVisibleApprox;
-      return currentIndex * -itemBasisPercent;
-  }, [currentIndex, totalItems]);
-
+    const itemBasisPercent = 100 / maxVisibleItems;
+    return currentIndex * -itemBasisPercent;
+  }, [currentIndex, maxVisibleItems]);
 
   if (loading) {
     return (
       <div className="w-full bg-slate-800/50 rounded-lg p-4 flex justify-center items-center h-64 my-4">
         <Spinner size="xl" color="info" />
-        <span className="ml-3 text-gray-300">{t('loading_matches', 'Loading matches...')}</span>
+        <span className="ml-3 text-gray-300">
+          {t("loading_matches", "Loading matches...")}
+        </span>
       </div>
     );
   }
   if (error) {
-     return (
-       <div className="w-full bg-red-900/30 rounded-lg p-4 text-center text-red-400 my-4">{error}</div>
-     );
-   }
+    return (
+      <div className="w-full bg-red-900/30 rounded-lg p-4 text-center text-red-400 my-4">
+        {error}
+      </div>
+    );
+  }
   if (matches.length === 0) {
-     return (
-       <div className="w-full bg-slate-800/50 rounded-lg p-4 text-center text-gray-400 my-4">{t('no_matches_found', 'No upcoming matches found.')}</div>
-     );
-   }
+    return (
+      <div className="w-full bg-slate-800/50 rounded-lg p-4 text-center text-gray-400 my-4">
+        {t("no_matches_found", "No upcoming matches found.")}
+      </div>
+    );
+  }
 
-   return (
+  return (
     <div className="w-full group my-6 relative">
-  
-      <div className="relative">
+      <div className="relative flex items-center justify-between">
         <button
           onClick={handlePrev}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full
-                     text-white rounded-full p-2 z-20
-                     transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
+          className="relative left-0 text-white rounded-full p-2 z-20 transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
           aria-label="Previous match"
+          disabled={currentIndex === 0}
         >
           <ChevronLeft size={32} />
         </button>
-  
+
         <div className="overflow-hidden w-full">
           <div
             className="flex transition-transform duration-500 ease-in-out"
@@ -165,26 +192,25 @@ const SportBettingSection = () => {
             {matches.map((match) => (
               <div
                 key={match.id}
-                className="flex-shrink-0 w-full basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 px-2 sm:px-3"
+                className="flex-shrink-0 w-full sm:w-[50%] md:w-[33.333%] lg:w-[25%] xl:w-[20%] px-2 sm:px-3"
               >
                 <MatchCard match={match} />
               </div>
             ))}
           </div>
         </div>
-  
+
         <button
           onClick={handleNext}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full
-                     text-white rounded-full p-2 z-20
-                     transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
+          className="relative right-0 text-white rounded-full p-2 z-20 transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110 focus:outline-none"
           aria-label="Next match"
+          disabled={currentIndex >= totalItems - maxVisibleItems}
         >
           <ChevronRight size={32} />
         </button>
       </div>
     </div>
-  );  
+  );
 };
 
 export default SportBettingSection;
