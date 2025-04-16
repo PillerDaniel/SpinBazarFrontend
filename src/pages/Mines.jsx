@@ -21,11 +21,11 @@ const Cell = ({ cellData, onClick, revealed }) => {
     if (isMine) {
       bgColor = isClickedMine ? "bg-red-700" : "bg-red-500";
       textColor = "text-white";
-      content = <Bomb size={24} />;
+      content = <Bomb className="w-full h-full" />;
     } else {
       bgColor = "bg-green-500";
       textColor = "text-yellow-300";
-      content = <Gem size={24} />;
+      content = <Gem className="w-full h-full" />;
     }
   }
 
@@ -36,18 +36,20 @@ const Cell = ({ cellData, onClick, revealed }) => {
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0.8, opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-lg flex items-center justify-center cursor-pointer shadow-md transition-colors duration-200 ${bgColor} ${textColor}`}
+      className={`w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-lg flex items-center justify-center cursor-pointer shadow-md transition-colors duration-200 ${bgColor} ${textColor}`}
       onClick={onClick}
     >
-      {/* Animáció a felfedéshez */}
       <AnimatePresence>
         {(isRevealed || revealed) && content && (
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.3 }}
+            className="flex items-center justify-center w-full h-full p-2 sm:p-3 md:p-4" 
           >
-            {content}
+            <div className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10">
+              {content}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -58,31 +60,28 @@ const Cell = ({ cellData, onClick, revealed }) => {
 const Mines = () => {
   const { user, updateWalletBalance } = useAuth();
   const [balance, setBalance] = useState(
-    user?.walletBalance || user?.walletBalance || 0
+    user?.walletBalance || 0 
   );
 
   useEffect(() => {
-    if (user && user.walletBalance !== undefined) {
-      setBalance(user.walletBalance);
-    } else if (user && user.walletBalance !== undefined) {
+    if (user?.walletBalance !== undefined) {
       setBalance(user.walletBalance);
     }
-  }, [user, user]);
-  
-  // State for saving the last bet
+  }, [user?.walletBalance]);
+
   const [lastBetAmount, setLastBetAmount] = useState(0);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
   const [numMines, setNumMines] = useState(3);
-  const [maxMines, setMaxMines] = useState(TOTAL_CELLS - 1);
+  const [maxMines] = useState(TOTAL_CELLS - 1);
 
   const [gridState, setGridState] = useState([]);
   const [mineLocations, setMineLocations] = useState(new Set());
   const [revealedSafeCount, setRevealedSafeCount] = useState(0);
   const [currentMultiplier, setCurrentMultiplier] = useState(1.0);
 
-  const [gameStatus, setGameStatus] = useState("betting");
+  const [gameStatus, setGameStatus] = useState("betting"); 
   const [message, setMessage] = useState(
     "Place your bet and select number of mines."
   );
@@ -93,26 +92,18 @@ const Mines = () => {
   const [error, setError] = useState(null);
 
   const chips = [5, 25, 100, 500];
-  useEffect(() => {
-    if (user && user.walletBalance !== undefined) {
-      setBalance(user.walletBalance);
-    }
-  }, [user]);
 
   useEffect(() => {
     initializeGrid();
-  }, []);
+  }, []); 
 
   const initializeGrid = () => {
-    const initialGrid = [];
-    for (let i = 0; i < TOTAL_CELLS; i++) {
-      initialGrid.push({
-        id: i,
-        isMine: false,
-        isRevealed: false,
-        isClickedMine: false,
-      });
-    }
+    const initialGrid = Array.from({ length: TOTAL_CELLS }, (_, i) => ({
+      id: i,
+      isMine: false,
+      isRevealed: false,
+      isClickedMine: false,
+    }));
     setGridState(initialGrid);
     setMineLocations(new Set());
     setRevealedSafeCount(0);
@@ -124,15 +115,18 @@ const Mines = () => {
     if (revealedCount === 0) return 1.0;
 
     const safeCells = TOTAL_CELLS - minesCount;
+    if (safeCells <= 0) return 1.0;
+
     let multiplier = 1.0;
     for (let i = 0; i < revealedCount; i++) {
-      if (safeCells - i <= 0) {
+      const remainingSafe = safeCells - i;
+      if (remainingSafe <= 0) {
         console.error(
-          "Error calculating multiplier: Division by zero or negative."
+          "Error calculating multiplier: Not enough safe cells remaining."
         );
-        return multiplier;
+        return Math.max(1.0, multiplier);
       }
-      multiplier *= (TOTAL_CELLS - i) / (safeCells - i);
+      multiplier *= (TOTAL_CELLS - i) / remainingSafe;
     }
 
     const houseEdge = 0.99;
@@ -142,7 +136,7 @@ const Mines = () => {
   const placeMines = (numberOfMines, gridSize) => {
     const mines = new Set();
     const totalCells = gridSize * gridSize;
-    while (mines.size < numberOfMines) {
+    while (mines.size < numberOfMines && mines.size < totalCells) {
       const randomIndex = Math.floor(Math.random() * totalCells);
       mines.add(randomIndex);
     }
@@ -156,9 +150,14 @@ const Mines = () => {
       return;
     }
     if (numMines < 1 || numMines >= TOTAL_CELLS) {
-      setMessage(`Number of mines must be between 1 and ${TOTAL_CELLS - 1}.`);
+      setMessage(`Number of mines must be between 1 and ${maxMines}.`);
       return;
     }
+    if (currentBet > balance) {
+       setMessage("Insufficient funds for this bet.");
+       return;
+    }
+
 
     setLoading(true);
     try {
@@ -168,20 +167,13 @@ const Mines = () => {
         { withCredentials: true }
       );
 
-      if (response.data.wallet) {
-        const newBalance = response.data.wallet.balance;
-        setBalance(newBalance);
-        updateWalletBalance(newBalance);
-      } else {
-        const newBalance = balance - currentBet;
-        setBalance(newBalance);
-        updateWalletBalance(newBalance);
-      }
+      const newBalance = response.data?.wallet?.balance ?? (balance - currentBet);
+      setBalance(newBalance);
+      updateWalletBalance(newBalance); 
 
-      // Save current bet as last bet for next game
       setLastBetAmount(currentBet);
 
-      initializeGrid();
+      initializeGrid(); 
       const newMineLocations = placeMines(numMines, GRID_SIZE);
       setMineLocations(newMineLocations);
       setGridState((prevGrid) =>
@@ -200,7 +192,6 @@ const Mines = () => {
       setMessage(
         err.response?.data?.message || "Failed to start game. Bet not placed."
       );
-      setCurrentBet(0);
       setIsBettingActive(true);
     } finally {
       setLoading(false);
@@ -213,22 +204,21 @@ const Mines = () => {
     }
 
     const clickedCell = gridState[index];
+    let newGridState;
 
     if (mineLocations.has(index)) {
-      setGridState((prevGrid) =>
-        prevGrid.map((cell) =>
-          cell.id === index
-            ? { ...cell, isRevealed: true, isClickedMine: true }
-            : cell
-        )
+      newGridState = gridState.map((cell) =>
+        cell.id === index
+          ? { ...cell, isRevealed: true, isClickedMine: true }
+          : cell
       );
-      handleGameOver(false);
+      setGridState(newGridState);
+      handleGameOver(false); 
     } else {
-      setGridState((prevGrid) =>
-        prevGrid.map((cell) =>
-          cell.id === index ? { ...cell, isRevealed: true } : cell
-        )
+      newGridState = gridState.map((cell) =>
+        cell.id === index ? { ...cell, isRevealed: true } : cell
       );
+      setGridState(newGridState);
 
       const newRevealedCount = revealedSafeCount + 1;
       setRevealedSafeCount(newRevealedCount);
@@ -240,13 +230,13 @@ const Mines = () => {
 
       const totalSafeCells = TOTAL_CELLS - numMines;
       if (newRevealedCount === totalSafeCells) {
-        handleGameOver(true);
+        handleGameOver(true); 
       }
     }
   };
 
   const handleCashOut = async () => {
-    if (gameStatus !== "playing" || revealedSafeCount === 0) return;
+    if (gameStatus !== "playing" || revealedSafeCount === 0 || loading) return;
 
     setLoading(true);
     setError(null);
@@ -259,15 +249,9 @@ const Mines = () => {
         { withCredentials: true }
       );
 
-      if (response.data && response.data.walletBalance !== undefined) {
-        const newBalance = response.data.walletBalance;
-        setBalance(newBalance);
-        updateWalletBalance(newBalance);
-      } else {
-        const newBalance = balance + winAmount;
-        setBalance(newBalance);
-        updateWalletBalance(newBalance);
-      }
+      const newBalance = response.data?.walletBalance ?? (balance + winAmount);
+      setBalance(newBalance);
+      updateWalletBalance(newBalance);
 
       await addGameHistory("Mines", currentBet, winAmount);
       setGameStatus("cashed_out");
@@ -280,7 +264,7 @@ const Mines = () => {
         err.response?.data?.message ||
           "Failed to cash out. Please try again or refresh."
       );
-      setError("Cash out failed. Wallet not updated.");
+      setError("Cash out failed. Wallet may not be updated.");
     } finally {
       setLoading(false);
     }
@@ -288,17 +272,16 @@ const Mines = () => {
 
   const handleGameOver = async (isWin) => {
     setRevealAll(true);
+    setIsBettingActive(true);
+
     let winAmount = 0;
 
     if (isWin) {
       setLoading(true);
       setError(null);
-      const finalMultiplier = calculateMultiplier(
-        TOTAL_CELLS - numMines,
-        numMines
-      );
+      const finalMultiplier = calculateMultiplier(TOTAL_CELLS - numMines, numMines);
       winAmount = parseFloat((currentBet * finalMultiplier).toFixed(2));
-      setCurrentMultiplier(finalMultiplier);
+      setCurrentMultiplier(finalMultiplier); 
 
       try {
         const response = await axiosInstance.post(
@@ -306,21 +289,15 @@ const Mines = () => {
           { winAmount },
           { withCredentials: true }
         );
-        if (response.data && response.data.walletBalance !== undefined) {
-          const newBalance = response.data.walletBalance;
-          setBalance(newBalance);
-          updateWalletBalance(newBalance);
-        } else {
-          const newBalance = balance + winAmount;
-          setBalance(newBalance);
-          updateWalletBalance(newBalance);
-        }
+
+        const newBalance = response.data?.walletBalance ?? (balance + winAmount);
+        setBalance(newBalance);
+        updateWalletBalance(newBalance);
+
         await addGameHistory("Mines", currentBet, winAmount);
         setGameStatus("won");
         setMessage(
-          `Congratulations! You found all gems and won $${winAmount.toFixed(
-            2
-          )}!`
+          `Congratulations! You found all gems and won $${winAmount.toFixed(2)}!`
         );
       } catch (err) {
         console.error("Error processing automatic win:", err);
@@ -328,7 +305,6 @@ const Mines = () => {
         setError("Win processing failed. Wallet might not be updated.");
       } finally {
         setLoading(false);
-        setIsBettingActive(true);
       }
     } else {
       setGameStatus("lost");
@@ -339,7 +315,6 @@ const Mines = () => {
       } catch (err) {
         console.error("Error adding game history for loss:", err);
       }
-      setIsBettingActive(true);
     }
   };
 
@@ -358,10 +333,8 @@ const Mines = () => {
 
   const resetGame = () => {
     initializeGrid();
-    // Use the last bet amount instead of resetting to 0
     setCurrentBet(lastBetAmount);
     if (lastBetAmount > 0) {
-      // Find matching chip if applicable
       const matchingChip = chips.find(chip => chip === lastBetAmount);
       if (matchingChip) {
         setSelectedChip(matchingChip);
@@ -370,7 +343,7 @@ const Mines = () => {
         setSelectedChip(null);
         setCustomBetAmount(lastBetAmount.toString());
       }
-      setMessage(`Bet: $${lastBetAmount}. Select mines and press Start.`);
+      setMessage(`Bet: $${lastBetAmount.toFixed(2)}. Select mines and press Start.`);
     } else {
       setSelectedChip(null);
       setCustomBetAmount("");
@@ -379,10 +352,10 @@ const Mines = () => {
     setGameStatus("betting");
     setIsBettingActive(true);
     setError(null);
+    setCurrentMultiplier(1.0);
   };
 
   const selectChip = (value) => {
-    if (!isBettingActive) return;
     setSelectedChip(value);
     setCustomBetAmount("");
     setCurrentBet(value);
@@ -390,45 +363,49 @@ const Mines = () => {
   };
 
   const handleCustomBetChange = (e) => {
-    if (!isBettingActive) return;
+    if (!isBettingActive || loading) return;
     const value = e.target.value;
     if (value === "" || /^\d+$/.test(value)) {
-      const amount = value === "" ? 0 : parseInt(value);
+      const amount = value === "" ? 0 : parseInt(value, 10);
       setCustomBetAmount(value);
       setSelectedChip(null);
+
       if (amount >= 0) {
         if (amount > 500) {
           setCurrentBet(0);
           setMessage("Maximum bet is $500");
         } else if (amount > balance) {
-          setCurrentBet(0);
-          setMessage("Insufficient funds for this bet.");
+           setCurrentBet(0);
+           setMessage("Insufficient funds for this bet.");
         } else {
           setCurrentBet(amount);
           setMessage(`Bet: $${amount}. Select mines and press Start.`);
         }
+      } else {
+         setCurrentBet(0);
       }
     }
   };
 
   const handleNumMinesChange = (e) => {
-    if (!isBettingActive) return;
+    if (!isBettingActive || loading) return;
     const value = e.target.value;
     if (value === "" || /^\d+$/.test(value)) {
-      const mines = value === "" ? 0 : parseInt(value);
-      if (mines < 0) return;
-      if (mines >= TOTAL_CELLS) {
-        setMessage(`Maximum mines allowed is ${TOTAL_CELLS - 1}.`);
-        setNumMines(TOTAL_CELLS - 1);
-      } else {
-        setNumMines(mines);
-        setMessage(`Bet: $${currentBet}. Mines: ${mines}. Press Start.`);
-      }
+       const mines = value === "" ? 1 : parseInt(value, 10);
+       if (mines < 1) {
+           setMessage(`Minimum 1 mine required.`);
+       } else if (mines >= TOTAL_CELLS) {
+           setMessage(`Maximum mines allowed is ${maxMines}.`);
+           setNumMines(maxMines);
+       } else {
+           setNumMines(mines);
+           setMessage(`Bet: $${currentBet.toFixed(2)}. Mines: ${mines}. Press Start.`);
+       }
     }
   };
 
   const clearBet = () => {
-    if (!isBettingActive || gameStatus !== "betting") return;
+    if (!isBettingActive || loading) return;
     setCurrentBet(0);
     setSelectedChip(null);
     setCustomBetAmount("");
@@ -445,7 +422,7 @@ const Mines = () => {
 
     return (
       <button
-        className={`rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center text-white font-bold cursor-pointer transform transition-all duration-300 hover:scale-110 ${
+        className={`rounded-full w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center text-white font-bold cursor-pointer transform transition-all duration-300 hover:scale-110 ${
           colors[value]
         } ${
           selected && isBettingActive ? "ring-4 ring-yellow-400 scale-110" : ""
@@ -453,77 +430,56 @@ const Mines = () => {
         onClick={() => selectChip(value)}
         disabled={!isBettingActive || loading}
       >
-        <span className="text-xs sm:text-sm md:text-base">${value}</span>
+        <span className="text-xs xs:text-xs sm:text-sm md:text-base">${value}</span>
       </button>
     );
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mb-20">
       <Navbar />
 
-      <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
-        {error && (
-          <div
-            className="mb-4 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <span className="block sm:inline">{error}</span>
-            <button
-              onClick={() => setError(null)}
-              className="absolute top-0 bottom-0 right-0 px-4 py-3"
-            >
-              <svg
-                className="fill-current h-6 w-6 text-red-300 hover:text-red-100"
-                role="button"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <title>Close</title>
-                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
-              </svg>
-            </button>
-          </div>
-        )}
-
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* --- Vezérlő Panel ---*/}
-          <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col h-full">
-            {/* Balance és Bet kijelzés */}
-            <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 lg:py-8 mt-12 sm:mt-16 md:mt-20 lg:mt-24">
+        {/* Main Layout: Control Panel + Game Grid */}
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-5 lg:gap-6">
+          {/* --- Control Panel ---*/}
+          <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col h-full">
+            {/* Balance and Bet display */}
+            <div className="bg-gray-800 bg-opacity-50 rounded-lg p-2 sm:p-3 md:p-4 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
                 Current Bet
               </h3>
-              <div className="text-xl sm:text-2xl font-bold text-yellow-400 mb-2 sm:mb-4">
-                <span className="relative inline-flex items-center space-x-2 py-2.5 px-3 bg-gradient-to-br from-yellow-300 to-orange-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
-                  <Coins className="text-white w-8 h-8" />
-                  <span className="text-lg font-semibold text-gray-100">
-                    <b>{currentBet.toFixed(2)}$</b>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-yellow-400 mb-2 sm:mb-3 md:mb-4">
+                {/* Responsive Bet Amount Display */}
+                <span className="relative inline-flex items-center space-x-1 sm:space-x-2 py-1.5 sm:py-2 md:py-2.5 px-2 sm:px-2.5 md:px-3 bg-gradient-to-br from-yellow-300 to-orange-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                  <Coins className="text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
+                  <span className="text-sm sm:text-base md:text-lg font-semibold text-gray-100">
+                    <b>${currentBet.toFixed(2)}</b>
                   </span>
                 </span>
               </div>
-              <div className="mb-3">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
+              <div className="mb-2 sm:mb-3">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-200 mb-1">
                   Balance
                 </h3>
-                <div className="text-xl sm:text-2xl font-bold">
-                  <span className="relative inline-flex items-center space-x-2 py-2.5 px-3 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
-                    <WalletMinimal className="text-white w-8 h-8" />
-                    <span className="text-lg font-semibold text-gray-100">
-                      <b>{balance.toFixed(2)}$</b>
+                <div className="text-lg sm:text-xl md:text-2xl font-bold">
+                   <span className="relative inline-flex items-center space-x-1 sm:space-x-2 py-1.5 sm:py-2 md:py-2.5 px-2 sm:px-2.5 md:px-3 bg-gradient-to-br from-green-400 to-blue-600 rounded-md transition-all duration-500 ease-in-out bg-[length:200%_200%] bg-left hover:bg-right">
+                    <WalletMinimal className="text-white w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
+                    <span className="text-sm sm:text-base md:text-lg font-semibold text-gray-100">
+                      <b>${balance.toFixed(2)}</b>
                     </span>
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Fogadási Beállítások */}
-            <div className="mb-4 sm:mb-6 flex-grow">
-              {/* Chipek */}
-              <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-3">
+            {/* Betting Settings */}
+            <div className="mb-3 sm:mb-4 md:mb-5 lg:mb-6 flex-grow">
+              {/* Chips */}
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-200 mb-2 sm:mb-3">
                 Quick Chips
               </h3>
-              <div className="flex justify-center space-x-2 sm:space-x-3 md:space-x-4 mb-4">
+              <div className="flex justify-center space-x-1 xs:space-x-2 sm:space-x-3 md:space-x-4 mb-3 sm:mb-4">
                 {chips.map((chip) => (
                   <Chip
                     key={chip}
@@ -534,12 +490,12 @@ const Mines = () => {
               </div>
 
               {/* Custom Bet */}
-              <div className="mt-4 sm:mt-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
+              <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-6">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-200 mb-1">
                   Custom Bet
                 </h3>
                 <div className="flex items-center">
-                  <span className="text-gray-300 text-base sm:text-lg mr-2">
+                  <span className="text-gray-300 text-sm sm:text-base md:text-lg mr-1 sm:mr-2">
                     $
                   </span>
                   <input
@@ -549,18 +505,19 @@ const Mines = () => {
                     value={customBetAmount}
                     onChange={handleCustomBetChange}
                     placeholder="Enter amount"
-                    className={`flex-1 bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-3 sm:py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      !isBettingActive ? "opacity-50 cursor-not-allowed" : ""
+                    className={`flex-1 bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 text-sm sm:text-base text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      !isBettingActive || loading ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                     disabled={!isBettingActive || loading}
+                    aria-label="Custom bet amount"
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Max bet: $500</p>
               </div>
 
-              {/* Aknák száma */}
-              <div className="mt-4 sm:mt-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1">
+              {/* Number of Mines */}
+              <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-6">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-200 mb-1">
                   Number of Mines
                 </h3>
                 <input
@@ -569,23 +526,24 @@ const Mines = () => {
                   max={maxMines}
                   value={numMines}
                   onChange={handleNumMinesChange}
-                  className={`w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-3 sm:py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    !isBettingActive ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                   className={`w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 text-sm sm:text-base text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      !isBettingActive || loading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   disabled={!isBettingActive || loading}
+                  aria-label="Number of mines"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Between 1 and {maxMines}
                 </p>
               </div>
 
-              {/* Tét törlése gomb */}
-              <div className="flex justify-center mt-4 sm:mt-6">
+              {/* Clear Bet button */}
+              <div className="flex justify-center mt-3 sm:mt-4 md:mt-5 lg:mt-6">
                 <button
                   onClick={clearBet}
                   disabled={currentBet <= 0 || !isBettingActive || loading}
-                  className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-medium shadow-md transition text-sm sm:text-base w-full ${
-                    currentBet <= 0 || !isBettingActive || loading
+                   className={`px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-lg font-medium shadow-md transition text-xs sm:text-sm md:text-base w-full ${
+                    currentBet <= 0 || !isBettingActive || loading 
                       ? "bg-gray-600 text-gray-400 cursor-not-allowed"
                       : "bg-red-600 text-white hover:bg-red-700"
                   }`}
@@ -595,8 +553,8 @@ const Mines = () => {
               </div>
             </div>
 
-            {/* Játékmenet Gombok */}
-            <div className="mt-auto space-y-3">
+            {/* Game Control Buttons */}
+            <div className="mt-auto space-y-2 sm:space-y-3">
               {gameStatus === "betting" && (
                 <button
                   onClick={handleStartGame}
@@ -604,18 +562,20 @@ const Mines = () => {
                     currentBet <= 0 ||
                     numMines < 1 ||
                     numMines >= TOTAL_CELLS ||
-                    loading
+                    loading ||
+                    currentBet > balance 
                   }
-                  className={`w-full px-4 py-3 text-white text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                  className={`w-full px-3 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
                     currentBet <= 0 ||
                     numMines < 1 ||
                     numMines >= TOTAL_CELLS ||
-                    loading
+                    loading ||
+                    currentBet > balance 
                       ? "bg-gray-600 cursor-not-allowed"
                       : "bg-gradient-to-r from-blue-500 to-purple-600 hover:-translate-y-1 hover:shadow-lg focus:ring-blue-500"
                   }`}
                 >
-                  Start Game
+                  {loading ? "Starting..." : "Start Game"}
                 </button>
               )}
 
@@ -623,13 +583,13 @@ const Mines = () => {
                 <button
                   onClick={handleCashOut}
                   disabled={revealedSafeCount === 0 || loading}
-                  className={`w-full px-4 py-3 text-white text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                  className={`w-full px-3 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
                     revealedSafeCount === 0 || loading
                       ? "bg-gray-600 cursor-not-allowed"
                       : "bg-gradient-to-r from-yellow-500 to-orange-600 hover:-translate-y-1 hover:shadow-lg focus:ring-yellow-500"
                   }`}
                 >
-                  Cash Out ({currentMultiplier.toFixed(2)}x)
+                  {loading ? "Cashing Out..." : `Cash Out (${currentMultiplier.toFixed(2)}x)`}
                 </button>
               )}
 
@@ -638,7 +598,7 @@ const Mines = () => {
                 gameStatus === "won") && (
                 <button
                   onClick={resetGame}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none"
+                  className="w-full px-3 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none disabled:opacity-70"
                   disabled={loading}
                 >
                   New Game
@@ -647,19 +607,19 @@ const Mines = () => {
             </div>
           </div>
 
-          {/* --- Játék Grid --- */}
+          {/* --- Game Grid Section --- */}
           <div className="lg:w-2/3">
-            <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative h-full">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
+            <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-3 sm:p-4 md:p-6 lg:p-8 relative h-full flex flex-col">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 md:mb-5 lg:mb-6 text-center text-gray-100 tracking-wide">
                 <span className="relative">
                   Mines
-                  <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
+                  <span className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
                 </span>
               </h1>
 
-              {/* Üzenet sáv */}
+              {/* Message Bar */}
               <div
-                className={`text-sm sm:text-base font-medium px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-md text-center mb-4 sm:mb-6 transition-all duration-300
+                className={`text-xs xs:text-sm sm:text-base font-medium px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg shadow-md text-center mb-3 sm:mb-4 md:mb-5 lg:mb-6 transition-all duration-300
                   ${gameStatus === "lost" ? "bg-red-800 text-red-100" : ""}
                   ${
                     gameStatus === "won" || gameStatus === "cashed_out"
@@ -667,48 +627,58 @@ const Mines = () => {
                       : ""
                   }
                   ${
-                    gameStatus === "playing" || gameStatus === "betting"
+                    gameStatus === "playing"
                       ? "bg-blue-800 text-blue-100 animate-pulse"
                       : ""
                   }
-                `}
+                   ${
+                     gameStatus === "betting"
+                       ? "bg-blue-800 text-gray-200 animate-pulse"
+                       : ""
+                   }
+                 `}
+                 role="status"
               >
                 {message}
               </div>
 
-              {/* A Grid */}
-              <div
-                className={`grid grid-cols-5 gap-2 sm:gap-3 justify-center mx-auto max-w-max ${
-                  gameStatus !== "playing" ? "opacity-75" : ""
-                }`}
-              >
-                <AnimatePresence>
-                  {gridState.map((cell) => (
-                    <Cell
-                      key={cell.id}
-                      cellData={cell}
-                      onClick={() => handleCellClick(cell.id)}
-                      revealed={revealAll}
-                    />
-                  ))}
-                </AnimatePresence>
+              {/* Grid */}
+              <div className="flex justify-center items-center flex-grow">
+                  <div
+                      className={`grid grid-cols-5 gap-1.5 xs:gap-2 sm:gap-3 justify-center items-center mx-auto max-w-max ${
+                      gameStatus !== "playing" && gameStatus !== "betting" ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
+                      aria-label="Mines game grid"
+                  >
+                      <AnimatePresence>
+                      {gridState.map((cell) => (
+                          <Cell
+                          key={cell.id}
+                          cellData={cell}
+                          onClick={() => handleCellClick(cell.id)}
+                          revealed={revealAll}
+                          />
+                      ))}
+                      </AnimatePresence>
+                  </div>
               </div>
 
-              {/* Szorzó kijelzése játék közben */}
+
+              {/* Multiplier Display During Gameplay */}
               {gameStatus === "playing" && revealedSafeCount > 0 && (
-                <div className="mt-6 text-center">
-                  <span className="text-lg font-semibold px-4 py-2 rounded-md bg-yellow-600 text-white">
+                <div className="mt-4 sm:mt-6 text-center">
+                  <span className="text-sm sm:text-base lg:text-lg font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-md bg-yellow-600 text-white">
                     Current Multiplier: {currentMultiplier.toFixed(2)}x
                   </span>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
+            </div> 
+          </div> 
+        </div> 
       </main>
 
-      <Footer />
-    </div>
+      <Footer/> 
+    </div> 
   );
 };
 

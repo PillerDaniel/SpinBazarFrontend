@@ -513,7 +513,7 @@ const Blackjack = () => {
 
   // JSX Struktúra
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mb-20">
       <Navbar />
       <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
         {error && (
@@ -652,7 +652,7 @@ const Blackjack = () => {
             <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
                 <span className="relative">
-                  Blackjack
+                  BLACKJACK
                   <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
                 </span>
               </h1>
