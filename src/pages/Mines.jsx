@@ -68,6 +68,9 @@ const Mines = () => {
       setBalance(user.walletBalance);
     }
   }, [user, user]);
+  
+  // State for saving the last bet
+  const [lastBetAmount, setLastBetAmount] = useState(0);
   const [currentBet, setCurrentBet] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
@@ -174,6 +177,9 @@ const Mines = () => {
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       }
+
+      // Save current bet as last bet for next game
+      setLastBetAmount(currentBet);
 
       initializeGrid();
       const newMineLocations = placeMines(numMines, GRID_SIZE);
@@ -352,11 +358,25 @@ const Mines = () => {
 
   const resetGame = () => {
     initializeGrid();
-    setCurrentBet(0);
-    setCustomBetAmount("");
-    setSelectedChip(null);
+    // Use the last bet amount instead of resetting to 0
+    setCurrentBet(lastBetAmount);
+    if (lastBetAmount > 0) {
+      // Find matching chip if applicable
+      const matchingChip = chips.find(chip => chip === lastBetAmount);
+      if (matchingChip) {
+        setSelectedChip(matchingChip);
+        setCustomBetAmount("");
+      } else {
+        setSelectedChip(null);
+        setCustomBetAmount(lastBetAmount.toString());
+      }
+      setMessage(`Bet: $${lastBetAmount}. Select mines and press Start.`);
+    } else {
+      setSelectedChip(null);
+      setCustomBetAmount("");
+      setMessage("Place your bet and select number of mines.");
+    }
     setGameStatus("betting");
-    setMessage("Place your bet and select number of mines.");
     setIsBettingActive(true);
     setError(null);
   };
@@ -468,7 +488,7 @@ const Mines = () => {
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* --- Vezérlő Panel ---*/}
-          <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
+          <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col h-full">
             {/* Balance és Bet kijelzés */}
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
@@ -498,7 +518,7 @@ const Mines = () => {
             </div>
 
             {/* Fogadási Beállítások */}
-            <div className="mb-4 sm:mb-6">
+            <div className="mb-4 sm:mb-6 flex-grow">
               {/* Chipek */}
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-3">
                 Quick Chips
@@ -629,7 +649,7 @@ const Mines = () => {
 
           {/* --- Játék Grid --- */}
           <div className="lg:w-2/3">
-            <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
+            <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative h-full">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
                 <span className="relative">
                   Mines

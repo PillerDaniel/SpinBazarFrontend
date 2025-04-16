@@ -11,6 +11,7 @@ import {
   LogOut,
   Award,
   TrendingUp,
+  ShieldUser,
 } from "lucide-react";
 
 const getCardStyles = (level) => {
@@ -127,7 +128,7 @@ const getCardStyles = (level) => {
     styles.balanceIcon = `text-orange-400 group-hover:rotate-[-14deg] group-hover:scale-110 transition-transform`;
   }
 
-  if (tier >= 10) { 
+  if (tier >= 10) {
     // 100 "Victory Gold"
     styles.cardContainer = `w-full sm:w-[500px] bg-gradient-to-br from-amber-700 via-yellow-600 to-amber-800 rounded-lg shadow-2xl text-gray-100 relative overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-yellow-400 via-amber-600 to-yellow-300 opacity-90 group-hover:opacity-100 transition-opacity duration-300`;
@@ -341,9 +342,25 @@ const UserCard = () => {
                   <h2
                     className={`text-2xl sm:text-3xl font-bold tracking-tight truncate ${cardStyles.profileHeader}`}
                   >
-                    {user.userName || t("guest_user")}
+                    {user.userName ? (
+                      <div className="flex items-baseline space-x-1.5">
+                        <span className="truncate">{user.userName}</span>
+                        {user.role === "admin" && (
+                          <span
+                            title="admin"
+                            className="inline-flex items-center text-lg sm:text-xl font-medium text-yellow-400 flex-shrink-0"
+                          >
+                            <ShieldUser
+                              className="mr-1 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span>{t("guest_user")}</span>
+                    )}
                   </h2>
-                  {/* Az alap text-gray-400 olvashatóbb lesz a sötétebb háttereken */}
                   <p className="text-sm text-gray-400">{t("welcome_back")}</p>
                 </div>
               </div>

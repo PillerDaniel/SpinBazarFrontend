@@ -1,10 +1,10 @@
-import Footer from "../components/ui/Footer";
-import Navbar from "../components/ui/Navbar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../utils/axios";
-import { WalletMinimal, Coins } from "lucide-react";
+import { WalletMinimal, Coins, X } from "lucide-react";
+import Footer from "../components/ui/Footer";
+import Navbar from "../components/ui/Navbar";
 
 const Blackjack = () => {
   const { user, updateWalletBalance } = useAuth();
@@ -16,8 +16,9 @@ const Blackjack = () => {
     "Place your bet and press Deal to start"
   );
 
-  const [balance, setBalance] = useState(user?.walletBalance || user?.walletBalance || 0);
+  const [balance, setBalance] = useState(user?.walletBalance || 0);
   const [currentBet, setCurrentBet] = useState(0);
+  const [lastBetAmount, setLastBetAmount] = useState(0);
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
   const [isBettingActive, setIsBettingActive] = useState(true);
@@ -31,8 +32,7 @@ const Blackjack = () => {
     }
   }, [user]);
 
-  
-  const createDeck = () => {
+  const createDeck = useCallback(() => {
     const suits = ["♥", "♦", "♠", "♣"];
     const values = [
       "2",
@@ -50,7 +50,6 @@ const Blackjack = () => {
       "A",
     ];
     const newDeck = [];
-
     for (let suit of suits) {
       for (let value of values) {
         newDeck.push({
@@ -58,15 +57,13 @@ const Blackjack = () => {
           value,
           numericValue: getCardValue(value),
           faceDown: false,
-          id: Math.random().toString(36).substr(2, 9),
+          id: `${suit}${value}-${Math.random().toString(16).slice(2)}`,
           isNew: false,
         });
       }
     }
-
     return shuffleDeck(newDeck);
-  };
-
+  }, []);
   const shuffleDeck = (deck) => {
     const shuffled = [...deck];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -75,13 +72,11 @@ const Blackjack = () => {
     }
     return shuffled;
   };
-
   const getCardValue = (value) => {
     if (["J", "Q", "K"].includes(value)) return 10;
     if (value === "A") return 11;
     return parseInt(value);
   };
-
   const calculateHandTotal = (hand) => {
     let total = hand.reduce(
       (sum, card) => sum + (card.faceDown ? 0 : card.numericValue),
@@ -90,12 +85,10 @@ const Blackjack = () => {
     let aces = hand.filter(
       (card) => !card.faceDown && card.value === "A"
     ).length;
-
     while (total > 21 && aces > 0) {
       total -= 10;
       aces--;
     }
-
     return total;
   };
 
@@ -104,287 +97,259 @@ const Blackjack = () => {
     setSelectedChip(value);
     setCustomBetAmount("");
   };
-
   const handleCustomBetChange = (e) => {
     if (gameStatus !== "idle" || !isBettingActive) return;
-
     const value = e.target.value;
     if (value === "" || /^\d+$/.test(value)) {
       setCustomBetAmount(value);
       setSelectedChip(null);
     }
   };
-
   const placeBet = () => {
-    console.log("placeBet called");
-    console.log("Game Status:", gameStatus);
-    console.log("Betting Active:", isBettingActive);
-    console.log("Selected Chip:", selectedChip);
-    console.log("Custom Bet Amount:", customBetAmount);
-
-    if (gameStatus !== "idle") {
-      console.log("Game status is not idle");
-      return;
-    }
-
-    if (!isBettingActive) {
-      console.log("Betting is not active");
-      return;
-    }
-
+    if (gameStatus !== "idle" || !isBettingActive) return;
     let betAmount = 0;
-
     if (selectedChip) {
       betAmount = selectedChip;
     } else if (customBetAmount) {
-      betAmount = parseInt(customBetAmount);
+      betAmount = parseInt(customBetAmount, 10) || 0;
     }
-
-    console.log("Calculated Bet Amount:", betAmount);
-
     if (betAmount <= 0) {
-      console.log("Bet amount is 0 or negative");
+      setMessage("Select chip or enter valid amount.");
       return;
     }
-
     if (betAmount > 500) {
-      setMessage("Maximum bet is $500");
-      console.log("Bet exceeds maximum");
+      setMessage("Max bet $500");
       return;
     }
-
     if (betAmount > balance) {
-      setMessage("Insufficient funds for this bet");
-      console.log("Insufficient funds");
+      setMessage("Insufficient funds");
       return;
     }
-
     setCurrentBet(betAmount);
     setIsBettingActive(false);
-    setMessage("Bet placed. Press Deal to start.");
-    console.log("Bet placed successfully");
+    setMessage(`Bet $${betAmount} placed. Press Deal.`);
   };
-
   const clearBet = () => {
-    if (gameStatus !== "idle" || currentBet === 0) return;
-
+    if (currentBet <= 0 || gameStatus !== "idle" || loading) return;
     setCurrentBet(0);
     setIsBettingActive(true);
     setSelectedChip(null);
     setCustomBetAmount("");
-    setMessage("Place your bet and press Deal to start");
+    setMessage("Place bet & press Deal.");
   };
 
   const dealGame = async () => {
-    if (currentBet <= 0 || gameStatus !== "idle") return;
-
+    if (currentBet <= 0 || gameStatus !== "idle" || loading) return;
+    setLastBetAmount(currentBet);
+    setLoading(true);
+    setError(null);
+    let initialPlayerHand = [];
+    let initialDealerHand = [];
     try {
       const response = await axiosInstance.post(
         "/bet/placebet",
-        {
-          betAmount: currentBet,
-        },
-        {
-          withCredentials: true,
-        }
+        { betAmount: currentBet },
+        { withCredentials: true }
       );
-
-      const newDeck = createDeck();
-      const pCard1 = { ...newDeck.pop(), isNew: true };
-      const pCard2 = { ...newDeck.pop(), isNew: true };
-      const dCard1 = { ...newDeck.pop(), isNew: true };
-      const dCard2 = { ...newDeck.pop(), faceDown: true, isNew: true };
-
-      setDeck(newDeck);
-      setPlayerHand([pCard1, pCard2]);
-      setDealerHand([dCard1, dCard2]);
-      setGameStatus("playing");
-      setMessage("Your turn");
-
       if (response.data.wallet) {
         const newBalance = response.data.wallet.balance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
+      } else {
+        const newBalance = balance - currentBet;
+        setBalance(newBalance);
+        updateWalletBalance(newBalance);
+      }
+      const newDeck = createDeck();
+      const pCard1 = { ...newDeck.pop(), isNew: true };
+      const dCard1 = { ...newDeck.pop(), isNew: true };
+      const pCard2 = { ...newDeck.pop(), isNew: true };
+      const dCard2 = { ...newDeck.pop(), faceDown: true, isNew: true };
+      initialPlayerHand = [pCard1, pCard2];
+      initialDealerHand = [dCard1, dCard2];
+      setDeck(newDeck);
+      setPlayerHand(initialPlayerHand);
+      setDealerHand(initialDealerHand);
+      const playerTotal = calculateHandTotal(initialPlayerHand);
+      if (playerTotal === 21) {
+        // Blackjack Check
+        const revealedDealerHand = initialDealerHand.map((card) => ({
+          ...card,
+          faceDown: false,
+          isNew: card.faceDown,
+        }));
+        setDealerHand(revealedDealerHand);
+        const dealerTotal = calculateHandTotal(revealedDealerHand);
+        if (dealerTotal === 21) {
+          setGameStatus("push");
+          setMessage("Push! Both Blackjack!");
+          await processWin(currentBet);
+          await addGameHistory("Blackjack", currentBet, currentBet);
+        } else {
+          setGameStatus("playerWin");
+          setMessage("Blackjack! You win!");
+          const winAmount = currentBet * 2.5;
+          await processWin(winAmount);
+          await addGameHistory("Blackjack", currentBet, winAmount);
+        }
+      } else {
+        setGameStatus("playing");
+        setMessage("Your turn");
       }
     } catch (err) {
-      console.error("Error placing bet:", err);
-      setMessage(err.response?.data?.message || "Failed to place bet");
+      console.error("Bet error:", err);
+      setMessage(err.response?.data?.message || "Bet failed.");
       setCurrentBet(0);
+      setLastBetAmount(0);
+      setIsBettingActive(true);
+      setError("Game start failed.");
+      setPlayerHand([]);
+      setDealerHand([]);
+    } finally {
+      setLoading(false);
     }
   };
-
   const hit = () => {
-    if (gameStatus !== "playing") return;
-
+    if (gameStatus !== "playing" || loading) return;
+    if (deck.length === 0) {
+      setMessage("Deck empty!");
+      return;
+    }
     const newCard = { ...deck.pop(), isNew: true };
     const newHand = [...playerHand, newCard];
     setPlayerHand(newHand);
     setDeck([...deck]);
-
     const total = calculateHandTotal(newHand);
     if (total > 21) {
       setGameStatus("playerBust");
-      setMessage("Bust! You lose");
+      setMessage("Bust! You lose.");
       revealDealerCard();
-
       addGameHistory("Blackjack", currentBet, 0);
-      processWin(0);
     }
   };
-
   const stand = () => {
-    if (gameStatus !== "playing") return;
-
+    if (gameStatus !== "playing" || loading) return;
     dealerPlay();
   };
-
   const revealDealerCard = () => {
-    const newDealerHand = dealerHand.map((card) => ({
-      ...card,
-      faceDown: false,
-      isNew: card.faceDown,
-    }));
-    setDealerHand(newDealerHand);
+    setDealerHand((prevHand) =>
+      prevHand.map((card) => ({
+        ...card,
+        faceDown: false,
+        isNew: card.faceDown,
+      }))
+    );
   };
-
   const dealerPlay = () => {
-    revealDealerCard();
-
-    let newDealerHand = dealerHand.map((card) => ({
+    const revealedHand = dealerHand.map((card) => ({
       ...card,
       faceDown: false,
       isNew: card.faceDown,
     }));
-    let newDeck = [...deck];
-
-    let dealerTotal = calculateHandTotal(newDealerHand);
-
-    const drawCard = () => {
-      if (dealerTotal < 17) {
-        const newCard = { ...newDeck.pop(), isNew: true };
-
-        const updatedHand = newDealerHand.map((card) => ({
-          ...card,
-          isNew: false,
-        }));
-
-        updatedHand.push(newCard);
-        newDealerHand = updatedHand;
-
-        dealerTotal = calculateHandTotal(newDealerHand);
-
-        setDealerHand(newDealerHand);
-        setDeck(newDeck);
-
-        setTimeout(() => {
-          setDealerHand((prev) =>
-            prev.map((card) => ({ ...card, isNew: false }))
-          );
-          setTimeout(() => drawCard(), 100);
-        }, 700);
-      } else {
-        determineWinner(newDealerHand);
-      }
+    setDealerHand(revealedHand);
+    let currentDeck = [...deck];
+    const drawSequence = (handAfterReveal) => {
+      let currentHand = handAfterReveal;
+      let dealerTotal = calculateHandTotal(currentHand);
+      const drawNext = () => {
+        if (dealerTotal < 17) {
+          if (currentDeck.length === 0) {
+            console.error("Deck empty");
+            determineWinner(currentHand);
+            return;
+          }
+          const newCard = { ...currentDeck.pop(), isNew: true };
+          const nextHand = [...currentHand, newCard];
+          dealerTotal = calculateHandTotal(nextHand);
+          setDealerHand(nextHand);
+          setDeck(currentDeck);
+          currentHand = nextHand;
+          setTimeout(drawNext, 800);
+        } else {
+          setTimeout(() => determineWinner(currentHand), 600);
+        }
+      };
+      setTimeout(drawNext, 800);
     };
-
-    setTimeout(() => drawCard(), 800);
+    drawSequence(revealedHand);
   };
-
   const addGameHistory = async (game, betAmount, winAmount) => {
+    if (betAmount <= 0) return;
     try {
-      console.log(
-        "Attempting to add game history with URL:",
-        "/history/addhistory"
-      );
       await axiosInstance.post(
         "/history/addhistory",
-        {
-          game,
-          betAmount,
-          winAmount,
-        },
-        {
-          withCredentials: true,
-        }
+        { game, betAmount, winAmount },
+        { withCredentials: true }
       );
-      console.log("Game history added successfully");
+      console.log("History added.");
     } catch (err) {
-      console.error("Error adding game history:", err);
-      console.log("Failed URL was:", err.config?.url);
+      console.error("History error:", err);
     }
   };
-
   const processWin = async (winAmount) => {
+    if (winAmount <= 0) return;
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axiosInstance.post(
         "/bet/winbet",
-        {
-          winAmount: winAmount,
-        },
-        {
-          withCredentials: true,
-        }
+        { winAmount },
+        { withCredentials: true }
       );
-
       if (response.data && response.data.walletBalance !== undefined) {
         const newBalance = response.data.walletBalance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
       } else {
-        const newBalance = balance + winAmount;
-        setBalance(newBalance);
-        updateWalletBalance(newBalance);
+        console.warn("Win processed, no new balance.");
+        const finalBalance = balance - currentBet + winAmount;
+        setBalance(finalBalance);
+        updateWalletBalance(finalBalance);
       }
     } catch (err) {
-      console.error("Error updating wallet balance:", err);
-      setError("Failed to update wallet balance. Please refresh the page.");
+      console.error("Win process error:", err);
+      setError("Balance update failed.");
     } finally {
       setLoading(false);
     }
   };
-
   const determineWinner = async (finalDealerHand) => {
     const playerTotal = calculateHandTotal(playerHand);
     const dealerTotal = calculateHandTotal(finalDealerHand);
-
     let winAmount = 0;
-
+    let outcomeStatus = "";
+    let outcomeMessage = "";
+    if (dealerTotal > 21) {
+      outcomeStatus = "dealerBust";
+      outcomeMessage = "Dealer busts! Win!";
+      winAmount = currentBet * 2;
+    } else if (dealerTotal > playerTotal) {
+      outcomeStatus = "dealerWin";
+      outcomeMessage = "Dealer wins.";
+      winAmount = 0;
+    } else if (playerTotal > dealerTotal) {
+      if (playerTotal <= 21) {
+        outcomeStatus = "playerWin";
+        outcomeMessage = "You win!";
+        winAmount = currentBet * 2;
+      }
+    } else {
+      outcomeStatus = "push";
+      outcomeMessage = "Push (Tie)";
+      winAmount = currentBet;
+    }
+    setGameStatus(outcomeStatus);
+    setMessage(outcomeMessage);
     try {
       setLoading(true);
-
-      if (dealerTotal > 21) {
-        setGameStatus("dealerBust");
-        setMessage("Dealer busts! You win");
-        winAmount = currentBet * 2;
-
-        await processWin(winAmount);
-        await addGameHistory("Blackjack", currentBet, winAmount);
-      } else if (dealerTotal > playerTotal) {
-        setGameStatus("dealerWin");
-        setMessage("Dealer wins");
-        winAmount = 0;
-
-        await processWin(winAmount);
-        await addGameHistory("Blackjack", currentBet, 0);
-      } else if (playerTotal > dealerTotal) {
-        setGameStatus("playerWin");
-        setMessage("You win!");
-        winAmount = currentBet * 2;
-
+      if (winAmount > 0) {
         await processWin(winAmount);
         await addGameHistory("Blackjack", currentBet, winAmount);
       } else {
-        setGameStatus("push");
-        setMessage("Push (Tie)");
-        winAmount = currentBet;
-
-        await processWin(winAmount);
-        await addGameHistory("Blackjack", currentBet, winAmount);
+        await addGameHistory("Blackjack", currentBet, 0);
       }
     } catch (err) {
-      console.error("Error processing game outcome:", err);
-      setError("An error occurred. Please refresh the page.");
+      console.error("Final processing error:", err);
+      setError("Error finalizing game.");
     } finally {
       setLoading(false);
     }
@@ -393,13 +358,49 @@ const Blackjack = () => {
   const resetGame = () => {
     setPlayerHand([]);
     setDealerHand([]);
-    setCurrentBet(0);
+    setError(null);
+    setLoading(false);
     setGameStatus("idle");
-    setMessage("Place your bet and press Deal to start");
-    setIsBettingActive(true);
-    setSelectedChip(null);
-    setCustomBetAmount("");
+    if (lastBetAmount > 0 && lastBetAmount <= balance) {
+      setCurrentBet(lastBetAmount);
+      setIsBettingActive(false);
+      setMessage(`Bet $${lastBetAmount} placed. Press Deal.`);
+      if (chips.includes(lastBetAmount)) {
+        setSelectedChip(lastBetAmount);
+        setCustomBetAmount("");
+      } else {
+        setSelectedChip(null);
+        setCustomBetAmount(lastBetAmount.toString());
+      }
+    } else {
+      setCurrentBet(0);
+      setIsBettingActive(true);
+      setMessage("Place bet & press Deal.");
+      setSelectedChip(null);
+      setCustomBetAmount("");
+    }
   };
+
+  useEffect(() => {
+    if (playerHand.some((card) => card.isNew)) {
+      const timer = setTimeout(() => {
+        setPlayerHand((prev) =>
+          prev.map((card) => ({ ...card, isNew: false }))
+        );
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [playerHand]);
+  useEffect(() => {
+    if (dealerHand.some((card) => card.isNew)) {
+      const timer = setTimeout(() => {
+        setDealerHand((prev) =>
+          prev.map((card) => ({ ...card, isNew: false }))
+        );
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [dealerHand]);
 
   const Card = ({ card, index }) => {
     if (card.faceDown) {
@@ -409,21 +410,21 @@ const Blackjack = () => {
         </div>
       );
     }
-
     const color = ["♥", "♦"].includes(card.suit)
       ? "text-red-600"
       : "text-gray-800";
     const isAce = card.value === "A";
     const isFace = ["J", "Q", "K"].includes(card.value);
-
+    const cardBaseClasses =
+      "relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 hover:shadow-xl border border-gray-300";
     if (card.isNew) {
       return (
         <motion.div
-          key={card.id}
+          key={card.id || index}
           initial={{ rotateY: 90, x: 100, opacity: 0 }}
           animate={{ rotateY: 0, x: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 hover:shadow-xl border border-gray-300"
+          className={cardBaseClasses}
           style={{ transformStyle: "preserve-3d" }}
         >
           <div className={`self-start text-xs sm:text-sm font-bold ${color}`}>
@@ -442,12 +443,8 @@ const Blackjack = () => {
         </motion.div>
       );
     }
-
     return (
-      <div
-        key={card.id}
-        className="relative h-24 w-16 sm:h-28 sm:w-20 md:h-32 md:w-24 m-1 sm:m-2 rounded-lg shadow-lg bg-white flex flex-col items-center justify-between p-2 hover:shadow-xl border border-gray-300"
-      >
+      <div key={card.id || index} className={cardBaseClasses}>
         <div className={`self-start text-xs sm:text-sm font-bold ${color}`}>
           {card.value}
         </div>
@@ -475,55 +472,49 @@ const Blackjack = () => {
 
     return (
       <div
-        className={`rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex items-center justify-center text-white font-bold cursor-pointer transform transition-transform duration-300 hover:scale-110 ${
-          colors[value]
-        } ${
-          selected && isBettingActive
-            ? "ring-4 ring-yellow-400 scale-110"
-            : "opacity-50 cursor-not-allowed"
-        }`}
-        onClick={() => selectChip(value)}
+        className={`
+          rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16
+          flex items-center justify-center
+          text-white font-bold transform transition-all duration-300
+          ${colors[value]}
+          ${
+            selected ? "ring-4 ring-yellow-400 scale-105 shadow-lg" : ""
+          } {/* Kiválasztás stílus MINDIG, ha selected=true */}
+          ${
+            isBettingActive
+              ? "cursor-pointer hover:scale-110"
+              : "opacity-75 cursor-not-allowed"
+          }
+        `}
+        onClick={() => isBettingActive && selectChip(value)}
+        role="button"
+        aria-pressed={selected}
+        aria-label={`Select $${value} chip`}
       >
         <span className="text-xs sm:text-sm md:text-base">${value}</span>
       </div>
     );
   };
 
+  // Segédfüggvények a badge színekhez
   const getStatusBadgeColor = () => {
-    if (gameStatus === "playerWin" || gameStatus === "dealerBust") {
+    if (gameStatus === "playerWin" || gameStatus === "dealerBust")
       return "bg-green-800 text-green-100";
-    } else if (gameStatus === "dealerWin" || gameStatus === "playerBust") {
+    if (gameStatus === "dealerWin" || gameStatus === "playerBust")
       return "bg-red-800 text-red-100";
-    } else if (gameStatus === "push") {
-      return "bg-yellow-800 text-yellow-100";
-    }
+    if (gameStatus === "push") return "bg-yellow-800 text-yellow-100";
     return "bg-blue-800 text-blue-100";
   };
-
   const getTotalBadgeColor = (total) => {
-    if (total > 21) {
-      return "bg-red-900 text-red-100";
-    } else if (total === 21) {
-      return "bg-green-900 text-green-100";
-    }
+    if (total > 21) return "bg-red-900 text-red-100";
+    if (total === 21) return "bg-green-900 text-green-100";
     return "bg-gray-700 text-gray-100";
   };
 
-  useEffect(() => {
-    if (playerHand.some((card) => card.isNew)) {
-      const timer = setTimeout(() => {
-        setPlayerHand((prev) =>
-          prev.map((card) => ({ ...card, isNew: false }))
-        );
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [playerHand]);
-
+  // JSX Struktúra
   return (
     <div className="min-h-screen">
       <Navbar />
-
       <main className="container mx-auto px-4 py-8 mt-16 md:mt-24">
         {error && (
           <div
@@ -547,11 +538,10 @@ const Blackjack = () => {
             </span>
           </div>
         )}
-
         <div className="flex flex-col lg:flex-row gap-6">
-        {/* --- Vezérlő Panel ---*/}
+          {/* Vezérlő Panel */}
           <div className="lg:w-1/3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-xl p-4 sm:p-6 flex flex-col">
-          {/* Balance és Bet kijelzés */}
+            {/* Balance és Bet */}
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
                 Current Bet
@@ -576,7 +566,7 @@ const Blackjack = () => {
                 </span>
               </div>
             </div>
-
+            {/* Quick Chips & Custom Bet */}
             <div className="mb-4 sm:mb-6">
               <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-3 sm:mb-4">
                 Quick Chips
@@ -590,7 +580,6 @@ const Blackjack = () => {
                   />
                 ))}
               </div>
-
               <div className="mt-4 sm:mt-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-200 mb-1 sm:mb-2">
                   Custom Bet
@@ -601,30 +590,29 @@ const Blackjack = () => {
                   </span>
                   <input
                     type="text"
+                    pattern="\d*"
+                    inputMode="decimal"
                     value={customBetAmount}
                     onChange={handleCustomBetChange}
                     placeholder="Enter amount"
                     className={`flex-1 bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 sm:px-3 sm:py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       !isBettingActive ? "opacity-50 cursor-not-allowed" : ""
                     }`}
-                    disabled={gameStatus !== "idle" || !isBettingActive}
+                    disabled={!isBettingActive}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Max bet: $500</p>
               </div>
-
               <div className="flex justify-center gap-3 sm:gap-4 mt-4 sm:mt-6">
                 <button
                   onClick={placeBet}
                   disabled={
-                    (!selectedChip && !customBetAmount) ||
-                    gameStatus !== "idle" ||
+                    (!selectedChip && !parseInt(customBetAmount, 10) > 0) ||
                     !isBettingActive ||
                     loading
                   }
                   className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-medium shadow-md transition text-sm sm:text-base ${
-                    (!selectedChip && !customBetAmount) ||
-                    gameStatus !== "idle" ||
+                    (!selectedChip && !parseInt(customBetAmount, 10) > 0) ||
                     !isBettingActive ||
                     loading
                       ? "bg-gray-700 text-gray-400 cursor-not-allowed"
@@ -633,7 +621,6 @@ const Blackjack = () => {
                 >
                   Place Bet
                 </button>
-
                 <button
                   onClick={clearBet}
                   disabled={currentBet <= 0 || gameStatus !== "idle" || loading}
@@ -647,18 +634,20 @@ const Blackjack = () => {
                 </button>
               </div>
             </div>
-
-            {gameStatus !== "idle" && gameStatus !== "playing" && (
-              <button
-                onClick={resetGame}
-                className="mt-auto w-full px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none"
-                disabled={loading}
-              >
-                New Game
-              </button>
-            )}
+            {/* New Game Button */}
+            <div className="mt-auto">
+              {gameStatus !== "idle" && gameStatus !== "playing" && (
+                <button
+                  onClick={resetGame}
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-md hover:shadow-lg transform transition duration-300 hover:-translate-y-1 focus:outline-none"
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "New Game"}
+                </button>
+              )}
+            </div>
           </div>
-
+          {/* Játékterület */}
           <div className="lg:w-2/3">
             <div className="backdrop-blur-sm bg-white/5 rounded-xl shadow-xl overflow-hidden p-4 sm:p-6 md:p-8 relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center text-gray-100 tracking-wide">
@@ -667,19 +656,22 @@ const Blackjack = () => {
                   <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
                 </span>
               </h1>
-
               <div
-                className={`${getStatusBadgeColor()} text-sm sm:text-base font-medium px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-md text-center mb-4 sm:mb-6 transition-all duration-500 animate-pulse`}
+                className={`${getStatusBadgeColor()} text-sm sm:text-base font-medium px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-md text-center mb-4 sm:mb-6 transition-all duration-500 ${
+                  gameStatus !== "idle" && gameStatus !== "playing"
+                    ? ""
+                    : "animate-pulse"
+                }`}
               >
-                {message}
+                {loading && gameStatus !== "idle" ? "Processing..." : message}
               </div>
-
+              {/* Dealer Hand */}
               <div className="mb-6 sm:mb-8">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-200">
                     Dealer
                   </h3>
-                  {gameStatus !== "playing" &&
+                  {dealerHand.some((card) => !card.faceDown) &&
                     calculateHandTotal(dealerHand) > 0 && (
                       <span
                         className={`px-2 py-1 sm:px-3 rounded-full text-xs sm:text-sm font-medium ${getTotalBadgeColor(
@@ -691,16 +683,20 @@ const Blackjack = () => {
                     )}
                 </div>
                 <div className="flex flex-wrap justify-center min-h-32">
-                  <AnimatePresence>
+                  <AnimatePresence initial={false}>
                     {dealerHand.map((card, index) => (
                       <Card key={card.id || index} card={card} index={index} />
                     ))}
                   </AnimatePresence>
+                  {dealerHand.length === 0 && gameStatus === "idle" && (
+                    <div className="flex items-center justify-center w-full h-full text-gray-500 italic">
+                      Dealer hand
+                    </div>
+                  )}
                 </div>
               </div>
-
               <div className="w-full border-t border-gray-700 my-3 sm:my-4"></div>
-
+              {/* Player Hand */}
               <div className="mb-6 sm:mb-8">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-200">
@@ -717,14 +713,19 @@ const Blackjack = () => {
                   )}
                 </div>
                 <div className="flex flex-wrap justify-center min-h-32">
-                  <AnimatePresence>
+                  <AnimatePresence initial={false}>
                     {playerHand.map((card, index) => (
                       <Card key={card.id || index} card={card} index={index} />
                     ))}
                   </AnimatePresence>
+                  {playerHand.length === 0 && gameStatus === "idle" && (
+                    <div className="flex items-center justify-center w-full h-full text-gray-500 italic">
+                      Player hand
+                    </div>
+                  )}
                 </div>
               </div>
-
+              {/* Játék Gombok */}
               <div className="flex justify-center space-x-3 sm:space-x-4 mt-4 sm:mt-6">
                 {gameStatus === "idle" ? (
                   <button
@@ -736,7 +737,7 @@ const Blackjack = () => {
                         : "bg-gradient-to-r from-blue-500 to-purple-600 hover:-translate-y-1 hover:shadow-lg focus:ring-blue-500"
                     }`}
                   >
-                    Deal
+                    {loading ? "Dealing..." : "Deal"}
                   </button>
                 ) : gameStatus === "playing" ? (
                   <>
@@ -769,7 +770,6 @@ const Blackjack = () => {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
