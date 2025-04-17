@@ -26,6 +26,7 @@
   "register_username": "Username",
   "register_password": "Password",
   "register_password_confirm": "Confirm password",
+  "register_birth_date": "Birth date",
   "register_button": "Register",
   "register_login_text": "Already have an account?",
   "register_login_button": "Login",
@@ -262,6 +263,5 @@
   "transaction_status_failed": "Failed",
   "no_transactions_found": "No transactions found.",
   "view_all_transactions": "View All Transactions",
-  "security_and_notifications": "Security and Notifications",
-  "danger_zone": "Danger Zone"
+  "security_and_notifications": "Security and Notifications"
 }

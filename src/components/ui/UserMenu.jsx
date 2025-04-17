@@ -1,4 +1,5 @@
 import React, { useState } from "react"; // useEffect eltávolítva, ha nincs rá szükség
+import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import WarningAlert from "./WarningAlert";
@@ -46,6 +47,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
 
 
   return (
+    ReactDOM.createPortal(
     <>
       {/* Overlay a menü mögött */}
       <div
@@ -173,7 +175,8 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.getElementById("modal-portal"))
   );
 };
 

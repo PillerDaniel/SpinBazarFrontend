@@ -24,6 +24,7 @@
   "login_success_message": "Sikeres bejelentkezés!",
   "register_head_text": "Regisztráció",
   "register_username": "Felhasználónév",
+  "register_birthdate": "Születési dátum",
   "register_password": "Jelszó",
   "register_password_confirm": "Jelszó megerősítés",
   "register_button": "Regisztráció",
@@ -262,7 +263,5 @@
     "transaction_status_failed": "Sikertelen",
     "no_transactions_found": "Nincsenek tranzakciók.",
     "view_all_transactions": "Összes tranzakció megtekintése",
-    "security_and_notifications": "Biztonság és értesítések",
-    "danger_zone": "Veszélyes zóna"
-  
+    "security_and_notifications": "Biztonság és értesítések"
 }
