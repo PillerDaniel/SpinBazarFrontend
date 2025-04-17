@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import axiosInstance from "../utils/axios";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
-import axiosInstance from "../utils/axios";
-import { FaSearch } from "react-icons/fa";
-import WarningAlert from "../components/ui/WarningAlert";
-
+import ErrorAlert from "../components/ui/ErrorAlert";
+import SuccessAlert from "../components/ui/SuccessAlert";
 import {
+  FaSearch,
   FaUserSlash,
   FaUserCheck,
   FaExclamationTriangle,
+  FaUsers,
+  FaUserShield,
+  FaFilter,
 } from "react-icons/fa";
 import {
   Card,
@@ -17,7 +20,6 @@ import {
   Badge,
   Dropdown,
   Spinner,
-  Alert,
   Modal,
   Button,
 } from "flowbite-react";
@@ -48,6 +50,7 @@ const AdminDashboard = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState("");
@@ -60,38 +63,30 @@ const AdminDashboard = () => {
     email: "",
     role: "",
   });
+
   useEffect(() => {
-    document.body.style.backgroundImage = "url('/background.svg')";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center center";
-    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundColor = "#111827";
+    document.body.style.backgroundImage =
+      "radial-gradient(circle at 50% 50%, #1f2937 0%, #111827 100%)";
 
     return () => {
       document.body.style.backgroundImage = "";
+      document.body.style.backgroundColor = "";
     };
   }, []);
-  useEffect(() => {
-    if (error) {
-      const timerId = setTimeout(() => {
-        setError(null);
-      }, 3000);
-      return () => clearTimeout(timerId);
-    }
-  }, [error]);
+
+  // Fetch users data
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const response = await axiosInstance.get(
-          "/admin/getusers",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axiosInstance.get("/admin/getusers", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const userData = response.data.users || [];
         setUsers(userData);
@@ -107,6 +102,7 @@ const AdminDashboard = () => {
     fetchUsers();
   }, []);
 
+  // Filter users
   useEffect(() => {
     let filtered = users;
     if (selectedRole && selectedRole !== t("adminDashboard.filters.allRoles")) {
@@ -135,11 +131,17 @@ const AdminDashboard = () => {
     const adminUsers = filteredUsers.filter(
       (user) => user.role === "admin"
     ).length;
+    const activeUsers = filteredUsers.filter((user) => user.isActive).length;
+    const suspendedUsers = totalUsers - activeUsers;
+
     return {
       totalUsers,
       adminUsers,
+      activeUsers,
+      suspendedUsers,
     };
   };
+
   const handleEditUser = async () => {
     try {
       setLoading(true);
@@ -158,6 +160,7 @@ const AdminDashboard = () => {
         user._id === editingUser._id ? { ...user, ...editFormData } : user
       );
       setUsers(updatedUsers);
+      setSuccess(`User ${editFormData.userName} has been updated successfully`);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -168,6 +171,7 @@ const AdminDashboard = () => {
       }
     }
   };
+
   const filterByRole = (role) => {
     setLoading(true);
     try {
@@ -225,6 +229,7 @@ const AdminDashboard = () => {
     setModalAction("edit");
     setShowModal(true);
   };
+
   const handleSuspendUser = async () => {
     try {
       setLoading(true);
@@ -243,6 +248,7 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: false } : user
       );
       setUsers(updatedUsers);
+      setSuccess(`User ${selectedUsername} has been suspended successfully`);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -272,6 +278,7 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: true } : user
       );
       setUsers(updatedUsers);
+      setSuccess(`User ${selectedUsername} has been activated successfully`);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -287,200 +294,239 @@ const AdminDashboard = () => {
     setSearchQuery(e.target.value);
   };
 
-  return (
-    <div className="app-container flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow flex flex-col pt-16 px-4 md:px-40 text-white mt-10">
-        <h1 className="text-3xl font-extrabold mb-6 text-white">
-          {t("adminDashboard.title")}
-        </h1>
+  const clearError = () => setError(null);
+  const clearSuccess = () => setSuccess(null);
 
-        {error && (
-          <div>
-          <WarningAlert message={error}/>
-          <p>{console.log(error)}</p>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
+      <ErrorAlert message={error} onClose={clearError} />
+      <SuccessAlert message={success} onClose={clearSuccess} />
+
+      <main className="flex-grow px-4 md:px-8 lg:px-12 py-6 md:py-10 max-w-screen-2xl mx-auto w-full">
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center">
+            <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
+              {t("adminDashboard.title")}
+            </span>
+          </h1>
+        </div>
+
+        {/* Stats Cards */}
+        {!loading && !searchQuery && stats && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium mb-1">
+                    {t("adminDashboard.totalUsers")}
+                  </p>
+                  <h3 className="text-3xl font-bold text-white">
+                    {stats.totalUsers}
+                  </h3>
+                </div>
+                <div className="p-3 rounded-full bg-blue-600/20 text-blue-400">
+                  <FaUsers className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium mb-1">
+                    {t("adminDashboard.adminUsers")}
+                  </p>
+                  <h3 className="text-3xl font-bold text-white">
+                    {stats.adminUsers}
+                  </h3>
+                </div>
+                <div className="p-3 rounded-full bg-green-600/20 text-green-400">
+                  <FaUserShield className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium mb-1">
+                    {t("adminDashboard.activeUsers", "Active Users")}
+                  </p>
+                  <h3 className="text-3xl font-bold text-white">
+                    {stats.activeUsers}
+                  </h3>
+                </div>
+                <div className="p-3 rounded-full bg-teal-600/20 text-teal-400">
+                  <FaUserCheck className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium mb-1">
+                    {t("adminDashboard.suspendedUsers", "Suspended Users")}
+                  </p>
+                  <h3 className="text-3xl font-bold text-white">
+                    {stats.suspendedUsers}
+                  </h3>
+                </div>
+                <div className="p-3 rounded-full bg-red-600/20 text-red-400">
+                  <FaUserSlash className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
           </div>
         )}
 
-        <div className="mb-6 flex flex-col md:flex-row md:justify-between items-center">
-          <Dropdown
-            label={selectedRole || t("adminDashboard.filters.allRoles")}
-            color="dark"
-          >
-            <Dropdown.Item onClick={() => filterByRole("")}>
-              {t("adminDashboard.filters.allRoles")}
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => filterByRole("admin")}>
-              {t("adminDashboard.filters.admin")}
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => filterByRole("user")}>
-              {t("adminDashboard.filters.user")}
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
-              {t("adminDashboard.filters.suspended")}
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
-              {t("adminDashboard.filters.active")}
-            </Dropdown.Item>
-          </Dropdown>
-          <div className="relative mt-4 md:mt-0 w-full md:w-1/3">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        {/* Filters and Search */}
+        <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
+          <div className="w-full sm:w-auto relative">
+            <style jsx>{`
+              /* Custom styles to override dropdown width */
+              :global(.dropdown-menu) {
+                width: auto !important;
+                min-width: fit-content !important;
+                max-width: 200px !important;
+              }
+
+              :global(.dropdown-item) {
+                white-space: nowrap !important;
+              }
+            `}</style>
+
+            <Dropdown
+              label={
+                <div className="flex items-center">
+                  <FaFilter className="mr-2" />
+                  <span>
+                    {selectedRole || t("adminDashboard.filters.allRoles")}
+                  </span>
+                </div>
+              }
+              color="dark"
+              className="w-full border-2 rounded-lg"
+            >
+              <Dropdown.Item onClick={() => filterByRole("")}>
+                {t("adminDashboard.filters.allRoles")}
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => filterByRole("admin")}>
+                {t("adminDashboard.filters.admin")}
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => filterByRole("user")}>
+                {t("adminDashboard.filters.user")}
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
+                {t("adminDashboard.filters.suspended")}
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
+                {t("adminDashboard.filters.active")}
+              </Dropdown.Item>
+            </Dropdown>
+          </div>
+
+          <div className="relative w-full sm:flex-1">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
             <input
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              className="pl-10 p-2 rounded bg-gray-800 text-white border border-gray-600 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              placeholder="Search..."
+              className="w-full pl-10 p-2.5 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
         </div>
 
+        {/* Loading Spinner */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Spinner size="xl" />
+            <Spinner size="xl" color="purple" />
           </div>
         ) : (
-          <>
-            {!searchQuery && stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <Card className="w-full bg-gray-800 border-gray-700">
-                  <div className="p-4 flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                      <h5 className="text-xl font-bold tracking-tight text-white">
-                        {t("adminDashboard.totalUsers")}
-                      </h5>
-                      <div className="p-2 bg-blue-600 rounded-full">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <p className="font-normal text-4xl text-gray-200 mb-2">
-                      {stats.totalUsers}
-                    </p>
-                  </div>
-                </Card>
+          <Card className="overflow-hidden bg-gray-800/50 border-gray-700 shadow-xl">
+            <div className="overflow-x-auto">
+              <Table striped>
+                <Table.Head>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.username")}
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.email")}
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.role")}
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.joined")}
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.status")}
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
+                    {t("adminDashboard.userTable.actions")}
+                  </Table.HeadCell>
+                </Table.Head>
 
-                <Card className="w-full bg-gray-800 border-gray-700">
-                  <div className="p-4 flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                      <h5 className="text-xl font-bold tracking-tight text-white">
-                        {t("adminDashboard.adminUsers")}
-                      </h5>
-                      <div className="p-2 bg-green-600 rounded-full">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <p className="font-normal text-4xl text-gray-200 mb-2">
-                      {stats.adminUsers}
-                    </p>
-                  </div>
-                </Card>
-              </div>
-            )}
-
-            <Card className="mb-6 overflow-x-auto bg-gray-800 border-gray-700">
-              <div className="overflow-x-auto">
-                <Table striped>
-                  <Table.Head>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.id")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.username")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.email")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.role")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.joined")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("lastLogin")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.status")}
-                    </Table.HeadCell>
-                    <Table.HeadCell className="bg-gray-700">
-                      {t("adminDashboard.userTable.actions")}
-                    </Table.HeadCell>
-                  </Table.Head>
-                  <Table.Body className="divide-y divide-gray-700">
-                    {filteredUsers.length > 0 ? (
-                      filteredUsers.map((user) => (
-                        <Table.Row
-                          key={user._id}
-                          className="bg-gray-800 border-gray-700"
-                        >
-                          <Table.Cell className="whitespace-nowrap font-medium text-white">
-                            {user._id}
-                          </Table.Cell>
-                          <Table.Cell className="text-gray-300">
-                            {user.userName}
-                          </Table.Cell>
-                          <Table.Cell className="text-gray-300">
-                            {user.email}
-                          </Table.Cell>
-                          <Table.Cell>
+                <Table.Body className="divide-y divide-gray-700">
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                      <Table.Row
+                        key={user._id}
+                        className="bg-gray-800/30 hover:bg-gray-700/30 transition-colors"
+                      >
+                        <Table.Cell className="whitespace-nowrap font-medium text-white">
+                          {user.userName}
+                        </Table.Cell>
+                        <Table.Cell className="text-gray-300">
+                          {user.email}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Badge
+                            color={user.role === "admin" ? "success" : "info"}
+                            className="font-semibold"
+                          >
+                            {user.role || t("adminDashboard.filters.user")}
+                          </Badge>
+                        </Table.Cell>
+                        <Table.Cell className="text-gray-300">
+                          {formatDate(user.createdAt)}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {user.isActive ? (
                             <Badge
-                              color={user.role === "admin" ? "success" : "info"}
+                              color="success"
+                              className="flex items-center gap-1"
                             >
-                              {user.role || t("adminDashboard.filters.user")}
+                              <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2"></span>
+                              {t("adminDashboard.status.active")}
                             </Badge>
-                          </Table.Cell>
-                          <Table.Cell className="text-gray-300">
-                            {formatDate(user.createdAt)}
-                          </Table.Cell>
-                          <Table.Cell className="text-gray-300">
-                            {formatDate(user.lastLogin)}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {user.isActive ? (
-                              <Badge color="success">
-                                {t("adminDashboard.status.active")}
-                              </Badge>
-                            ) : (
-                              <Badge color="failure">
-                                {t("adminDashboard.status.suspended")}
-                              </Badge>
-                            )}
-                          </Table.Cell>
-                          <Table.Cell>
+                          ) : (
+                            <Badge
+                              color="failure"
+                              className="flex items-center gap-1"
+                            >
+                              <span className="w-2 h-2 rounded-full bg-red-400 inline-block mr-2"></span>
+                              {t("adminDashboard.status.suspended")}
+                            </Badge>
+                          )}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <div className="flex gap-2">
                             <button
-                              className="text-blue-500 hover:text-blue-400 mr-3"
+                              className="px-2 py-1 text-xs font-medium rounded-md bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors"
                               onClick={() => openEditModal(user)}
                             >
                               {t("adminDashboard.actions.edit")}
                             </button>
                             {user.isActive ? (
                               <button
-                                className="text-red-500 hover:text-red-400"
+                                className="px-2 py-1 text-xs font-medium rounded-md bg-red-600/20 text-red-400 hover:bg-red-600/40 transition-colors"
                                 onClick={() =>
                                   openSuspendModal(user._id, user.userName)
                                 }
@@ -489,7 +535,7 @@ const AdminDashboard = () => {
                               </button>
                             ) : (
                               <button
-                                className="text-green-500 hover:text-green-400"
+                                className="px-2 py-1 text-xs font-medium rounded-md bg-green-600/20 text-green-400 hover:bg-green-600/40 transition-colors"
                                 onClick={() =>
                                   openActivateModal(user._id, user.userName)
                                 }
@@ -497,26 +543,31 @@ const AdminDashboard = () => {
                                 {t("adminDashboard.actions.activate")}
                               </button>
                             )}
-                          </Table.Cell>
-                        </Table.Row>
-                      ))
-                    ) : (
-                      <Table.Row className="bg-gray-800">
-                        <Table.Cell
-                          colSpan={7}
-                          className="text-center py-4 text-gray-300"
-                        >
-                          {t("adminDashboard.userTable.noUsers")}
+                          </div>
                         </Table.Cell>
                       </Table.Row>
-                    )}
-                  </Table.Body>
-                </Table>
-              </div>
-            </Card>
-          </>
+                    ))
+                  ) : (
+                    <Table.Row className="bg-gray-800/30">
+                      <Table.Cell
+                        colSpan={6}
+                        className="text-center py-8 text-gray-400"
+                      >
+                        <div className="flex flex-col items-center">
+                          <FaSearch className="w-8 h-8 mb-2 opacity-30" />
+                          <p>{t("adminDashboard.userTable.noUsers")}</p>
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
+                </Table.Body>
+              </Table>
+            </div>
+          </Card>
         )}
       </main>
+
+      {/* Modals */}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -526,14 +577,14 @@ const AdminDashboard = () => {
           root: {
             base: "fixed inset-0 flex items-center justify-center z-50",
             show: {
-              on: "flex",
+              on: "flex bg-gray-900/80 backdrop-blur-sm",
               off: "hidden",
             },
           },
           content: {
-            base: "relative bg-gray-800 shadow-lg rounded-lg w-full max-w-md transition-all duration-300 ease-in-out",
+            base: "relative bg-gray-800 shadow-xl rounded-lg w-full max-w-md transition-all duration-300 ease-in-out transform scale-100",
             inner:
-              "relative rounded-lg bg-gray-800 shadow flex flex-col max-h-[90vh]",
+              "relative rounded-lg bg-gray-800 shadow-xl flex flex-col max-h-[90vh]",
           },
           header: {
             base: "flex items-start justify-between rounded-t border-b p-5 border-gray-600",
@@ -551,21 +602,27 @@ const AdminDashboard = () => {
           },
         }}
       >
-
+        <Modal.Header>
+          {modalAction === "edit"
+            ? t("adminDashboard.editModal.title", "Edit User")
+            : modalAction === "suspend"
+            ? t("adminDashboard.modals.suspend.title", "Suspend User")
+            : t("adminDashboard.modals.activate.title", "Activate User")}
+        </Modal.Header>
         <Modal.Body>
           {modalAction === "edit" ? (
-            <div>
-              <div className="mb-5">
+            <div className="space-y-4">
+              <div>
                 <label
                   htmlFor="edit-username"
-                  className="block text-gray-300 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-medium mb-2"
                 >
                   {t("adminDashboard.editModal.usernameLabel")}
                 </label>
                 <input
                   type="text"
                   id="edit-username"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={editFormData.userName}
                   onChange={(e) =>
                     setEditFormData({
@@ -575,33 +632,33 @@ const AdminDashboard = () => {
                   }
                 />
               </div>
-              <div className="mb-4">
+              <div>
                 <label
                   htmlFor="edit-email"
-                  className="block text-gray-300 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-medium mb-2"
                 >
                   {t("adminDashboard.editModal.emailLabel")}
                 </label>
                 <input
                   type="email"
                   id="edit-email"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={editFormData.email}
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, email: e.target.value })
                   }
                 />
               </div>
-              <div className="mb-4">
+              <div>
                 <label
                   htmlFor="edit-role"
-                  className="block text-gray-300 text-sm font-bold mb-2"
+                  className="block text-gray-300 text-sm font-medium mb-2"
                 >
                   {t("adminDashboard.editModal.roleLabel")}
                 </label>
                 <select
                   id="edit-role"
-                  className="shadow border rounded w-full py-2 px-3 text-white leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+                  className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={editFormData.role}
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, role: e.target.value })
@@ -623,7 +680,7 @@ const AdminDashboard = () => {
               ) : (
                 <FaUserCheck className="mx-auto mb-4 h-14 w-14 text-green-500" />
               )}
-              <h3 className="mb-5 text-lg font-normal text-gray-400">
+              <h3 className="mb-5 text-lg font-normal text-gray-300">
                 {t(`adminDashboard.modals.${modalAction}.message`, {
                   username: selectedUsername,
                 })}
@@ -634,10 +691,14 @@ const AdminDashboard = () => {
         <Modal.Footer className="flex justify-center">
           {modalAction === "edit" ? (
             <>
-              <Button color="blue" onClick={handleEditUser}>
+              <Button
+                color="blue"
+                onClick={handleEditUser}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              >
                 {t("adminDashboard.editModal.save")}
               </Button>
-              <Button color="red" onClick={() => setShowModal(false)}>
+              <Button color="gray" onClick={() => setShowModal(false)}>
                 {t("adminDashboard.modals.cancel")}
               </Button>
             </>
@@ -649,6 +710,11 @@ const AdminDashboard = () => {
                   modalAction === "suspend"
                     ? handleSuspendUser
                     : handleActivateUser
+                }
+                className={
+                  modalAction === "suspend"
+                    ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
+                    : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
                 }
               >
                 {t(`adminDashboard.modals.${modalAction}.confirm`)}

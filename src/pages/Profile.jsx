@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import {
-  Bell,
   Clock,
   CreditCard,
   HelpCircle,
