@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import SuccessAlert from "./SuccessAlert";
+import ErrorAlert from "./ErrorAlert";
+import axiosInstance from "../../utils/axios";
 
 import {
   WalletMinimal,
@@ -156,6 +159,16 @@ const UserCard = () => {
   const [cardCVV, setCardCVV] = useState("");
   const [cardType, setCardType] = useState("");
 
+  // Add these state variables to your existing state declarations
+  const [isDepositing, setIsDepositing] = useState(false);
+  const [depositError, setDepositError] = useState(null);
+  const [depositSuccess, setDepositSuccess] = useState(null);
+
+  // For withdraw functionality
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState(null);
+  const [withdrawSuccess, setWithdrawSuccess] = useState(null);
+
   // User szint számítások
   const userLevel = Math.floor((user?.xp ?? 0) / 1000);
   const userXP = user?.xp ?? 0;
@@ -176,28 +189,58 @@ const UserCard = () => {
   }
 
   // Befizetés kezelése
-  const handleDeposit = (e) => {
+  const handleDeposit = async (e) => {
     e.preventDefault();
+    setDepositError(null);
+    setDepositSuccess(null);
+    setIsDepositing(true);
+
+    // Basic frontend validation
+    const amount = parseFloat(depositAmount);
     if (
-      depositAmount &&
-      !isNaN(depositAmount) &&
-      parseFloat(depositAmount) > 0 &&
-      cardHolderName &&
-      cardNumber &&
-      cardExpiry &&
-      cardCVV
+      !amount ||
+      amount <= 0 ||
+      !cardHolderName ||
+      !cardNumber ||
+      !cardExpiry ||
+      !cardCVV
     ) {
-      const newBalance = (user.walletBalance || 0) + parseFloat(depositAmount);
-      if (updateWalletBalance) {
-        updateWalletBalance(newBalance);
-      } else {
-        console.warn(
-          "updateWalletBalance function is not available in AuthContext"
-        );
-      }
-      alert(
-        `${t("deposit_success")} ${formatCurrency(parseFloat(depositAmount))}`
+      setDepositError(
+        t(
+          "fill_all_card_details",
+          "Please fill all card details and enter a valid amount."
+        )
       );
+      setIsDepositing(false);
+      return;
+    }
+
+    // Clean card number (remove spaces)
+    const cleanCardNumber = cardNumber.replace(/\s/g, "");
+
+    try {
+      const response = await axiosInstance.post("/payments/deposit", {
+        amount: amount,
+        cardnumber: cleanCardNumber,
+        cvv: cardCVV,
+        expireDate: cardExpiry,
+      });
+
+      // Successful deposit
+      const updatedWallet = response.data.wallet;
+      if (updateWalletBalance) {
+        updateWalletBalance(updatedWallet.balance);
+      }
+
+      setDepositSuccess(
+        t(
+          "deposit_success_amount",
+          `Successfully deposited ${formatCurrency(amount)}.`,
+          { amount: formatCurrency(amount) }
+        )
+      );
+
+      // Clear fields
       setDepositAmount("");
       setCardHolderName("");
       setCardNumber("");
@@ -205,36 +248,76 @@ const UserCard = () => {
       setCardCVV("");
       setShowCardDetails(false);
       setCardType("");
-    } else if (!cardHolderName || !cardNumber || !cardExpiry || !cardCVV) {
-      alert(t("fill_all_card_details"));
-    } else {
-      alert(t("invalid_deposit_amount"));
+    } catch (error) {
+      console.error("Deposit error:", error);
+      // Error handling: try to read backend message
+      const message =
+        error.response?.data?.message ||
+        t(
+          "deposit_failed_generic",
+          "Deposit failed. Please check details or try again later."
+        );
+      setDepositError(message);
+    } finally {
+      setIsDepositing(false);
     }
   };
 
-  // Kifizetés kezelése
-  const handleWithdraw = (e) => {
+  // UserCard.jsx - Withdraw handling function modification
+  const handleWithdraw = async (e) => {
     e.preventDefault();
-    const amount = parseFloat(withdrawAmount);
-    const currentBalance = user.walletBalance || 0;
+    setWithdrawError(null);
+    setWithdrawSuccess(null);
+    setIsWithdrawing(true);
 
-    if (withdrawAmount && !isNaN(amount) && amount > 0) {
-      if (amount <= currentBalance) {
-        const newBalance = currentBalance - amount;
-        if (updateWalletBalance) {
-          updateWalletBalance(newBalance);
-        } else {
-          console.warn(
-            "updateWalletBalance function is not available in AuthContext"
-          );
-        }
-        setWithdrawAmount("");
-        alert(`${t("withdraw_success")} ${formatCurrency(amount)}`);
-      } else {
-        alert(t("insufficient_funds"));
+    const amount = parseFloat(withdrawAmount);
+    const currentBalance = user?.walletBalance || 0;
+
+    // Basic frontend validation
+    if (!amount || amount <= 0) {
+      setWithdrawError(
+        t("invalid_withdraw_amount", "Please enter a valid amount.")
+      );
+      setIsWithdrawing(false);
+      return;
+    }
+
+    if (amount > currentBalance) {
+      setWithdrawError(t("insufficient_funds", "Insufficient funds."));
+      setIsWithdrawing(false);
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post("/payments/withdraw", {
+        amount: amount,
+      });
+
+      // Successful withdrawal
+      const updatedWallet = response.data.wallet;
+      if (updateWalletBalance) {
+        updateWalletBalance(updatedWallet.balance);
       }
-    } else {
-      alert(t("invalid_withdraw_amount"));
+
+      setWithdrawSuccess(
+        t(
+          "withdraw_success_amount",
+          `Successfully withdrew ${formatCurrency(amount)}.`,
+          { amount: formatCurrency(amount) }
+        )
+      );
+      setWithdrawAmount("");
+    } catch (error) {
+      console.error("Withdraw error:", error);
+      const message =
+        error.response?.data?.message ||
+        t(
+          "withdraw_failed_generic",
+          "Withdrawal failed. Please try again later."
+        );
+      setWithdrawError(message);
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -296,6 +379,20 @@ const UserCard = () => {
 
   return (
     <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-6">
+      <ErrorAlert
+        message={depositError || withdrawError}
+        onClose={() => {
+          setDepositError(null);
+          setWithdrawError(null);
+        }}
+      />
+      <SuccessAlert
+        message={depositSuccess || withdrawSuccess}
+        onClose={() => {
+          setDepositSuccess(null);
+          setWithdrawSuccess(null);
+        }}
+      />
       {/* Fő User Kártya */}
       <div
         className={
@@ -589,12 +686,39 @@ const UserCard = () => {
                   type="submit"
                   className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-md font-semibold text-white transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:opacity-90"
                   disabled={
+                    isWithdrawing ||
                     !withdrawAmount ||
                     parseFloat(withdrawAmount) <= 0 ||
                     parseFloat(withdrawAmount) > (user?.walletBalance || 0)
                   }
                 >
-                  {t("withdraw_button", "Withdraw")}
+                  {isWithdrawing ? (
+                    <span className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      {t("processing", "Processing...")}
+                    </span>
+                  ) : (
+                    t("withdraw_button", "Withdraw")
+                  )}
                 </button>
               </form>
             </div>
@@ -723,6 +847,7 @@ const UserCard = () => {
               type="submit"
               className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-teal-500 rounded-md font-semibold text-white transition-opacity duration-300 disabled:opacity-50 shadow-lg hover:shadow-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 hover:opacity-90"
               disabled={
+                isDepositing ||
                 !cardHolderName ||
                 !cardNumber ||
                 !cardExpiry ||
@@ -731,9 +856,37 @@ const UserCard = () => {
                 parseFloat(depositAmount) <= 0
               }
             >
-              {t("pay_now_button", "Pay Now")}{" "}
-              {depositAmount &&
-                `(${formatCurrency(parseFloat(depositAmount))})`}
+              {isDepositing ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {t("processing", "Processing...")}
+                </span>
+              ) : (
+                <>
+                  {t("pay_now_button", "Pay Now")}{" "}
+                  {depositAmount &&
+                    `(${formatCurrency(parseFloat(depositAmount))})`}
+                </>
+              )}
             </button>
           </form>
         </div>

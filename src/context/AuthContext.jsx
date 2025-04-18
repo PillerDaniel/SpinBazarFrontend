@@ -111,6 +111,16 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const updateXp = (newXp) => {
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+      return {
+        ...prevUser,
+        xp: newXp,
+      };
+    });
+  };
+
   const updateBonusClaimStatus = (newBalance, claimTime) => {
     setUser((prevUser) => {
       if (!prevUser) return null;
@@ -132,6 +142,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         updateWalletBalance,
         updateBonusClaimStatus,
+        updateXp,
       }}
     >
       {children}

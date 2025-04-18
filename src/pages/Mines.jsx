@@ -58,7 +58,7 @@ const Cell = ({ cellData, onClick, revealed }) => {
 };
 
 const Mines = () => {
-  const { user, updateWalletBalance } = useAuth();
+  const { user, updateWalletBalance, updateXp } = useAuth();
   const [balance, setBalance] = useState(
     user?.walletBalance || 0 
   );
@@ -170,6 +170,7 @@ const Mines = () => {
       const newBalance = response.data?.wallet?.balance ?? (balance - currentBet);
       setBalance(newBalance);
       updateWalletBalance(newBalance); 
+      updateXp(response.data.userXp);
 
       setLastBetAmount(currentBet);
 

@@ -7,7 +7,7 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 
 const Blackjack = () => {
-  const { user, updateWalletBalance } = useAuth();
+  const { user, updateWalletBalance, updateXp } = useAuth();
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
@@ -155,10 +155,12 @@ const Blackjack = () => {
         const newBalance = response.data.wallet.balance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
+        updateXp(response.data.userXp);
       } else {
         const newBalance = balance - currentBet;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
+        updateXp(response.data.userXp);
       }
       const newDeck = createDeck();
       const pCard1 = { ...newDeck.pop(), isNew: true };
@@ -299,6 +301,7 @@ const Blackjack = () => {
         const newBalance = response.data.walletBalance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
+        up
       } else {
         console.warn("Win processed, no new balance.");
         const finalBalance = balance - currentBet + winAmount;
