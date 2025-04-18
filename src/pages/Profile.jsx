@@ -93,37 +93,7 @@ const Profile = () => {
         setUserDetails(fetchedUserDetails);
 
         setNewEmail(fetchedUserDetails.email);
-
-        setTransactions([
-          {
-            id: 1,
-            type: "deposit",
-            amount: 100,
-            date: new Date("2024-03-15"),
-            status: "completed",
-          },
-          {
-            id: 2,
-            type: "withdrawal",
-            amount: 50,
-            date: new Date("2024-03-10"),
-            status: "completed",
-          },
-          {
-            id: 3,
-            type: "purchase",
-            amount: 25,
-            date: new Date("2024-03-05"),
-            status: "pending",
-          },
-          {
-            id: 4,
-            type: "deposit",
-            amount: 75,
-            date: new Date("2024-02-28"),
-            status: "completed",
-          },
-        ]);
+        setTransactions(response.data.transactions);
       } catch (error) {
         console.error("Error fetching user:", error);
         if (error.response && error.response.status === 401) {
@@ -570,26 +540,26 @@ const Profile = () => {
                       <tbody className="divide-y divide-gray-700">
                         {transactions.map((transaction) => (
                           <tr
-                            key={transaction.id}
+                            key={transaction._id}
                             className="bg-gray-800 text-white"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div
                                   className={`p-2 rounded-md mr-3 ${
-                                    transaction.type === "deposit"
+                                    transaction.transactionType === "deposit"
                                       ? "bg-green-600"
-                                      : transaction.type === "withdrawal"
+                                      : transaction.transactionType === "withdraw"
                                       ? "bg-red-600"
                                       : "bg-blue-600"
                                   }`}
                                 >
-                                  {transaction.type === "deposit" ? (
+                                  {transaction.transactionType === "deposit" ? (
                                     <RefreshCw
                                       size={16}
                                       className="text-green-100"
                                     />
-                                  ) : transaction.type === "withdrawal" ? (
+                                  ) : transaction.transactionType === "withdrawal" ? (
                                     <RefreshCw
                                       size={16}
                                       className="text-red-100"
@@ -602,30 +572,30 @@ const Profile = () => {
                                   )}
                                 </div>
                                 <div className="text-sm font-medium capitalize">
-                                  {t(transaction.type)}
+                                  {t(transaction.transactionType)}
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div
                                 className={`text-sm font-medium ${
-                                  transaction.type === "deposit"
+                                  transaction.transactionType === "deposit"
                                     ? "text-green-400"
-                                    : transaction.type === "withdrawal"
+                                    : transaction.transactionType === "withdrawal"
                                     ? "text-red-400"
                                     : "text-gray-300"
                                 }`}
                               >
-                                {transaction.type === "deposit"
+                                {transaction.transactionType === "deposit"
                                   ? "+"
-                                  : transaction.type === "withdrawal"
+                                  : transaction.transactionType === "withdrawal"
                                   ? "-"
                                   : ""}
                                 {formatCurrency(transaction.amount)}
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                              {formatDate(transaction.date)}
+                              {formatDate(transaction.completedAt)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
