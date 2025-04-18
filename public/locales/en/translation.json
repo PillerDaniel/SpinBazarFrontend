@@ -263,5 +263,9 @@
   "transaction_status_failed": "Failed",
   "no_transactions_found": "No transactions found.",
   "view_all_transactions": "View All Transactions",
-  "security_and_notifications": "Security and Notifications"
+  "security_and_notifications": "Security and Notifications",
+  "register_birthdate": "Birth Date",
+  "pagination_page": "Page {{current}} / {{total}}",
+  "pagination_previous": "Previous",
+  "pagination_next": "Next"
 }

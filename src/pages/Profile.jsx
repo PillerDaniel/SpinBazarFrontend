@@ -15,6 +15,8 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import ErrorAlert from "../components/ui/ErrorAlert";
@@ -29,6 +31,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [transactions, setTransactions] = useState([]);
+
+  const TRANSACTIONS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [newEmail, setNewEmail] = useState("");
   const [currentPasswordEmail, setCurrentPasswordEmail] = useState("");
@@ -56,6 +61,15 @@ const Profile = () => {
 
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const indexOfLastTransaction = currentPage * TRANSACTIONS_PER_PAGE;
+  const indexOfFirstTransaction =
+    indexOfLastTransaction - TRANSACTIONS_PER_PAGE;
+  const currentTransactions = transactions.slice(
+    indexOfFirstTransaction,
+    indexOfLastTransaction
+  );
+  const totalPages = Math.ceil(transactions.length / TRANSACTIONS_PER_PAGE);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -276,20 +290,18 @@ const Profile = () => {
     <div className="min-h-screen">
       {" "}
       <Navbar />
-
       {successMessage && (
-      <SuccessAlert
-        message={successMessage}
-        onClose={() => setSuccessMessage(null)}
-      />
-    )}
-    {errorMessage && (
-      <ErrorAlert
-        message={errorMessage}
-        onClose={() => setErrorMessage(null)}
-      />
-    )}
-
+        <SuccessAlert
+          message={successMessage}
+          onClose={() => setSuccessMessage(null)}
+        />
+      )}
+      {errorMessage && (
+        <ErrorAlert
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-20 mb-20">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-64 flex-shrink-0">
@@ -493,138 +505,183 @@ const Profile = () => {
             )}
 
             {activeTab === "wallet" && (
-              <div>
-                <div className="bg-gray-900 rounded-lg shadow p-6 mb-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="p-6 space-y-6">
+                <div className="bg-gray-800 rounded-lg shadow p-5 mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h2 className="text-lg font-medium text-white">
+                      <h2 className="text-lg font-semibold text-white">
                         {t("profile_wallet")}
                       </h2>
                     </div>
-                    <div className="mt-4 md:mt-0">
-                      <div className="text-2xl font-bold text-white">
+                    <div className="mt-3 sm:mt-0 text-right">
+                      <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">
+                        {" "}
+                        {t("current_balance")}
+                      </p>
+                      <div className="text-2xl font-semibold text-white">
                         {formatCurrency(userDetails?.walletBalance)}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gray-800 rounded-lg shadow">
-                  <div className="px-6 py-4 bg-gray-900 border-b border-gray-700 flex justify-between items-center">
-                    <h2 className="text-lg font-medium text-white">
+                {/* Transactions Table */}
+                <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-white">
                       {t("recent_transactions")}
                     </h2>
-                    <button className="text-blue-600 text-sm font-medium flex items-center">
-                      <RefreshCw size={14} className="mr-1" />
-                      {t("refresh")}
-                    </button>
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-gray-900 text-white">
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <table className="w-full min-w-full divide-y divide-gray-700">
+                      <thead className="bg-gray-700">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                          >
                             {t("transaction_type")}
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                          >
                             {t("transaction_amount")}
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                          >
                             {t("transaction_date")}
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                          >
                             {t("transaction_status")}
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-700">
-                        {transactions.map((transaction) => (
-                          <tr
-                            key={transaction._id}
-                            className="bg-gray-800 text-white"
-                          >
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div
-                                  className={`p-2 rounded-md mr-3 ${
-                                    transaction.transactionType === "deposit"
-                                      ? "bg-green-600"
-                                      : transaction.transactionType === "withdraw"
-                                      ? "bg-red-600"
-                                      : "bg-blue-600"
+                      <tbody className="bg-gray-800 divide-y divide-gray-700">
+                        {currentTransactions.length > 0 ? (
+                          currentTransactions.map((transaction) => (
+                            <tr
+                              key={transaction._id}
+                              className="hover:bg-gray-700 transition-colors duration-150"
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                <div className="flex items-center">
+                                  <div
+                                    className={`p-1.5 rounded-md mr-3 ${
+                                      transaction.transactionType === "deposit"
+                                        ? "bg-green-500/50 text-green-300"
+                                        : transaction.transactionType === "withdraw"
+                                        ? "bg-red-500/50 text-red-300"
+                                        : "bg-gray-600/30 text-gray-300" 
+                                    }`}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </div>
+                                  <span className="font-medium capitalize">
+                                    {t(
+                                      `transaction_type_${transaction.transactionType}`,
+                                      transaction.transactionType
+                                    )}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span
+                                  className={`font-medium ${
+                                    transaction.transactionType === "deposit" ||
+                                    transaction.transactionType === "bet_win"
+                                      ? "text-green-400"
+                                      : transaction.transactionType ===
+                                          "withdraw" ||
+                                        transaction.transactionType ===
+                                          "bet_place"
+                                      ? "text-red-400"
+                                      : "text-gray-300"
                                   }`}
                                 >
-                                  {transaction.transactionType === "deposit" ? (
-                                    <RefreshCw
-                                      size={16}
-                                      className="text-green-100"
-                                    />
-                                  ) : transaction.transactionType === "withdrawal" ? (
-                                    <RefreshCw
-                                      size={16}
-                                      className="text-red-100"
-                                    />
-                                  ) : (
-                                    <CreditCard
-                                      size={16}
-                                      className="text-blue-100"
-                                    />
+                                  {transaction.transactionType === "deposit" ||
+                                  transaction.transactionType === "bet_win"
+                                    ? "+"
+                                    : transaction.transactionType ===
+                                        "withdraw" ||
+                                      transaction.transactionType ===
+                                        "bet_place"
+                                    ? "-"
+                                    : ""}
+                                  {formatCurrency(transaction.amount)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                {formatDate(
+                                  transaction.completedAt ||
+                                    transaction.createdAt
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    transaction.status === "completed"
+                                      ? "bg-green-700 text-green-100"
+                                      : transaction.status === "pending"
+                                      ? "bg-yellow-700 text-yellow-100"
+                                      : transaction.status === "failed"
+                                      ? "bg-red-700 text-red-100"
+                                      : "bg-gray-700 text-gray-100"
+                                  }`}
+                                >
+                                  {t(
+                                    `transaction_status_${transaction.status}`,
+                                    transaction.status
                                   )}
-                                </div>
-                                <div className="text-sm font-medium capitalize">
-                                  {t(transaction.transactionType)}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div
-                                className={`text-sm font-medium ${
-                                  transaction.transactionType === "deposit"
-                                    ? "text-green-400"
-                                    : transaction.transactionType === "withdrawal"
-                                    ? "text-red-400"
-                                    : "text-gray-300"
-                                }`}
-                              >
-                                {transaction.transactionType === "deposit"
-                                  ? "+"
-                                  : transaction.transactionType === "withdrawal"
-                                  ? "-"
-                                  : ""}
-                                {formatCurrency(transaction.amount)}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                              {formatDate(transaction.completedAt)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  transaction.status === "completed"
-                                    ? "bg-green-500 text-green-100"
-                                    : transaction.status === "pending"
-                                    ? "bg-yellow-500 text-yellow-100"
-                                    : "bg-red-500 text-red-100"
-                                }`}
-                              >
-                                {t(transaction.status)}
-                              </span>
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan={4}
+                              className="px-6 py-4 text-center text-gray-500"
+                            >
+                              {t("no_transactions")}
                             </td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>
-                  {transactions.length === 0 && (
-                    <div className="p-6 text-center text-gray-500">
-                      {t("no_transactions")}
+
+                  {totalPages > 1 && (
+                    <div className="px-6 py-3 bg-gray-800 border-t border-gray-700 flex items-center justify-between">
+                      <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 text-sm font-medium text-white bg-gray-600 rounded hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      >
+                        <ChevronLeft size={16} className="mr-1" />
+                        {t("pagination_previous")}
+                      </button>
+                      <span className="text-sm text-gray-400">
+                        {t("pagination_page", {
+                          current: currentPage,
+                          total: totalPages,
+                        })}{" "}
+                      </span>
+                      <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 text-sm font-medium text-white bg-gray-600 rounded hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      >
+                        {t("pagination_next")}
+                        <ChevronRight size={16} className="ml-1" />
+                      </button>
                     </div>
                   )}
-                  <div className="px-6 py-4 bg-gray-900 border-t border-gray-700">
-                    <button className="text-blue-600 text-sm font-medium">
-                      {t("view_all")}
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -919,7 +976,6 @@ const Profile = () => {
                         onSubmit={handleDeactivateAccount}
                         className="space-y-4 mt-2"
                       >
-
                         <p className="text-sm text-yellow-400 font-semibold">
                           {t("deactivate_confirm_prompt")}
                         </p>

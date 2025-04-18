@@ -144,7 +144,7 @@ const Register = () => {
               id="birthDate"
               language="hu-HU"
               selected={birthDate}
-              onSelectedDateChanged={(date) => setBirthDate(date)}
+              onChange={(date) => setBirthDate(date)}
               className="w-full"
               placeholder={t('register_birthdate_placeholder')}
               maxDate={new Date()}
