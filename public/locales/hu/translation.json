@@ -44,6 +44,7 @@
   "deposit_title": "Befizetés",
   "deposit_amount_label": "Befizetés összege",
   "deposit_amount_placeholder": "Összeg",
+  "low_deposit_amount": "A minimális befizetési összeg 3$.",
   "payment_method_label": "Fizetési mód",
   "credit_debit_card": "Hitel/Bankkártya",
   "card_number_label": "Kártyaszám",

@@ -44,6 +44,7 @@
   "deposit_title": "Deposit",
   "deposit_amount_label": "Amount to Deposit",
   "deposit_amount_placeholder": "Enter amount",
+  "low_deposit_amount": "Minimum deposit amount is $3.",
   "payment_method_label": "Payment Method",
   "credit_debit_card": "Credit/Debit Card",
   "continue_to_payment": "Continue to Payment",
@@ -268,7 +269,6 @@
   "pagination_page": "Page {{current}} / {{total}}",
   "pagination_previous": "Previous",
   "pagination_next": "Next",
-
   "protectedRoutes": {
     "loginRequired": {
       "titlePart1": "Login",

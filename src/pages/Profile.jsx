@@ -107,7 +107,17 @@ const Profile = () => {
         setUserDetails(fetchedUserDetails);
 
         setNewEmail(fetchedUserDetails.email);
-        setTransactions(response.data.transactions);
+
+        const fetchedTransactions = response.data.transactions || [];
+
+        fetchedTransactions.sort((a, b) => {
+          const dateA = new Date(a.completedAt);
+          const dateB = new Date(b.completedAt);
+          return dateB - dateA;
+        });
+        
+        setTransactions(fetchedTransactions);
+
       } catch (error) {
         console.error("Error fetching user:", error);
         if (error.response && error.response.status === 401) {

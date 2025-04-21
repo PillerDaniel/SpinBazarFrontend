@@ -162,17 +162,14 @@ const UserCard = () => {
   const [cardCVV, setCardCVV] = useState("");
   const [cardType, setCardType] = useState("");
 
-  // Add these state variables to your existing state declarations
   const [isDepositing, setIsDepositing] = useState(false);
   const [depositError, setDepositError] = useState(null);
   const [depositSuccess, setDepositSuccess] = useState(null);
 
-  // For withdraw functionality
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState(null);
   const [withdrawSuccess, setWithdrawSuccess] = useState(null);
 
-  // User szint számítások
   const userLevel = Math.floor((user?.xp ?? 0) / 1000);
   const userXP = user?.xp ?? 0;
   const xpForNextLevel = (userLevel + 1) * 1000;
@@ -213,6 +210,14 @@ const UserCard = () => {
           "fill_all_card_details",
           "Please fill all card details and enter a valid amount."
         )
+      );
+      setIsDepositing(false);
+      return;
+    }
+
+    if (!amount || amount < 3) {
+      setDepositError(
+        t("low_deposit_amount", "You need to deposit a minimum of $3.")
       );
       setIsDepositing(false);
       return;
