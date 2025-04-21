@@ -37,7 +37,7 @@ const Login = () => {
 
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 500);
     } catch (err) {
       if (err.response && err.response.data.message) {
         setError(err.response.data.message);

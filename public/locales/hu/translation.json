@@ -3,7 +3,7 @@
   "bonus_head": "Napi",
   "bonus_head_highlight": " Bónusz.",
   "bonus_card_head": "Napi bónusz",
-  "bonus_card_text": "Szerezd meg a napi 2$-os bónusz jutalmadat!",
+  "bonus_card_text": "Szerezd meg a napi {{amount}}$-os bónusz jutalmadat!",
   "bonus_card_text_cooldown": "A következő bónuszod ennyi idő múlva lesz elérhető:",
   "bonus_card_button": "Begyűjtés",
   "bonus_card_button_loading": "Begyüjtés...",
@@ -266,5 +266,34 @@
   "security_and_notifications": "Biztonság és értesítések",
   "pagination_page": "Oldal {{current}} / {{total}}",
   "pagination_previous": "Előző",
-  "pagination_next": "Következő"
+  "pagination_next": "Következő",
+  "protectedRoutes": {
+    "loginRequired": {
+      "titlePart1": "Bejelentkezés",
+      "titlePart2": "Szükséges!",
+      "description": "A kért tartalom megtekintéséhez be kell jelentkezned.",
+      "protectedContent": {
+        "title": "Védett tartalom",
+        "description": "Ehhez az oldalhoz való hozzáféréshez be kell jelentkezned fiókodba, vagy létre kell hoznod egyet, ha még nem rendelkezel vele."
+      },
+      "benefits": {
+        "title": "Bejelentkezési előnyök",
+        "item1": "Napi bónuszok és promóciók",
+        "item2": "Kedvenc játékaid és fogadásaid egy helyen",
+        "item3": "Gyors kifizetések és nyeremények követése"
+      },
+      "loginButton": "Bejelentkezés",
+      "backButton": "Vissza a főoldalra",
+      "registerPrompt": {
+        "start": "Még nincs fiókod?",
+        "link": "Regisztrálj most",
+        "end": "és szerezd meg napi {{amount}}-os bónuszod!"
+      }
+    },
+    "accessDenied": {
+      "title": "Hozzáférés megtagadva",
+      "description": "Ez a szekció adminisztrátori jogosultságokat igényel. Ha úgy gondolod, rendelkezned kellene hozzáféréssel, lépj kapcsolatba a támogatással, vagy ellenőrizd, hogy a megfelelő fiókkal vagy-e bejelentkezve.",
+      "homeButton": "Vissza a főoldalra"
+    }
+  }
 }

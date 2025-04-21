@@ -68,7 +68,7 @@ const Register = () => {
       setTimeout(() => {
         login(response.data.token, response.data.userName);
         navigate("/");
-      }, 2000);
+      }, 500);
     } catch (err) {
       if (err.response && err.response.data.message) {
         setError(err.response.data.message);

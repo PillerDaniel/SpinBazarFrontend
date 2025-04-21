@@ -18,6 +18,26 @@ const formatTimeLeft = (milliseconds) => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
+const calculateBonusAmount = (userXp) => {
+  if (!userXp || isNaN(userXp)) 
+    return 2; 
+  
+  const baseBonus = 2;
+  if (userXp > 100000) return baseBonus + 10;
+  else if (userXp >= 90000) return baseBonus + 9;
+  else if (userXp >= 80000) return baseBonus + 8;
+  else if (userXp >= 70000) return baseBonus + 7;
+  else if (userXp >= 60000) return baseBonus + 6;
+  else if (userXp >= 50000) return baseBonus + 5;
+  else if (userXp >= 40000) return baseBonus + 4;
+  else if (userXp >= 30000) return baseBonus + 3;
+  else if (userXp >= 20000) return baseBonus + 2;
+  else if (userXp >= 10000) return baseBonus + 1;
+  else if (userXp <= 1000) return baseBonus;
+  
+  return baseBonus;
+}
+
 const BonusCard = () => {
   const { t } = useTranslation();
   const { user, updateBonusClaimStatus, isAuthenticated } = useAuth();
@@ -25,6 +45,7 @@ const BonusCard = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [bonusAmount, setBonusAmount] = useState(calculateBonusAmount(user?.xp));
 
   const lastClaimTime = user?.dailyBonusClaimed;
 
@@ -42,6 +63,12 @@ const BonusCard = () => {
       return null;
     }
   }, [lastClaimTime]);
+
+  useEffect(() => {
+    if (user && user.xp !== undefined) {
+      setBonusAmount(calculateBonusAmount(user.xp));
+    }
+  }, [user]);
 
   useEffect(() => {
     setError(null);
@@ -124,7 +151,7 @@ const BonusCard = () => {
           <p className="text-base text-gray-200 mb-4 leading-relaxed">
             {(timeLeft !== null && timeLeft > 0)
               ? t('bonus_card_text_cooldown')
-              : t('bonus_card_text')
+              : t('bonus_card_text', { amount: bonusAmount })
             }
           </p>
           {error && !isLoading && <p className="text-red-300 text-sm mb-3">{error}</p>}

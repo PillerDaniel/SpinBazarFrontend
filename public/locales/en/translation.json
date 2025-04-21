@@ -267,5 +267,35 @@
   "register_birthdate": "Birth Date",
   "pagination_page": "Page {{current}} / {{total}}",
   "pagination_previous": "Previous",
-  "pagination_next": "Next"
+  "pagination_next": "Next",
+
+  "protectedRoutes": {
+    "loginRequired": {
+      "titlePart1": "Login",
+      "titlePart2": "Required!",
+      "description": "You need to log in to view the requested content.",
+      "protectedContent": {
+        "title": "Protected Content",
+        "description": "Access to this page requires you to log in to your account, or create one if you don't have one yet."
+      },
+      "benefits": {
+        "title": "Login Benefits",
+        "item1": "Daily bonuses and promotions",
+        "item2": "Your favorite games and bets in one place",
+        "item3": "Fast payouts and tracking of winnings"
+      },
+      "loginButton": "Log In",
+      "backButton": "Back to Homepage",
+      "registerPrompt": {
+        "start": "Don't have an account yet?",
+        "link": "Register now",
+        "end": "and get your daily ${{amount}} bonus!"
+      }
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "description": "This section requires administrative privileges. If you believe you should have access, please contact support or verify you are logged in with the correct account.",
+      "homeButton": "Return to Homepage"
+    }
+  }
 }

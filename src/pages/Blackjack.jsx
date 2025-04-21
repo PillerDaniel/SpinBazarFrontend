@@ -22,6 +22,7 @@ const Blackjack = () => {
   const [customBetAmount, setCustomBetAmount] = useState("");
   const [selectedChip, setSelectedChip] = useState(null);
   const [isBettingActive, setIsBettingActive] = useState(true);
+  const [standClicked, setStandClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const chips = [5, 25, 100, 500];
@@ -229,10 +230,13 @@ const Blackjack = () => {
       addGameHistory("Blackjack", currentBet, 0);
     }
   };
+
   const stand = () => {
-    if (gameStatus !== "playing" || loading) return;
+    if (gameStatus !== "playing" || loading || standClicked) return;
+    setStandClicked(true);
     dealerPlay();
   };
+
   const revealDealerCard = () => {
     setDealerHand((prevHand) =>
       prevHand.map((card) => ({
@@ -301,7 +305,7 @@ const Blackjack = () => {
         const newBalance = response.data.walletBalance;
         setBalance(newBalance);
         updateWalletBalance(newBalance);
-        up
+        up;
       } else {
         console.warn("Win processed, no new balance.");
         const finalBalance = balance - currentBet + winAmount;
@@ -364,6 +368,7 @@ const Blackjack = () => {
     setError(null);
     setLoading(false);
     setGameStatus("idle");
+    setStandClicked(false);
     if (lastBetAmount > 0 && lastBetAmount <= balance) {
       setCurrentBet(lastBetAmount);
       setIsBettingActive(false);
@@ -757,9 +762,9 @@ const Blackjack = () => {
                     </button>
                     <button
                       onClick={stand}
-                      disabled={loading}
+                      disabled={loading || standClicked}
                       className={`px-4 py-2 sm:px-6 sm:py-3 text-white text-sm sm:text-base font-medium rounded-lg shadow-md transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-                        loading
+                        loading || standClicked
                           ? "bg-gray-600 cursor-not-allowed"
                           : "bg-gradient-to-r from-red-500 to-pink-600 hover:-translate-y-1 hover:shadow-lg focus:ring-red-500"
                       }`}

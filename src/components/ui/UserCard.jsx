@@ -59,6 +59,8 @@ const getCardStyles = (level) => {
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-indigo-900/80 rounded-full flex items-center justify-center shadow-inner shadow-indigo-500/40`;
     styles.levelText = `font-black text-3xl text-indigo-200 transition-colors duration-500`;
     styles.xpBar = `bg-gradient-to-r from-indigo-400 to-sky-500 h-full rounded-full origin-left transition-all duration-500 ease-out`;
+    styles.balanceBg = `bg-gradient-to-br from-slate-700 to-slate-800 border border-indigo-600 group-hover:border-indigo-500`;
+    styles.balanceIcon = `text-indigo-400 group-hover:rotate-[-12deg]`;
   }
 
   if (tier >= 4) {
@@ -80,6 +82,7 @@ const getCardStyles = (level) => {
     styles.levelText = `font-black text-3xl text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-300 transition-colors duration-500 text-shadow-sm-gold`;
     styles.xpBar = `bg-gradient-to-r from-amber-400 to-orange-500 h-full rounded-full origin-left transition-all duration-500 ease-out`;
     styles.profileHeader = `text-amber-100`;
+    styles.balanceBg = `bg-gradient-to-br from-yellow-900/30 to-amber-900 border-2 border-amber-400 group-hover:border-blue-300`;
     styles.balanceIcon = `text-amber-400 group-hover:rotate-[-12deg]`;
   }
 
@@ -133,14 +136,14 @@ const getCardStyles = (level) => {
 
   if (tier >= 10) {
     // 100 "Victory Gold"
-    styles.cardContainer = `w-full sm:w-[500px] bg-gradient-to-br from-amber-700 via-yellow-600 to-amber-800 rounded-lg shadow-2xl text-gray-100 relative overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-500 ease-out`;
+    styles.cardContainer = `w-full sm:w-[500px] bg-gradient-to-br from-amber-700/60 via-yellow-600/50 to-amber-800/60 rounded-lg shadow-2xl text-gray-100 relative overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-yellow-400 via-amber-600 to-yellow-300 opacity-90 group-hover:opacity-100 transition-opacity duration-300`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-amber-600 to-yellow-500 rounded-full flex items-center justify-center shadow-inner shadow-amber-900/50`;
     styles.levelText = `font-black text-4xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-100 via-amber-200 to-yellow-300 drop-shadow-md`;
     styles.xpBar = `bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300 h-full rounded-full origin-left transition-all duration-500 ease-out shadow-inner shadow-black/30`;
     styles.profileHeader = `text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-100 font-bold drop-shadow-lg`;
-    styles.balanceBg = `bg-gradient-to-br from-amber-700 to-yellow-600 border border-amber-400 group-hover:border-yellow-300 rounded-lg shadow-md shadow-amber-900/30`;
-    styles.balanceIcon = `text-yellow-300 group-hover:text-amber-200 group-hover:rotate-[-10deg] group-hover:scale-105 transition-transform duration-300`;
+    styles.balanceBg = `bg-gradient-to-br from-amber-700/40 to-yellow-600/40 border border-amber-400 group-hover:border-yellow-300 rounded-lg shadow-md shadow-amber-900/30`;
+    styles.balanceIcon = `text-amber-300 group-hover:text-amber-200 group-hover:rotate-[-10deg] group-hover:scale-105 transition-transform duration-300`;
   }
   return styles;
 };
