@@ -81,7 +81,6 @@ const AdminDashboard = () => {
     };
   }, []);
 
-  // Fetch users data
   useEffect(() => {
     const fetchUsers = async () => {
       try {

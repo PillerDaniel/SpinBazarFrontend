@@ -21,7 +21,7 @@ const Casino = () => {
     const allGames = [
       { id: 1, name: 'Blackjack', image: '/src/assets/img/blackjack.png', category: ['popular', 'table'], root: 'blackjack', requiresAuth: true },
       { id: 2, name: 'Roulette', image: '/src/assets/img/roulette.png', category: ['popular', 'table'], root: 'roulette', requiresAuth: true },
-      { id: 3, name: 'Slots', image: '/src/assets/img/slot.png', category: ['popular', 'slots'], root: 'slots', requiresAuth: true },
+      { id: 3, name: 'Slots', image: '/src/assets/img/slot.png', category: ['popular', 'slots'], root: 'slot', requiresAuth: true },
       { id: 4, name: 'Baccarat', image: '/src/assets/img/baccarat.png', category: ['table'], root: 'baccarat', requiresAuth: true },
       { id: 5, name: 'Poker', image: '/src/assets/img/poker.png', category: ['popular', 'table'], root: 'poker', requiresAuth: true },
       { id: 6, name: 'Crash', image: '/src/assets/img/crash.png', category: ['specialty'], root: 'crash', requiresAuth: true },

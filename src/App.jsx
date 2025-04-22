@@ -13,59 +13,41 @@ import AdminDashboard from "./pages/AdminDashboard";
 import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
 import Casino from "./pages/Casino.jsx";
+import AlertNotFound from "./components/ui/AlertNotFound.jsx";
+
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/casino" element={<Casino />} />
-            <Route
-              path="/blackjack"
-              element={
-                <ProtectedRoutes>
-                  <Blackjack />
-                </ProtectedRoutes>
-              }
-            />
-            <Route
-              path="/mines"
-              element={
-                <ProtectedRoutes>
-                  <Mines />
-                </ProtectedRoutes>
-              }
-            />
-            <Route
-              path="/slot"
-              element={
-                <ProtectedRoutes>
-                  <Slot />
-                </ProtectedRoutes>
-              }
-            />
-            <Route path="/statistics" element={<GameStatistics />} />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoutes adminOnly={true}>
-                  <AdminDashboard />
-                </ProtectedRoutes>
-              }
-            />
-            <Route
-              path="/admin/userprofile/:id"
-              element={
-                <ProtectedRoutes adminOnly={true}>
-                  <Profile />
-                </ProtectedRoutes>
-              }
-            />
-          </Routes>
+        <Routes>
+          <Route path="*" element={<AlertNotFound/>} />
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/casino" element={<Casino />} />
+          <Route path="/blackjack" element={<Blackjack />} />
+          <Route path="/mines" element={<Mines />} />
+          <Route path="/slot" element={<Slot />} />
+          <Route path="/statistics" element={<GameStatistics />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoutes adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/admin/userprofile/:id"
+            element={
+              <ProtectedRoutes adminOnly={true}>
+                <Profile />
+              </ProtectedRoutes>
+            }
+          />
+        </Routes>
       </AuthProvider>
     </Router>
   );

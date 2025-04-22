@@ -119,7 +119,7 @@ function ProtectedRoutes({ children }) {
              {t('protectedRoutes.accessDenied.description')}
             </p>
             <button
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium transition duration-150 ease-in-out hover:opacity-90 active:scale-95" // Hozzáadtam hover/active stílusokat
+              className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium transition duration-150 ease-in-out hover:opacity-90 active:scale-95"
               onClick={() => navigate('/')}
             >
               {t('protectedRoutes.accessDenied.homeButton')}
