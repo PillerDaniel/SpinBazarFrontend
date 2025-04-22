@@ -33,27 +33,35 @@ function App() {
               }
             />
             <Route
-            path="/mines"
-            element={
-              <ProtectedRoutes>
-                <Mines />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-          path="/slot"
-          element={
-            <ProtectedRoutes>
-              <Slot />
-            </ProtectedRoutes>
-          }
-        />
+              path="/mines"
+              element={
+                <ProtectedRoutes>
+                  <Mines />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/slot"
+              element={
+                <ProtectedRoutes>
+                  <Slot />
+                </ProtectedRoutes>
+              }
+            />
             <Route path="/statistics" element={<GameStatistics />} />
             <Route
               path="/admin/dashboard"
               element={
                 <ProtectedRoutes adminOnly={true}>
                   <AdminDashboard />
+                </ProtectedRoutes>
+              }
+            />
+            <Route
+              path="/admin/userprofile/:id"
+              element={
+                <ProtectedRoutes adminOnly={true}>
+                  <Profile />
                 </ProtectedRoutes>
               }
             />

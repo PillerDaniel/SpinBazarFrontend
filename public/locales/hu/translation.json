@@ -181,7 +181,8 @@
     "actions": {
       "edit": "Szerkesztés",
       "suspend": "Felfüggesztés",
-      "activate": "Aktiválás"
+      "activate": "Aktiválás",
+      "viewProfile": "Profil"
     },
     "editModal": {
       "title": "Felhasználó Szerkesztése",
@@ -254,6 +255,9 @@
   "confirm_deactivation": "Deaktiválás megerősítése",
   "show_password": "Jelszó mutatása",
   "hide_password": "Jelszó elrejtése",
+  "admin_spectator_mode_title" : "Admin Megfigyelő Mód",
+  "admin_spectator_mode_desc" : "Megfigyelés alatt nem tudod módosítani a felhasználói adatokat!",
+  "action_not_available_in_admin_mode": "Ez a művelet nem érhető el admin megfigyelő módban.",
   "User": "Felhasználó",
   "Admin": "Adminisztrátor",
   "transaction_type_deposit": "Befizetés",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
@@ -46,6 +47,7 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +65,10 @@ const AdminDashboard = () => {
     email: "",
     role: "",
   });
+
+  const handleViewProfile = (userId) => {
+    navigate(`/admin/userprofile/${userId}`);
+  };
 
   useEffect(() => {
     document.body.style.backgroundColor = "#111827";
@@ -518,6 +524,15 @@ const AdminDashboard = () => {
                         </Table.Cell>
                         <Table.Cell>
                           <div className="flex gap-2">
+                            <button
+                              className="px-2 py-1 text-xs font-medium rounded-md bg-purple-600/20 text-purple-400 hover:bg-purple-600/40 transition-colors"
+                              onClick={() => handleViewProfile(user._id)}
+                            >
+                              {t(
+                                "adminDashboard.actions.viewProfile",
+                                "Profile"
+                              )}
+                            </button>
                             <button
                               className="px-2 py-1 text-xs font-medium rounded-md bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 transition-colors"
                               onClick={() => openEditModal(user)}

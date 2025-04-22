@@ -70,54 +70,104 @@ const Profile = () => {
     indexOfLastTransaction
   );
   const totalPages = Math.ceil(transactions.length / TRANSACTIONS_PER_PAGE);
-
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
         setLoading(true);
-
-        const response = await axiosInstance.get("/user/account");
-        const {
-          userName,
-          email,
-          createdAt,
-          birthDate,
-          isActive,
-          role,
-          wallet,
-          lastLogin,
-        } = response.data.userData;
-        const activeDays = Math.floor(
-          (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24)
-        );
-        const fetchedUserDetails = {
-          userName: userName || "User",
-          email: email,
-          createdAt: createdAt,
-          birthDate: birthDate,
-          isActive: isActive,
-          role: role || "user",
-          walletBalance: wallet?.balance || 0,
-          stats: {
-            daysActive: activeDays,
-            lastLogin: lastLogin,
-            totalTransactions: 24,
-          },
-        };
-        setUserDetails(fetchedUserDetails);
-
-        setNewEmail(fetchedUserDetails.email);
-
-        const fetchedTransactions = response.data.transactions || [];
-
-        fetchedTransactions.sort((a, b) => {
-          const dateA = new Date(a.completedAt);
-          const dateB = new Date(b.completedAt);
-          return dateB - dateA;
-        });
         
-        setTransactions(fetchedTransactions);
-
+        const isAdminMode = window.location.pathname.includes('/admin/userprofile/');
+        let response;
+        
+        if (isAdminMode) {
+          const userId = window.location.pathname.split('/').pop();
+          
+          response = await axiosInstance.get(`/admin/userprofile/${userId}`);
+          const {
+            userName,
+            email,
+            createdAt,
+            birthDate,
+            isActive,
+            role,
+            wallet,
+            lastLogin,
+          } = response.data.user;
+          
+          const activeDays = Math.floor(
+            (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24)
+          );
+          
+          const fetchedUserDetails = {
+            userName: userName || "User",
+            email: email,
+            createdAt: createdAt,
+            birthDate: birthDate,
+            isActive: isActive,
+            role: role || "user",
+            walletBalance: wallet?.balance || 0,
+            stats: {
+              daysActive: activeDays,
+              lastLogin: lastLogin,
+              totalTransactions: response.data.transactions?.length || 0,
+            },
+          };
+          
+          setUserDetails(fetchedUserDetails);
+          setNewEmail(fetchedUserDetails.email);
+          
+          const fetchedTransactions = response.data.transactions || [];
+          
+          fetchedTransactions.sort((a, b) => {
+            const dateA = new Date(a.completedAt || a.createdAt);
+            const dateB = new Date(b.completedAt || b.createdAt);
+            return dateB - dateA;
+          });
+          
+          setTransactions(fetchedTransactions);
+        } else {
+          response = await axiosInstance.get("/user/account");
+          const {
+            userName,
+            email,
+            createdAt,
+            birthDate,
+            isActive,
+            role,
+            wallet,
+            lastLogin,
+          } = response.data.userData;
+          const activeDays = Math.floor(
+            (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24)
+          );
+          const fetchedUserDetails = {
+            userName: userName || "User",
+            email: email,
+            createdAt: createdAt,
+            birthDate: birthDate,
+            isActive: isActive,
+            role: role || "user",
+            walletBalance: wallet?.balance || 0,
+            stats: {
+              daysActive: activeDays,
+              lastLogin: lastLogin,
+              totalTransactions: 24,
+            },
+          };
+          setUserDetails(fetchedUserDetails);
+  
+          setNewEmail(fetchedUserDetails.email);
+  
+          const fetchedTransactions = response.data.transactions || [];
+  
+          fetchedTransactions.sort((a, b) => {
+            const dateA = new Date(a.completedAt);
+            const dateB = new Date(b.completedAt);
+            return dateB - dateA;
+          });
+          
+          setTransactions(fetchedTransactions);
+        }
       } catch (error) {
         console.error("Error fetching user:", error);
         if (error.response && error.response.status === 401) {
@@ -127,7 +177,7 @@ const Profile = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUser();
   }, [logout]);
 
@@ -152,8 +202,18 @@ const Profile = () => {
     }).format(amount);
   };
 
+  const isAdminMode = () => {
+    return window.location.pathname.includes('/admin/userprofile/');
+  };
+
   const handleUpdateEmail = async (e) => {
     e.preventDefault();
+
+    if (isAdminMode()) {
+      setErrorMessage(t("action_not_available_in_admin_mode"));
+      return;
+    }
+
     setSuccessMessage(null);
     setErrorMessage(null);
 
@@ -186,6 +246,12 @@ const Profile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+
+    if (isAdminMode()) {
+      setErrorMessage(t("action_not_available_in_admin_mode"));
+      return;
+    }
+
     setSuccessMessage(null);
     setErrorMessage(null);
 
@@ -230,6 +296,12 @@ const Profile = () => {
 
   const handleDeactivateAccount = async (e) => {
     e.preventDefault();
+
+    if (isAdminMode()) {
+      setErrorMessage(t("action_not_available_in_admin_mode"));
+      return;
+    }
+
     setSuccessMessage(null);
     setErrorMessage(null);
 
@@ -275,6 +347,21 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-gray-800 text-white flex flex-col">
         <Navbar />
+
+        {isAdminMode() && (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 mt-16">
+    <button 
+      onClick={() => window.history.back()} 
+      className="flex items-center text-blue-400 hover:text-blue-300"
+    >
+      <ChevronLeft size={20} />
+      <span>{t("back_to_admin_dashboard")}</span>
+    </button>
+    <div className="bg-blue-900 text-white p-3 rounded-md mt-2 mb-2">
+      <p className="font-medium">{t("admin_mode_viewing_user_profile")}</p>
+    </div>
+  </div>
+)}
 
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center p-6 bg-gray-900 rounded-lg shadow-lg">
@@ -374,18 +461,30 @@ const Profile = () => {
                 </li>
               </ul>
 
-              <div className="mt-6 pt-6 border-t border-white">
-                {" "}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-3 w-full px-3 py-2 text-red-400 hover:bg-gray-700 rounded-md"
-                >
-                  <LogOut size={18} />
-                  <span>{t("sign_out")}</span>
-                </button>
-              </div>
+              {!isAdminMode() && (
+            <div className="mt-6 pt-6 border-t border-gray-700"> 
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-3 w-full px-3 py-2 text-red-400 hover:bg-red-900/50 rounded-md transition-colors duration-150"
+              >
+                <LogOut size={18} />
+                <span>{t("sign_out")}</span>
+              </button>
+            </div>
+          )}
             </div>
 
+            {isAdminMode() ? (
+            <div className="bg-yellow-600 rounded-lg shadow p-4 text-black">
+              <h3 className="font-semibold flex items-center text-sm">
+                <Eye size={16} className="mr-2 flex-shrink-0" />
+                {t("admin_spectator_mode_title")}
+              </h3>
+              <p className="mt-2 text-xs text-yellow-900">
+                {t("admin_spectator_mode_desc")}
+              </p>
+            </div>
+          ) : (
             <div className="bg-blue-700 rounded-lg shadow p-4 text-white">
               <h3 className="font-medium flex items-center">
                 <HelpCircle size={16} className="mr-2" />
@@ -394,10 +493,11 @@ const Profile = () => {
               <p className="mt-2 text-sm text-blue-100">
                 {t("help_description")}
               </p>
-              <button className="mt-3 w-full bg-white text-blue-700 rounded-md py-2 text-sm font-medium">
+              <button className="mt-3 w-full bg-white text-blue-700 rounded-md py-2 text-sm font-medium hover:bg-gray-100">
                 {t("contact_support")}
               </button>
             </div>
+          )}
           </div>
 
           <div className="flex-1">

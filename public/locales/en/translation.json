@@ -74,9 +74,12 @@
   "sign_out": "Sign Out",
   "help_needed": "Need Help?",
   "help_description": "Our support team is available 24/7 to assist you with any questions.",
+  "admin_spectator_mode_title" : "Admin Spectator Mode",
+  "admin_spectator_mode_desc" : "You cannot modify user data while you are in spectator mode!",
   "contact_support": "Contact Support",
   "current_balance": "Current Balance",
   "add_funds": "Add Funds",
+  "action_not_available_in_admin_mode": "This action is not available in admin spectator mode.",
   "member_since": "Member Since",
   "days_active": "days active",
   "account_status": "Account Status",
@@ -182,7 +185,8 @@
     "actions": {
       "edit": "Edit",
       "suspend": "Suspend",
-      "activate": "Activate"
+      "activate": "Activate",
+      "viewProfile": "Profile"
     },
     "editModal": {
       "title": "Edit User",
