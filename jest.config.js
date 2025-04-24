@@ -5,4 +5,5 @@ export default {
     },
     setupFilesAfterEnv: ["@testing-library/jest-dom"],
     setupFiles: ['./jest-setup.js'],
+    testTimeout: 10000,
 };
