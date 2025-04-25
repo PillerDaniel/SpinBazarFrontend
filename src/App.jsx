@@ -8,7 +8,6 @@ import Login from "./pages/Login";
 import Home from "./pages/HomePage";
 import Blackjack from "./pages/Blackjack";
 import Mines from "./pages/Mines.jsx";
-import Slot from "./pages/Slot.jsx";
 import AdminDashboard from "./pages/AdminDashboard";
 import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -29,7 +28,6 @@ function App() {
           <Route path="/casino" element={<Casino />} />
           <Route path="/blackjack" element={<Blackjack />} />
           <Route path="/mines" element={<Mines />} />
-          <Route path="/slot" element={<Slot />} />
           <Route path="/statistics" element={<GameStatistics />} />
           <Route
             path="/admin/dashboard"

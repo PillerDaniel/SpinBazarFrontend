@@ -195,6 +195,15 @@
       "roleLabel": "Role",
       "save": "Save",
       "cancel": "Cancel"
+    },
+    "pagination": {
+      "showing": "Showing {{start}} to {{end}} of {{total}} users",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of",
+      "goTo": "Go to page",
+      "itemsPerPage": "Items per page"
     }
   },
   "Game History Statistics": "Game History Statistics",

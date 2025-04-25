@@ -191,6 +191,15 @@
       "roleLabel": "Szerepkör",
       "save": "Mentés",
       "cancel": "Mégse"
+    },
+    "pagination": {
+      "showing": "{{start}} - {{end}} megjelenítése a {{total}} felhasználóból",
+      "previous": "Előző",
+      "next": "Következő",
+      "page": "Oldal",
+      "of": "/",
+      "goTo": "Ugrás oldalra",
+      "itemsPerPage": "Felhasználó oldalanként"
     }
   },
   "Game History Statistics": "Játék történet statisztika",

@@ -66,6 +66,10 @@ const AdminDashboard = () => {
     role: "",
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+
   const handleViewProfile = (userId) => {
     navigate(`/admin/userprofile/${userId}`);
   };
@@ -127,7 +131,26 @@ const AdminDashboard = () => {
       );
     }
     setFilteredUsers(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [searchQuery, selectedRole, users, t]);
+
+  // Get current users for pagination
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => {
+    if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const calculateUserStats = () => {
     if (!filteredUsers || !filteredUsers.length) return null;
@@ -309,16 +332,7 @@ const AdminDashboard = () => {
       <ErrorAlert message={error} onClose={clearError} />
       <SuccessAlert message={success} onClose={clearSuccess} />
 
-      <main className="flex-grow px-4 md:px-8 lg:px-12 py-6 md:py-10 max-w-screen-2xl mx-auto w-full">
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center">
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
-              {t("adminDashboard.title")}
-            </span>
-          </h1>
-        </div>
-
+      <main className="flex-grow px-4 md:px-8 lg:px-12 py-6 md:py-10 max-w-screen-2xl mx-auto w-full mb-15 mt-20">
         {/* Stats Cards */}
         {!loading && !searchQuery && stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -479,8 +493,8 @@ const AdminDashboard = () => {
                 </Table.Head>
 
                 <Table.Body className="divide-y divide-gray-700">
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
+                  {currentUsers.length > 0 ? (
+                    currentUsers.map((user) => (
                       <Table.Row
                         key={user._id}
                         className="bg-gray-800/30 hover:bg-gray-700/30 transition-colors"
@@ -577,6 +591,62 @@ const AdminDashboard = () => {
                 </Table.Body>
               </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {filteredUsers.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-gray-700">
+                <div className="text-sm text-gray-400 mb-4 sm:mb-0">
+                  {t("adminDashboard.pagination.showing", {
+                    start: indexOfFirstUser + 1,
+                    end: Math.min(indexOfLastUser, filteredUsers.length),
+                    total: filteredUsers.length,
+                  })}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    color="gray"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={prevPage}
+                    className="flex items-center justify-center"
+                  >
+                    <span>{t("adminDashboard.pagination.previous")}</span>
+                  </Button>
+
+                  <div className="hidden sm:flex space-x-1">
+                    {Array.from({
+                      length: Math.ceil(filteredUsers.length / usersPerPage),
+                    }).map((_, index) => (
+                      <Button
+                        key={index}
+                        color={currentPage === index + 1 ? "blue" : "gray"}
+                        size="sm"
+                        onClick={() => paginate(index + 1)}
+                        className={
+                          currentPage === index + 1 ? "bg-blue-600" : ""
+                        }
+                      >
+                        {index + 1}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <Button
+                    color="gray"
+                    size="sm"
+                    disabled={
+                      currentPage ===
+                      Math.ceil(filteredUsers.length / usersPerPage)
+                    }
+                    onClick={nextPage}
+                    className="flex items-center justify-center"
+                  >
+                    <span>{t("adminDashboard.pagination.next")}</span>
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         )}
       </main>
