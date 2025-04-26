@@ -36,6 +36,7 @@ function ProtectedRoutes({ children }) {
               <div className="mb-6 bg-gradient-to-r from-purple-800/30 to-pink-800/30 p-4 rounded-lg border border-purple-500/50">
                 <div className="flex items-start">
                   <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-2xl mr-4 flex-shrink-0">
+                    !
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-white mb-1">

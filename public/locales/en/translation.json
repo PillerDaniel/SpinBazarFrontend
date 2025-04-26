@@ -32,6 +32,7 @@
   "register_login_button": "Login",
   "register_error_message": "All fields are required!",
   "register_error_message_2": "An error occured during registration!",
+  "register_error_password_mismatch": "Passwords do not match.",
   "register_success_message": "Registration successful!",
   "navbar_login_button": "Login",
   "navbar_register_button": "Register",

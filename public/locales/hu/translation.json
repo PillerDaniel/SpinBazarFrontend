@@ -32,6 +32,7 @@
   "register_login_button": "Bejelentkezés",
   "register_error_message": "Minden mező kitöltése kötelező!",
   "register_error_message_2": "Hiba történt a regisztráció során!",
+  "register_error_password_mismatch": "A jelszavak nem egyeznek.",
   "register_success_message": "Sikeres regisztráció!",
   "navbar_login_button": "Bejelentkezés",
   "navbar_register_button": "Regisztráció",
