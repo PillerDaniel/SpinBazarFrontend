@@ -95,10 +95,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/login");
+  const logout = async () => {
+    try {
+      await axiosInstance.post("/auth/logout");
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/login");
+    }
   };
 
   const updateWalletBalance = (newBalance) => {
