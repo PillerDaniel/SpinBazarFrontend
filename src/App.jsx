@@ -14,21 +14,48 @@ import Profile from "./pages/Profile.jsx";
 import Casino from "./pages/Casino.jsx";
 import AlertNotFound from "./components/ui/AlertNotFound.jsx";
 
-
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="*" element={<AlertNotFound/>} />
+          <Route path="*" element={<AlertNotFound />} />
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoutes adminOnly={false}>
+                <Profile />
+              </ProtectedRoutes>
+            }
+          />
           <Route path="/casino" element={<Casino />} />
-          <Route path="/blackjack" element={<Blackjack />} />
-          <Route path="/mines" element={<Mines />} />
-          <Route path="/statistics" element={<GameStatistics />} />
+          <Route
+            path="/blackjack"
+            element={
+              <ProtectedRoutes adminOnly={false}>
+                <Blackjack />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/mines"
+            element={
+              <ProtectedRoutes adminOnly={false}>
+                <Mines />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/statistics"
+            element={
+              <ProtectedRoutes adminOnly={false}>
+                <GameStatistics />
+              </ProtectedRoutes>
+            }
+          />
           <Route
             path="/admin/dashboard"
             element={

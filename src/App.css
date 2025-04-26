@@ -2,6 +2,7 @@
 
 html {
     background-image: url('background.svg');
+    background-color: #1B2941;
     background-size: cover;
     background-position: center;
     animation: gradient 15s ease infinite;
