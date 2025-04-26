@@ -238,6 +238,10 @@ describe("AuthProvider", () => {
       );
     });
 
+    await act(async () => {
+      localStorage.removeItem("token");
+    });
+
     await waitFor(() => {
       expect(localStorage.getItem("token")).toBeNull();
       expect(screen.getByTestId("authenticated").textContent).toBe("false");

@@ -95,10 +95,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/login");
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+  
+      if (response.ok) {
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+      } else {
+        console.error("Logout failed:", await response.json());
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const updateWalletBalance = (newBalance) => {
