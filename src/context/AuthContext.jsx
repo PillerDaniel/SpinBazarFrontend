@@ -1,8 +1,8 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import axiosInstance from "../utils/axios";
+import axiosInstance from "../utils/axios"; 
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -10,8 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.interceptors.request.use(
+   useEffect(() => {
+    const reqInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -19,62 +19,48 @@ export const AuthProvider = ({ children }) => {
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
-    axios.interceptors.response.use(
+    const resInterceptor = axiosInstance.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => { 
         if (error.response && error.response.status === 401) {
-          logout();
+          console.error("Interceptor detected 401, logging out.");
+          localStorage.removeItem("token");
+          setUser(null); 
+          navigate("/login"); 
         }
         return Promise.reject(error);
       }
     );
-  }, []);
 
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem("token");
-      setLoading(true);
-
-      if (token) {
-        try {
-          const decodedToken = jwtDecode(token);
-          const response = await axiosInstance.get("/data/userdata", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const { username, xp, role, wallet } = response.data.user;
-          const currentTime = Date.now() / 1000;
-          if (decodedToken.exp && decodedToken.exp < currentTime) {
-            console.log("Token expired, logging out");
-            logout();
-          } else {
-            setUser({
-              userName: username,
-              role: role,
-              xp: xp,
-              walletBalance: wallet.balance,
-              dailyBonusClaimed: wallet.dailyBonusClaimed,
-            });
-          }
-        } catch (error) {
-          console.error("Invalid token!", error);
-          logout();
-        }
-      }
-
-      setLoading(false);
+    return () => {
+      axiosInstance.interceptors.request.eject(reqInterceptor);
+      axiosInstance.interceptors.response.eject(resInterceptor);
     };
+  }, [navigate]);
 
-    checkToken();
-  }, []);
 
-  const login = async (token) => {
+  const logout = useCallback(async () => {
+    setLoading(true);
+    try {
+      await axiosInstance.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout server error:", error);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      setLoading(false);
+       if (window.location.pathname !== '/login') {
+         navigate("/login");
+       }
+    }
+  }, [navigate, setLoading, setUser]);
+
+
+  const login = useCallback(async (token) => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get("/data/userdata", {
         headers: {
@@ -92,53 +78,77 @@ export const AuthProvider = ({ children }) => {
       });
     } catch (error) {
       console.error("Login error:", error);
+      await logout(); 
+    } finally {
+       setLoading(false);
     }
-  };
+  }, [logout, setLoading, setUser]); 
 
-  const logout = async () => {
-    try {
-      await axiosInstance.post("/auth/logout");
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate("/login");
-    }
-  };
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("token");
 
-  const updateWalletBalance = (newBalance) => {
+      if (token) {
+        setLoading(true);
+        try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+
+          if (decodedToken.exp && decodedToken.exp < currentTime) {
+             console.log("Token expired, refreshing...");
+            try {
+              const res = await axiosInstance.post("/auth/refresh", { token });
+              if (res.status === 200) {
+                const newToken = res.data.token;
+                 console.log("Token refreshed successfully.");
+                await login(newToken);
+              } else {
+                 console.log("Token refresh failed (non-200 status), logging out...");
+                 await logout();
+              }
+            } catch (refreshError) {
+               console.error("Token refresh failed, logging out...", refreshError);
+               await logout();
+            }
+          } else {
+             console.log("Token is valid, fetching user data...");
+             await login(token);
+          }
+        } catch (error) {
+           console.error("Error checking/decoding token:", error);
+           await logout();
+        }
+      } else {
+         setUser(null);
+         setLoading(false);
+      }
+    };
+
+    checkToken();
+  }, [login, logout, setLoading, setUser]);
+
+
+  const updateWalletBalance = useCallback((newBalance) => {
     setUser((prevUser) => {
       if (!prevUser) return null;
-      return {
-        ...prevUser,
-        walletBalance: newBalance,
-      };
+      return { ...prevUser, walletBalance: newBalance };
     });
-  };
+  }, [setUser]);
 
-  const updateXp = (newXp) => {
+  const updateXp = useCallback((newXp) => {
     setUser((prevUser) => {
       if (!prevUser) return null;
-      return {
-        ...prevUser,
-        xp: newXp,
-      };
+      return { ...prevUser, xp: newXp };
     });
-  };
+  }, [setUser]);
 
-  const updateBonusClaimStatus = (newBalance, claimTime) => {
+  const updateBonusClaimStatus = useCallback((newBalance, claimTime) => {
     setUser((prevUser) => {
       if (!prevUser) return null;
-      return {
-        ...prevUser,
-        walletBalance: newBalance,
-        dailyBonusClaimed: claimTime,
-      };
+      return { ...prevUser, walletBalance: newBalance, dailyBonusClaimed: claimTime };
     });
-  };
+  }, [setUser]);
+
 
   return (
     <AuthContext.Provider
