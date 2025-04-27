@@ -46,6 +46,13 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    
+    if (error.response?.status === 403) {
+      console.log("Received 403 Forbidden, logging out user");
+      removeToken();
+      window.location = '/login';
+      return Promise.reject(error);
+    }
 
     if (
       error.response?.status === 401 &&
@@ -94,13 +101,13 @@ axiosInstance.interceptors.response.use(
         isRefreshing = false;
 
         window.location = '/login';
-        console.log("Redirecting to login or handling logout...");
+        console.log("Redirecting to login due to refresh failure...");
 
         return Promise.reject(refreshError);
       } 
     }
 
-    console.error("API Error (not handling 401 or refresh failed):", {
+    console.error("API Error:", {
       url: error.config?.url,
       status: error.response?.status,
       data: error.response?.data,
