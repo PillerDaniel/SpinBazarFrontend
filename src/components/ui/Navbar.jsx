@@ -46,6 +46,15 @@ const Navbar = () => {
   };
 
   useEffect(() => {
+    const path = window.location.pathname;
+    if (path.includes('/sportbet')) {
+      setActiveTab('sports');
+    } else if (path.includes('/casino')) {
+      setActiveTab('casino');
+    }
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
@@ -134,7 +143,7 @@ const Navbar = () => {
             <button
               onClick={() => {
                 handleTabChange("sports");
-                navigate("/");
+                navigate("/sportbet");
               }}
               onMouseEnter={() => setHoverTab("sports")}
               onMouseLeave={() => setHoverTab(null)}

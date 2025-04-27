@@ -13,6 +13,7 @@ import GameStatistics from "./pages/Statistics.jsx";
 import Profile from "./pages/Profile.jsx";
 import Casino from "./pages/Casino.jsx";
 import AlertNotFound from "./components/ui/AlertNotFound.jsx";
+import Sport from "./pages/Sport.jsx";
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/casino" element={<Casino />} />
+          <Route path="/sportbet" element={<Sport />} />
           <Route
             path="/profile"
             element={
@@ -31,7 +34,6 @@ function App() {
               </ProtectedRoutes>
             }
           />
-          <Route path="/casino" element={<Casino />} />
           <Route
             path="/blackjack"
             element={
