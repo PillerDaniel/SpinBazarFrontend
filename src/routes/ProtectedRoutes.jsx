@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Footer from "../components/ui/Footer";
 
-function ProtectedRoutes({ children }) {
+function ProtectedRoutes({ children, adminOnly }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +110,7 @@ function ProtectedRoutes({ children }) {
     )
   }
 
-  if (user.role !== 'admin') {
+  if (adminOnly && user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-900 flex flex-col">
         <div className="flex-grow flex items-center justify-center">
