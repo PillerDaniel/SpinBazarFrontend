@@ -51,7 +51,7 @@ describe('ProtectedRoutes Component', () => {
 
     render(
       <MemoryRouter>
-        <ProtectedRoutes>
+        <ProtectedRoutes adminOnly={true}>
           <ProtectedComponent />
         </ProtectedRoutes>
       </MemoryRouter>
@@ -61,9 +61,46 @@ describe('ProtectedRoutes Component', () => {
     expect(protectedContent).toBeInTheDocument();
   });
 
-  test('renders access denied screen when user is authenticated but not an admin', () => {
+  test('renders children when user is authenticated with non-admin role and route is not admin-only', () => {
     useAuth.mockReturnValue({
       user: { role: 'user' }
+    });
+
+    render(
+      <MemoryRouter>
+        <ProtectedRoutes adminOnly={false}>
+          <ProtectedComponent />
+        </ProtectedRoutes>
+      </MemoryRouter>
+    );
+
+    const protectedContent = screen.getByTestId('protected-content');
+    expect(protectedContent).toBeInTheDocument();
+  });
+
+  test('renders access denied screen when user is authenticated but not an admin for admin-only route', () => {
+    useAuth.mockReturnValue({
+      user: { role: 'user' }
+    });
+
+    render(
+      <MemoryRouter>
+        <ProtectedRoutes adminOnly={true}>
+          <ProtectedComponent />
+        </ProtectedRoutes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Access Denied')).toBeInTheDocument();
+    expect(screen.getByText('You do not have permission to access this page')).toBeInTheDocument();
+    expect(screen.getByText('Go to Home')).toBeInTheDocument();
+    
+    expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
+  });
+
+  test('renders login required screen when user is not authenticated', () => {
+    useAuth.mockReturnValue({
+      user: null
     });
 
     render(
@@ -74,10 +111,9 @@ describe('ProtectedRoutes Component', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(screen.getByText('You do not have permission to access this page')).toBeInTheDocument();
-    expect(screen.getByText('Go to Home')).toBeInTheDocument();
-    
+    // Checking for the split title parts instead of the whole "Login Required" text
+    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
   });
 
@@ -141,7 +177,7 @@ describe('ProtectedRoutes Component', () => {
 
     render(
       <MemoryRouter>
-        <ProtectedRoutes>
+        <ProtectedRoutes adminOnly={true}>
           <ProtectedComponent />
         </ProtectedRoutes>
       </MemoryRouter>
