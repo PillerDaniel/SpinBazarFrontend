@@ -45,6 +45,7 @@ ChartJS.register(
   Legend
 );
 
+
 const AdminDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -65,6 +66,9 @@ const AdminDashboard = () => {
     email: "",
     role: "",
   });
+
+const language = localStorage.getItem("i18nextLng");
+
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -174,7 +178,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setShowModal(false);
-      await axiosInstance.put(
+      const response = await axiosInstance.put(
         `admin/edituser/${editingUser._id}`,
         editFormData,
         {
@@ -188,15 +192,22 @@ const AdminDashboard = () => {
         user._id === editingUser._id ? { ...user, ...editFormData } : user
       );
       setUsers(updatedUsers);
-      setSuccess(`User ${editFormData.userName} has been updated successfully`);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.status === 400) {
-        setError(error.response.data.message);
-      } else {
-        setError("Failed to edit user. Please try again later.");
+      if (language === "hu") {
+        setSuccess(response.data.messageHU);
+      }else{
+        setSuccess(response.data.message);
       }
+      setLoading(false);
+    } catch (err
+    ) {
+      setLoading(false);
+      if (err.response && err.response.data.message) {
+        if (language === "hu") {
+          setError(err.response.data.messageHU);
+        }else {
+          setError(err.response.data.message);
+        }
+      } 
     }
   };
 
@@ -262,7 +273,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setShowModal(false);
-      await axiosInstance.put(
+      const response = await axiosInstance.put(
         `/admin/suspenduser/${selectedUserId}`,
         {},
         {
@@ -276,15 +287,22 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: false } : user
       );
       setUsers(updatedUsers);
-      setSuccess(`User ${selectedUsername} has been suspended successfully`);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.status === 400) {
-        setError(error.response.data.message);
-      } else {
-        setError("Failed to suspend user. Please try again later.");
+      if (language === "hu") {
+        setSuccess(response.data.messageHU);
+      }else {
+        setSuccess(response.data.message);
       }
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      if (err.response && err.response.data.message) {
+        console.log(language);
+        if (language === "hu") {
+          setError(err.response.data.messageHU);
+        }else {
+          setError(err.response.data.message);
+        }
+      } 
     }
   };
 
@@ -292,7 +310,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setShowModal(false);
-      await axiosInstance.put(
+      const response = await axiosInstance.put(
         `/admin/activateuser/${selectedUserId}`,
         {},
         {
@@ -306,15 +324,21 @@ const AdminDashboard = () => {
         user._id === selectedUserId ? { ...user, isActive: true } : user
       );
       setUsers(updatedUsers);
-      setSuccess(`User ${selectedUsername} has been activated successfully`);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.status === 400) {
-        setError(error.response.data.message);
-      } else {
-        setError("Failed to activate user. Please try again later.");
+      if (language === "hu") {
+        setSuccess(response.data.messageHU);
+      }else {
+        setSuccess(response.data.message);
       }
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      if (err.response && err.response.data.message) {
+        if (language === "hu") {
+          setError(err.response.data.messageHU);
+        }else {
+          setError(err.response.data.message);
+        }
+      } 
     }
   };
 
@@ -333,7 +357,6 @@ const AdminDashboard = () => {
       <SuccessAlert message={success} onClose={clearSuccess} />
 
       <main className="flex-grow px-4 md:px-8 lg:px-12 py-6 md:py-10 max-w-screen-2xl mx-auto w-full mb-15 mt-20">
-        {/* Stats Cards */}
         {!loading && !searchQuery && stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
@@ -402,7 +425,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Filters and Search */}
         <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
           <div className="w-full sm:w-auto relative">
             <style jsx>{`
@@ -462,7 +484,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Loading Spinner */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Spinner size="xl" color="purple" />
@@ -592,7 +613,6 @@ const AdminDashboard = () => {
               </Table>
             </div>
 
-            {/* Pagination Controls */}
             {filteredUsers.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-gray-700">
                 <div className="text-sm text-gray-400 mb-4 sm:mb-0">
@@ -651,7 +671,6 @@ const AdminDashboard = () => {
         )}
       </main>
 
-      {/* Modals */}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

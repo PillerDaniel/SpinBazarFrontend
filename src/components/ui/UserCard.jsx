@@ -20,7 +20,6 @@ import {
 const getCardStyles = (level) => {
   const tier = Math.min(Math.floor(level / 10), 10);
 
-  // Alap stílus
   let styles = {
     cardContainer: `w-full sm:w-125 bg-gray-900 rounded-lg shadow-xl text-white relative overflow-hidden border border-gray-700/50 transition-all duration-500 ease-out`,
     levelCircleBorder: `absolute -inset-1 block rounded-full bg-gradient-to-br from-gray-600 to-gray-800 opacity-75 group-hover:opacity-90 transition-opacity duration-300`,
@@ -33,7 +32,6 @@ const getCardStyles = (level) => {
   };
 
   if (tier >= 1) {
-    // 10+ "Cyan Pulse"
     styles.cardContainer = `w-full sm:w-125 bg-gray-900 rounded-lg shadow-xl text-white relative overflow-hidden border-2 border-cyan-700 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-1 block rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 opacity-80 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-opacity-only`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gray-800 rounded-full flex items-center justify-center shadow-inner`;
@@ -42,7 +40,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 2) {
-    // 20+ "Purple Spin"
     styles.cardContainer = `w-full sm:w-125 bg-slate-900 rounded-lg shadow-xl text-white relative overflow-hidden border-2 border-purple-600 shadow-purple-500/20 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-1.5 block rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300 animate-spin-slow`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-slate-800 rounded-full flex items-center justify-center shadow-inner shadow-purple-500/30`;
@@ -53,7 +50,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 3) {
-    // 30+ "Indigo Sky"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-gray-900 to-indigo-900/70 rounded-lg shadow-xl text-white relative overflow-hidden border-2 border-indigo-500 shadow-indigo-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-1.5 block rounded-full bg-gradient-to-br from-indigo-400 via-sky-400 to-indigo-500 opacity-100 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-border`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-indigo-900/80 rounded-full flex items-center justify-center shadow-inner shadow-indigo-500/40`;
@@ -64,7 +60,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 4) {
-    // 40+ "Emerald Forest"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-gray-900 to-emerald-900/70 rounded-lg shadow-xl text-white relative overflow-hidden border-2 border-emerald-500 shadow-emerald-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-1.5 block rounded-full bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 opacity-100 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-border-emerald`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-emerald-900/80 rounded-full flex items-center justify-center shadow-inner shadow-emerald-500/40`;
@@ -75,7 +70,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 5) {
-    // 50+ "Glimmering Gold"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-neutral-900 to-amber-900/60 rounded-lg shadow-xl text-white relative overflow-hidden border-2 border-amber-500 shadow-amber-500/40 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 opacity-100 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-border-amber`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-amber-800 to-amber-900 rounded-full flex items-center justify-center shadow-inner shadow-amber-400/50`;
@@ -87,7 +81,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 6) {
-    // 60+ "Electric Charge"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-indigo-900 via-blue-900 to-cyan-900 rounded-lg shadow-2xl text-white relative overflow-hidden border-4 border-cyan-400 shadow-lg shadow-cyan-400/20 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500 opacity-100 group-hover:opacity-100 transition-opacity duration-300 animate-aurora`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-blue-950 to-indigo-950 rounded-full flex items-center justify-center shadow-inner shadow-cyan-400/30`;
@@ -99,7 +92,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 7) {
-    // 70+ "Cosmic Nebula"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-slate-900 via-purple-900/40 to-slate-900 rounded-lg shadow-2xl text-white relative overflow-hidden border-4 border-purple-400 shadow-lg shadow-purple-400/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-white via-purple-300 to-fuchsia-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300 animate-crystal-shine`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-purple-950 to-slate-900 rounded-full flex items-center justify-center shadow-inner shadow-purple-400/50`;
@@ -111,7 +103,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 8) {
-    // 80+ "Crimson Ember"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-gray-950 via-blue-950/30 to-gray-950 rounded-lg shadow-2xl text-white relative overflow-hidden border-2 border-cyan-500/80 shadow-lg shadow-cyan-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-fast`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gray-950 rounded-full flex items-center justify-center shadow-inner shadow-cyan-500/40`;
@@ -123,7 +114,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 9) {
-    // 80+ "Inferno Core"
     styles.cardContainer = `w-full sm:w-125 bg-gradient-to-br from-gray-950 via-red-950/50 to-gray-950 rounded-lg shadow-2xl text-white relative overflow-hidden border-2 border-orange-500 shadow-lg shadow-orange-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300 animate-lava-pulse`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-gray-950 to-red-950 rounded-full flex items-center justify-center shadow-inner shadow-orange-500/40`;
@@ -135,7 +125,6 @@ const getCardStyles = (level) => {
   }
 
   if (tier >= 10) {
-    // 100 "Victory Gold"
     styles.cardContainer = `w-full sm:w-[500px] bg-gradient-to-br from-amber-700/60 via-yellow-600/50 to-amber-800/60 rounded-lg shadow-2xl text-gray-100 relative overflow-hidden border-2 border-amber-500 shadow-lg shadow-amber-500/30 transition-all duration-500 ease-out`;
     styles.levelCircleBorder = `absolute -inset-2 block rounded-full bg-gradient-to-br from-yellow-400 via-amber-600 to-yellow-300 opacity-90 group-hover:opacity-100 transition-opacity duration-300`;
     styles.levelCircleBg = `relative w-16 h-16 p-1 bg-gradient-to-br from-amber-600 to-yellow-500 rounded-full flex items-center justify-center shadow-inner shadow-amber-900/50`;
@@ -188,14 +177,12 @@ const UserCard = () => {
     return null;
   }
 
-  // Befizetés kezelése
   const handleDeposit = async (e) => {
     e.preventDefault();
     setDepositError(null);
     setDepositSuccess(null);
     setIsDepositing(true);
 
-    // Basic frontend validation
     const amount = parseFloat(depositAmount);
     if (
       !amount ||
@@ -223,7 +210,6 @@ const UserCard = () => {
       return;
     }
 
-    // Clean card number (remove spaces)
     const cleanCardNumber = cardNumber.replace(/\s/g, "");
 
     try {
@@ -234,7 +220,6 @@ const UserCard = () => {
         expireDate: cardExpiry,
       });
 
-      // Successful deposit
       const updatedWallet = response.data.wallet;
       if (updateWalletBalance) {
         updateWalletBalance(updatedWallet.balance);
@@ -248,7 +233,6 @@ const UserCard = () => {
         )
       );
 
-      // Clear fields
       setDepositAmount("");
       setCardHolderName("");
       setCardNumber("");
@@ -258,7 +242,6 @@ const UserCard = () => {
       setCardType("");
     } catch (error) {
       console.error("Deposit error:", error);
-      // Error handling: try to read backend message
       const message =
         error.response?.data?.message ||
         t(
@@ -271,7 +254,6 @@ const UserCard = () => {
     }
   };
 
-  // UserCard.jsx - Withdraw handling function modification
   const handleWithdraw = async (e) => {
     e.preventDefault();
     setWithdrawError(null);
@@ -281,7 +263,6 @@ const UserCard = () => {
     const amount = parseFloat(withdrawAmount);
     const currentBalance = user?.walletBalance || 0;
 
-    // Basic frontend validation
     if (!amount || amount <= 0) {
       setWithdrawError(
         t("invalid_withdraw_amount", "Please enter a valid amount.")
@@ -301,7 +282,6 @@ const UserCard = () => {
         amount: amount,
       });
 
-      // Successful withdrawal
       const updatedWallet = response.data.wallet;
       if (updateWalletBalance) {
         updateWalletBalance(updatedWallet.balance);
@@ -329,7 +309,6 @@ const UserCard = () => {
     }
   };
 
-  // Kártyaadatok mutatása/elrejtése
   const toggleCardDetails = () => {
     if (depositAmount && parseFloat(depositAmount) > 0) {
       setShowCardDetails(!showCardDetails);
@@ -338,20 +317,17 @@ const UserCard = () => {
     }
   };
 
-  // Pénznem formázása
   const formatCurrency = (amount) => {
     const numericAmount = amount ?? 0;
     return `$${numericAmount.toFixed(2)}`;
   };
 
-  // Kártyaszám formázása
   const formatCardNumber = (value) => {
     const cleaned = value.replace(/\D/g, "");
     const matches = cleaned.match(/(\d{1,4})/g);
     return matches ? matches.join(" ").slice(0, 19) : "";
   };
 
-  // Lejárati dátum formázása
   const formatExpiryDate = (value) => {
     const cleaned = value.replace(/\D/g, "");
     if (cleaned.length >= 3) {
@@ -360,12 +336,10 @@ const UserCard = () => {
     return cleaned;
   };
 
-  // CVV formázása
   const formatCVV = (value) => {
     return value.replace(/\D/g, "").slice(0, 4);
   };
 
-  // Kártyatípus felismerése
   const getCardType = (number) => {
     const cleanedNumber = number.replace(/\D/g, "");
     if (/^4/.test(cleanedNumber)) return "Visa";
@@ -379,7 +353,6 @@ const UserCard = () => {
     return "";
   };
 
-  // Kártyatípus beállítása
   useEffect(() => {
     const type = getCardType(cardNumber);
     setCardType(type);
@@ -401,13 +374,11 @@ const UserCard = () => {
           setWithdrawSuccess(null);
         }}
       />
-      {/* Fő User Kártya */}
       <div
         className={
           activeTab === "profile" ? cardStyles.cardContainer : neutralCardStyle
         }
       >
-        {/* Tabok */}
         <div className="border-b border-gray-700/80 bg-gray-800/60 backdrop-blur-sm">
           <nav className="flex justify-around">
             {["profile", "deposit", "withdraw"].map((tab) => (
@@ -431,9 +402,7 @@ const UserCard = () => {
           </nav>
         </div>
 
-        {/* Tab Tartalom */}
         <div className="p-5 sm:p-6">
-          {/* Profile Tab Tartalma */}
           {activeTab === "profile" && (
             <div className="animate-fade-in">
               <div className="flex items-center mb-5">
@@ -470,7 +439,6 @@ const UserCard = () => {
                 </div>
               </div>
 
-              {/* Szint és XP Sáv */}
               <div className="mb-6 space-y-2">
                 <div className="flex justify-between items-center text-sm font-medium text-gray-300">
                   <span className="flex items-center">
@@ -493,7 +461,6 @@ const UserCard = () => {
                 </div>
               </div>
 
-              {/* Egyenleg és Kijelentkezés */}
               <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700/60">
                 <div className="group relative">
                   <span
@@ -522,10 +489,8 @@ const UserCard = () => {
             </div>
           )}
 
-          {/* Deposit Tab Tartalma */}
           {activeTab === "deposit" && (
             <div className="animate-fade-in">
-              {/* Deposit form ... */}
               <div className="flex items-center mb-5">
                 <ArrowDownCircle className="w-7 h-7 text-green-400 mr-2.5" />
                 <h2 className="text-xl font-semibold">
@@ -639,7 +604,6 @@ const UserCard = () => {
             </div>
           )}
 
-          {/* Withdraw Tab Tartalma */}
           {activeTab === "withdraw" && (
             <div className="animate-fade-in">
               <div className="flex items-center mb-5">
@@ -734,7 +698,6 @@ const UserCard = () => {
         </div>
       </div>
 
-      {/* Kártya Részletek Kártya */}
       {showCardDetails && activeTab === "deposit" && (
         <div className="w-full lg:w-96 bg-gray-900 rounded-lg shadow-xl text-white relative overflow-hidden border border-gray-700/50 animate-slide-in-left will-change-transform">
           <form onSubmit={handleDeposit} className="p-5 sm:p-6 space-y-5">
@@ -763,7 +726,6 @@ const UserCard = () => {
                 </svg>
               </button>
             </div>
-            {/* Card Number */}
             <div>
               <label
                 htmlFor="cardNumber_details"
@@ -790,7 +752,6 @@ const UserCard = () => {
                 )}
               </div>
             </div>
-            {/* Cardholder Name */}
             <div>
               <label
                 htmlFor="cardHolderName_details"
@@ -809,7 +770,6 @@ const UserCard = () => {
                 required
               />
             </div>
-            {/* Expiry and CVV */}
             <div className="flex space-x-4">
               <div className="w-1/2">
                 <label
@@ -850,7 +810,6 @@ const UserCard = () => {
                 />
               </div>
             </div>
-            {/* Pay Button */}
             <button
               type="submit"
               className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-teal-500 rounded-md font-semibold text-white transition-opacity duration-300 disabled:opacity-50 shadow-lg hover:shadow-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 hover:opacity-90"

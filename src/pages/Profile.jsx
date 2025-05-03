@@ -70,6 +70,8 @@ const Profile = () => {
     indexOfLastTransaction
   );
   const totalPages = Math.ceil(transactions.length / TRANSACTIONS_PER_PAGE);
+
+  const language = localStorage.getItem("i18nextLng");
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -227,7 +229,13 @@ const Profile = () => {
         newEmail: newEmail,
         password: currentPasswordEmail,
       });
-      setSuccessMessage(t(response.data.message || "success_email_changed"));
+
+      if(language === "hu"){
+        setSuccessMessage(response.data.messageHU);
+      }
+      else{
+        setSuccessMessage(response.data.message);
+      }
       setUserDetails((prevDetails) => ({ ...prevDetails, email: newEmail }));
       setCurrentPasswordEmail("");
       setShowCurrentPasswordEmail(false);
@@ -273,8 +281,13 @@ const Profile = () => {
       const response = await axiosInstance.put("/user/changepassword", {
         oldPassword: oldPassword,
         newPassword: newPassword,
+        newPasswordConfirmation: confirmNewPassword,
       });
-      setSuccessMessage(t(response.data.message || "success_password_changed"));
+      if (language === "hu"){
+        setSuccessMessage(response.data.messageHU);
+      }else{
+        setSuccessMessage(response.data.message);
+      }
       setOldPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
@@ -314,9 +327,12 @@ const Profile = () => {
       const response = await axiosInstance.put("/user/deactivate", {
         password: currentPasswordDeactivate,
       });
-      setSuccessMessage(
-        t(response.data.message || "success_account_deactivated")
-      );
+      if (language === "hu"){
+        setSuccessMessage(response.data.messageHU);
+      }
+      else{
+        setSuccessMessage(response.data.message);
+      }
       setTimeout(() => {
         logout();
       }, 1500);

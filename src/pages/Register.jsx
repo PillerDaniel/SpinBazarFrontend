@@ -50,6 +50,7 @@ const Register = () => {
     }
 
     const formattedBirthDate = formatDate(birthDate);
+    const language = localStorage.getItem("i18nextLng") || "en";
 
     try {
       const response = await axiosInstance.post("/auth/register", {
@@ -63,7 +64,11 @@ const Register = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.userName);
 
-      setSuccessMessage(t('register_success_message'));
+      if (language === "hu") {
+        setSuccessMessage(response.data.messageHU);
+      }else {
+        setSuccessMessage(response.data.message);
+      }
 
       setTimeout(() => {
         login(response.data.token, response.data.userName);

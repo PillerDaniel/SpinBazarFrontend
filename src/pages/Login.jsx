@@ -29,21 +29,29 @@ const Login = () => {
       setError(t('login_error_message'));
       return;
     }
+    const language = localStorage.getItem("i18nextLng") || "en";
 
     try {
       const response = await axiosInstance.post("/auth/Login", { userName, password });
       login(response.data.token);
-      setSuccessMessage(t('login_success_message'));
+
+      if (language === "hu") {
+        setSuccessMessage(response.data.messageHU);
+      }else {
+        setSuccessMessage(response.data.message);
+      }
 
       setTimeout(() => {
         navigate("/");
       }, 500);
     } catch (err) {
       if (err.response && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError(t('login_error_message_2'));
-      }
+        if (language === "hu") {
+          setError(err.response.data.messageHU);
+        }else {
+          setError(err.response.data.message);
+        }
+      } 
     }
   };
 
