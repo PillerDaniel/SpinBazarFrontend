@@ -9,7 +9,6 @@ const axiosInstance = axios.create({
   withCredentials: true, 
 });
 
-// --- Request Interceptor ---
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -25,7 +24,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// --- Response Interceptor ---
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -48,7 +46,6 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     
     if (error.response?.status === 403) {
-      console.log("Received 403 Forbidden, logging out user");
       removeToken();
       window.location = '/login';
       return Promise.reject(error);
@@ -61,12 +58,10 @@ axiosInstance.interceptors.response.use(
     ) {
 
       if (isRefreshing) {
-        console.log("Refresh already in progress, queueing request:", originalRequest.url);
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            console.log("Retrying queued request with new token:", originalRequest.url);
             originalRequest.headers["Authorization"] = "Bearer " + token;
             return axiosInstance(originalRequest); 
           })
@@ -75,7 +70,6 @@ axiosInstance.interceptors.response.use(
           });
       }
 
-      console.log("Received 401, attempting token refresh...");
       originalRequest._retry = true; 
       isRefreshing = true;
 
@@ -83,7 +77,6 @@ axiosInstance.interceptors.response.use(
         const { data } = await axiosInstance.post("/auth/refresh");
 
         const newAccessToken = data.token; 
-        console.log("Token refreshed successfully.");
         setToken(newAccessToken); 
 
         axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
@@ -91,7 +84,6 @@ axiosInstance.interceptors.response.use(
         processQueue(null, newAccessToken);
 
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        console.log("Retrying original request with new token:", originalRequest.url);
         return axiosInstance(originalRequest);
 
       } catch (refreshError) {
@@ -101,7 +93,6 @@ axiosInstance.interceptors.response.use(
         isRefreshing = false;
 
         window.location = '/login';
-        console.log("Redirecting to login due to refresh failure...");
 
         return Promise.reject(refreshError);
       } 

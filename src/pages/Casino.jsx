@@ -102,7 +102,6 @@ const Casino = () => {
         </div>
       </div>
       
-      {/* Games Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {filteredGames.map(game => (
           <div key={game.id} className="flex flex-col items-center">
@@ -117,14 +116,12 @@ const Casino = () => {
         ))}
       </div>
       
-      {/* No Results Message */}
       {filteredGames.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-400 text-xl">No games found. Try a different search or category.</p>
         </div>
       )}
       
-      {/* Features Section */}
       <div className="mt-16 mb-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
         <div className="bg-gray-800 p-6 rounded-lg">
           <div className="text-blue-500 text-4xl mb-4">🎯</div>

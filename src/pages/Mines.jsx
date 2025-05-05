@@ -323,7 +323,6 @@ const Mines = () => {
         { game, betAmount, winAmount },
         { withCredentials: true }
       );
-      console.log("Game history added: Mines");
     } catch (err) {
       console.error("Error adding game history:", err);
     }

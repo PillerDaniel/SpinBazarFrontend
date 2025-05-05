@@ -651,7 +651,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Transactions Table */}
                 <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
                     <h2 className="text-lg font-semibold text-white">

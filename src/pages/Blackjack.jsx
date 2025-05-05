@@ -305,7 +305,6 @@ const Blackjack = () => {
         { game, betAmount, winAmount },
         { withCredentials: true }
       );
-      console.log("Game history added successfully.");
     } catch (err) {
       console.error("Failed to add game history:", err);
     }

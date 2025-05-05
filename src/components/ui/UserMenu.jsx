@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // useEffect eltávolítva, ha nincs rá szükség
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -10,9 +10,9 @@ import {
   BarChartHorizontal,
   Settings,
   LogOut as LogOutIcon,
-  Wallet, // Wallet ikon importálva, de nincs használva a kódban
+  Wallet,
 } from "lucide-react";
-import Logo from "../../assets/img/SpinBazar.svg"; // Ellenőrizd az útvonalat
+import Logo from "../../assets/img/SpinBazar.svg";
 
 const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
     if (path) {
       navigate(path);
     }
-    onClose(); // Menü bezárása navigáció után
+    onClose();
   };
 
   const handleSettingsClick = () => {
@@ -37,9 +37,8 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
     setWarningMessage("");
   };
 
-   // Extra: Kezeljük a háttérre kattintást a menü bezárásához (Overlay)
+
    const handleOverlayClick = (e) => {
-       // Csak akkor zárjuk be, ha magára az overlay-re kattintottak, nem a menüre
        if (e.target === e.currentTarget) {
            onClose();
        }
@@ -49,11 +48,10 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
   return (
     ReactDOM.createPortal(
     <>
-      {/* Overlay a menü mögött */}
       <div
          className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300
                     ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-         onClick={handleOverlayClick} // Kattintás kezelő az overlay-en
+         onClick={handleOverlayClick}
          aria-hidden="true"
       />
 
@@ -74,20 +72,18 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
                    }`}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="user-menu-title" // Adjunk egy látható címet is, ha van (pl. h2 id="user-menu-title")
+        aria-labelledby="user-menu-title"
         aria-hidden={!isOpen}
       >
-        {/* --- Menu Header --- */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 flex-shrink-0">
-          {/* Javított link/gomb a logóhoz */}
-          <button // Gombot használunk, ha nincs href és csak onClick van
+          <button
             className="inline-flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500 rounded" // Fókusz stílus
             onClick={() => {
-              // Nincs szükség e.preventDefault()-ra button esetén
+
               navigate("/");
-              onClose(); // Menü bezárása a főoldalra navigálás után
+              onClose();
             }}
-            aria-label={t('go_to_homepage_aria', 'Go to homepage')} // Hozzáférhetőség
+            aria-label={t('go_to_homepage_aria', 'Go to homepage')}
           >
             <img src={Logo} className="h-8" alt="Spinbazar Logo" />
           </button>
@@ -99,9 +95,7 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
           </button>
         </div>
 
-        {/* --- Menu Content --- */}
         <div className="flex-grow p-4 pb-16 overflow-y-auto">
-          {/* Profil Szekció */}
           <ul className="space-y-1 font-medium">
             <li>
               <button
@@ -116,7 +110,6 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
 
           <hr className="my-4 border-slate-700/50" />
 
-          {/* Általános Szekció */}
           <ul className="space-y-1 font-medium">
             <li>
               <button
@@ -138,7 +131,6 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
             </li>
           </ul>
 
-          {/* Admin Szekció */}
           {isAdmin && (
             <>
               <hr className="my-4 border-slate-700/50" />
@@ -159,7 +151,6 @@ const UserMenu = ({ isOpen, onClose, onLogout, userRole }) => {
           )}
         </div>
 
-        {/* Logout */}
         <div className="p-4 mt-auto border-t border-slate-700/50 flex-shrink-0">
           <button
             onClick={() => {

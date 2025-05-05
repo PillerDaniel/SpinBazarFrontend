@@ -53,7 +53,6 @@ const GameStatistics = () => {
           }
         );
 
-        console.log("API Response:", response.data);
         const historyData = response.data.history || [];
         setHistory(historyData);
 

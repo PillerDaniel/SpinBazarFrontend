@@ -70,7 +70,6 @@ const AdminDashboard = () => {
 const language = localStorage.getItem("i18nextLng");
 
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
@@ -115,7 +114,6 @@ const language = localStorage.getItem("i18nextLng");
     fetchUsers();
   }, []);
 
-  // Filter users
   useEffect(() => {
     let filtered = users;
     if (selectedRole && selectedRole !== t("adminDashboard.filters.allRoles")) {
@@ -135,7 +133,7 @@ const language = localStorage.getItem("i18nextLng");
       );
     }
     setFilteredUsers(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchQuery, selectedRole, users, t]);
 
   // Get current users for pagination
@@ -296,7 +294,6 @@ const language = localStorage.getItem("i18nextLng");
     } catch (err) {
       setLoading(false);
       if (err.response && err.response.data.message) {
-        console.log(language);
         if (language === "hu") {
           setError(err.response.data.messageHU);
         }else {

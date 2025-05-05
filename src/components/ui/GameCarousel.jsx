@@ -9,19 +9,18 @@ const GameCarousel = ({ games }) => {
   const [visibleGames, setVisibleGames] = useState([]);
   const [visibleCount, setVisibleCount] = useState(6);
 
-  //games based on screen size
   useEffect(() => {
     const handleResize = () => {
  if (window.innerWidth < 768) {
-        setVisibleCount(2); // Small tablets and phones
+        setVisibleCount(2);
       } else if (window.innerWidth < 1024) {
-        setVisibleCount(3); // Tablets
+        setVisibleCount(3);
       } else {
-        setVisibleCount(6); // Desktop
+        setVisibleCount(6);
       }
     };
 
-    handleResize(); // Set initial value
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

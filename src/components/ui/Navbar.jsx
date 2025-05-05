@@ -161,7 +161,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Jobb oldali elemek (Bejelentkezés/Regisztráció) */}
         <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 rtl:space-x-reverse">
           <button
             onClick={openAlertModal}
