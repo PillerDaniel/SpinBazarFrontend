@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -17,34 +18,12 @@ import {
 } from "react-icons/fa";
 import {
   Card,
-  Table,
   Badge,
   Dropdown,
   Spinner,
   Modal,
   Button,
 } from "flowbite-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
@@ -67,8 +46,7 @@ const AdminDashboard = () => {
     role: "",
   });
 
-const language = localStorage.getItem("i18nextLng");
-
+  const language = localStorage.getItem("i18nextLng");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
@@ -136,12 +114,10 @@ const language = localStorage.getItem("i18nextLng");
     setCurrentPage(1);
   }, [searchQuery, selectedRole, users, t]);
 
-  // Get current users for pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () => {
     if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
@@ -192,20 +168,19 @@ const language = localStorage.getItem("i18nextLng");
       setUsers(updatedUsers);
       if (language === "hu") {
         setSuccess(response.data.messageHU);
-      }else{
+      } else {
         setSuccess(response.data.message);
       }
       setLoading(false);
-    } catch (err
-    ) {
+    } catch (err) {
       setLoading(false);
       if (err.response && err.response.data.message) {
         if (language === "hu") {
           setError(err.response.data.messageHU);
-        }else {
+        } else {
           setError(err.response.data.message);
         }
-      } 
+      }
     }
   };
 
@@ -287,7 +262,7 @@ const language = localStorage.getItem("i18nextLng");
       setUsers(updatedUsers);
       if (language === "hu") {
         setSuccess(response.data.messageHU);
-      }else {
+      } else {
         setSuccess(response.data.message);
       }
       setLoading(false);
@@ -296,10 +271,10 @@ const language = localStorage.getItem("i18nextLng");
       if (err.response && err.response.data.message) {
         if (language === "hu") {
           setError(err.response.data.messageHU);
-        }else {
+        } else {
           setError(err.response.data.message);
         }
-      } 
+      }
     }
   };
 
@@ -323,7 +298,7 @@ const language = localStorage.getItem("i18nextLng");
       setUsers(updatedUsers);
       if (language === "hu") {
         setSuccess(response.data.messageHU);
-      }else {
+      } else {
         setSuccess(response.data.message);
       }
       setLoading(false);
@@ -332,10 +307,10 @@ const language = localStorage.getItem("i18nextLng");
       if (err.response && err.response.data.message) {
         if (language === "hu") {
           setError(err.response.data.messageHU);
-        }else {
+        } else {
           setError(err.response.data.message);
         }
-      } 
+      }
     }
   };
 
@@ -356,129 +331,128 @@ const language = localStorage.getItem("i18nextLng");
       <main className="flex-grow px-4 md:px-8 lg:px-12 py-6 md:py-10 max-w-screen-2xl mx-auto w-full mb-15 mt-20">
         {!loading && !searchQuery && stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium mb-1">
-                    {t("adminDashboard.totalUsers")}
-                  </p>
-                  <h3 className="text-3xl font-bold text-white">
-                    {stats.totalUsers}
-                  </h3>
-                </div>
-                <div className="p-3 rounded-full bg-blue-600/20 text-blue-400">
-                  <FaUsers className="h-6 w-6" />
-                </div>
-              </div>
-            </Card>
+             <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-gray-400 text-sm font-medium mb-1">
+                     {t("adminDashboard.totalUsers")}
+                   </p>
+                   <h3 className="text-3xl font-bold text-white">
+                     {stats.totalUsers}
+                   </h3>
+                 </div>
+                 <div className="p-3 rounded-full bg-blue-600/20 text-blue-400">
+                   <FaUsers className="h-6 w-6" />
+                 </div>
+               </div>
+             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium mb-1">
-                    {t("adminDashboard.adminUsers")}
-                  </p>
-                  <h3 className="text-3xl font-bold text-white">
-                    {stats.adminUsers}
-                  </h3>
-                </div>
-                <div className="p-3 rounded-full bg-green-600/20 text-green-400">
-                  <FaUserShield className="h-6 w-6" />
-                </div>
-              </div>
-            </Card>
+             <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-gray-400 text-sm font-medium mb-1">
+                     {t("adminDashboard.adminUsers")}
+                   </p>
+                   <h3 className="text-3xl font-bold text-white">
+                     {stats.adminUsers}
+                   </h3>
+                 </div>
+                 <div className="p-3 rounded-full bg-green-600/20 text-green-400">
+                   <FaUserShield className="h-6 w-6" />
+                 </div>
+               </div>
+             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium mb-1">
-                    {t("adminDashboard.activeUsers", "Active Users")}
-                  </p>
-                  <h3 className="text-3xl font-bold text-white">
-                    {stats.activeUsers}
-                  </h3>
-                </div>
-                <div className="p-3 rounded-full bg-teal-600/20 text-teal-400">
-                  <FaUserCheck className="h-6 w-6" />
-                </div>
-              </div>
-            </Card>
+             <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-gray-400 text-sm font-medium mb-1">
+                     {t("adminDashboard.activeUsers", "Active Users")}
+                   </p>
+                   <h3 className="text-3xl font-bold text-white">
+                     {stats.activeUsers}
+                   </h3>
+                 </div>
+                 <div className="p-3 rounded-full bg-teal-600/20 text-teal-400">
+                   <FaUserCheck className="h-6 w-6" />
+                 </div>
+               </div>
+             </Card>
 
-            <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium mb-1">
-                    {t("adminDashboard.suspendedUsers", "Suspended Users")}
-                  </p>
-                  <h3 className="text-3xl font-bold text-white">
-                    {stats.suspendedUsers}
-                  </h3>
-                </div>
-                <div className="p-3 rounded-full bg-red-600/20 text-red-400">
-                  <FaUserSlash className="h-6 w-6" />
-                </div>
-              </div>
-            </Card>
+             <Card className="hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-800 to-gray-900 border-0 shadow-lg">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-gray-400 text-sm font-medium mb-1">
+                     {t("adminDashboard.suspendedUsers", "Suspended Users")}
+                   </p>
+                   <h3 className="text-3xl font-bold text-white">
+                     {stats.suspendedUsers}
+                   </h3>
+                 </div>
+                 <div className="p-3 rounded-full bg-red-600/20 text-red-400">
+                   <FaUserSlash className="h-6 w-6" />
+                 </div>
+               </div>
+             </Card>
           </div>
         )}
 
         <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
-          <div className="w-full sm:w-auto relative">
-            <style jsx>{`
-              /* Custom styles to override dropdown width */
-              :global(.dropdown-menu) {
-                width: auto !important;
-                min-width: fit-content !important;
-                max-width: 200px !important;
-              }
+           <div className="w-full sm:w-auto relative">
+             <style jsx={true.toString()}>{`
+               :global(.dropdown-menu) {
+                 width: auto !important;
+                 min-width: fit-content !important;
+                 max-width: 200px !important;
+               }
 
-              :global(.dropdown-item) {
-                white-space: nowrap !important;
-              }
-            `}</style>
+               :global(.dropdown-item) {
+                 white-space: nowrap !important;
+               }
+             `}</style>
 
-            <Dropdown
-              label={
-                <div className="flex items-center">
-                  <FaFilter className="mr-2" />
-                  <span>
-                    {selectedRole || t("adminDashboard.filters.allRoles")}
-                  </span>
-                </div>
-              }
-              color="dark"
-              className="w-full border-2 rounded-lg"
-            >
-              <Dropdown.Item onClick={() => filterByRole("")}>
-                {t("adminDashboard.filters.allRoles")}
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => filterByRole("admin")}>
-                {t("adminDashboard.filters.admin")}
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => filterByRole("user")}>
-                {t("adminDashboard.filters.user")}
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
-                {t("adminDashboard.filters.suspended")}
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
-                {t("adminDashboard.filters.active")}
-              </Dropdown.Item>
-            </Dropdown>
-          </div>
+             <Dropdown
+               label={
+                 <div className="flex items-center">
+                   <FaFilter className="mr-2" />
+                   <span>
+                     {selectedRole || t("adminDashboard.filters.allRoles")}
+                   </span>
+                 </div>
+               }
+               color="dark"
+               className="w-full border-2 rounded-lg"
+             >
+               <Dropdown.Item onClick={() => filterByRole("")}>
+                 {t("adminDashboard.filters.allRoles")}
+               </Dropdown.Item>
+               <Dropdown.Item onClick={() => filterByRole("admin")}>
+                 {t("adminDashboard.filters.admin")}
+               </Dropdown.Item>
+               <Dropdown.Item onClick={() => filterByRole("user")}>
+                 {t("adminDashboard.filters.user")}
+               </Dropdown.Item>
+               <Dropdown.Item onClick={() => filterByActiveStatus(false)}>
+                 {t("adminDashboard.filters.suspended")}
+               </Dropdown.Item>
+               <Dropdown.Item onClick={() => filterByActiveStatus(true)}>
+                 {t("adminDashboard.filters.active")}
+               </Dropdown.Item>
+             </Dropdown>
+           </div>
 
-          <div className="relative w-full sm:flex-1">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <FaSearch className="text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Search..."
-              className="w-full pl-10 p-2.5 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:ring-blue-500 focus:border-blue-500 transition-all"
-            />
-          </div>
+           <div className="relative w-full sm:flex-1">
+             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+               <FaSearch className="text-gray-400" />
+             </div>
+             <input
+               type="text"
+               value={searchQuery}
+               onChange={handleSearchChange}
+               placeholder="Search..."
+               className="w-full pl-10 p-2.5 rounded-lg bg-gray-700/50 text-white border border-gray-600 focus:ring-blue-500 focus:border-blue-500 transition-all"
+             />
+           </div>
         </div>
 
         {loading ? (
@@ -486,61 +460,82 @@ const language = localStorage.getItem("i18nextLng");
             <Spinner size="xl" color="purple" />
           </div>
         ) : (
-          <Card className="overflow-hidden bg-gray-800/50 border-gray-700 shadow-xl">
+          <Card className="overflow-hidden bg-gray-800/50 border-gray-700 shadow-xl rounded-3xl">
             <div className="overflow-x-auto">
-              <Table striped>
-                <Table.Head>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.username")}
-                  </Table.HeadCell>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.email")}
-                  </Table.HeadCell>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.role")}
-                  </Table.HeadCell>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.joined")}
-                  </Table.HeadCell>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.status")}
-                  </Table.HeadCell>
-                  <Table.HeadCell className="bg-gray-700/70 text-gray-200">
-                    {t("adminDashboard.userTable.actions")}
-                  </Table.HeadCell>
-                </Table.Head>
-
-                <Table.Body className="divide-y divide-gray-700">
+              <table className="min-w-full divide-y divide-gray-700">
+                <thead>
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.username")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.email")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.role")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.joined")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.status")}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider bg-gray-700/70"
+                    >
+                      {t("adminDashboard.userTable.actions")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-700">
                   {currentUsers.length > 0 ? (
-                    currentUsers.map((user) => (
-                      <Table.Row
+                    currentUsers.map((user, index) => (
+                      <tr
                         key={user._id}
-                        className="bg-gray-800/30 hover:bg-gray-700/30 transition-colors"
+                        className={`${
+                          index % 2 === 0 ? "bg-gray-800/40" : "bg-gray-900/50"
+                        } hover:bg-gray-700/60 transition-colors`}
                       >
-                        <Table.Cell className="whitespace-nowrap font-medium text-white">
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-white">
                           {user.userName}
-                        </Table.Cell>
-                        <Table.Cell className="text-gray-300">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-300">
                           {user.email}
-                        </Table.Cell>
-                        <Table.Cell>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <Badge
                             color={user.role === "admin" ? "success" : "info"}
                             className="font-semibold"
                           >
                             {user.role || t("adminDashboard.filters.user")}
                           </Badge>
-                        </Table.Cell>
-                        <Table.Cell className="text-gray-300">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-300">
                           {formatDate(user.createdAt)}
-                        </Table.Cell>
-                        <Table.Cell>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           {user.isActive ? (
                             <Badge
                               color="success"
                               className="flex items-center gap-1"
                             >
-                              <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2"></span>
+                              <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-1"></span>
                               {t("adminDashboard.status.active")}
                             </Badge>
                           ) : (
@@ -548,12 +543,12 @@ const language = localStorage.getItem("i18nextLng");
                               color="failure"
                               className="flex items-center gap-1"
                             >
-                              <span className="w-2 h-2 rounded-full bg-red-400 inline-block mr-2"></span>
+                              <span className="w-2 h-2 rounded-full bg-red-400 inline-block mr-1"></span>
                               {t("adminDashboard.status.suspended")}
                             </Badge>
                           )}
-                        </Table.Cell>
-                        <Table.Cell>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex gap-2">
                             <button
                               className="px-2 py-1 text-xs font-medium rounded-md bg-purple-600/20 text-purple-400 hover:bg-purple-600/40 transition-colors"
@@ -590,26 +585,25 @@ const language = localStorage.getItem("i18nextLng");
                               </button>
                             )}
                           </div>
-                        </Table.Cell>
-                      </Table.Row>
+                        </td>
+                      </tr>
                     ))
                   ) : (
-                    <Table.Row className="bg-gray-800/30">
-                      <Table.Cell
+                    <tr>
+                      <td
                         colSpan={6}
-                        className="text-center py-8 text-gray-400"
+                        className="px-6 py-8 text-center text-gray-400"
                       >
                         <div className="flex flex-col items-center">
                           <FaSearch className="w-8 h-8 mb-2 opacity-30" />
                           <p>{t("adminDashboard.userTable.noUsers")}</p>
                         </div>
-                      </Table.Cell>
-                    </Table.Row>
+                      </td>
+                    </tr>
                   )}
-                </Table.Body>
-              </Table>
+                </tbody>
+              </table>
             </div>
-
             {filteredUsers.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-gray-700">
                 <div className="text-sm text-gray-400 mb-4 sm:mb-0">
